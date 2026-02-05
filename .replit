@@ -37,3 +37,8 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[userenv]
+
+[userenv.shared]
+JWT_SECRET = "38797170b4084b8046d38dfe639f02917a2e34555bfcaadea3e4c5206e7adbcab868834438e67d3077b32ba0331f4e69409720817cac1bf9fdbe6332e6279514"
