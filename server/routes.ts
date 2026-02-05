@@ -202,16 +202,12 @@ export async function registerRoutes(
       }
 
       const owner = req.user!;
-      if (!owner.stripeCustomerId || !owner.stripePaymentMethodId) {
-        return res.status(400).json({ error: "Please add a payment method first" });
-      }
-
       const { token, tokenRecord } = await createDelegatedToken(
         owner.id,
         parsed.data.agentName,
         parsed.data.scopes,
         parsed.data.limits,
-        owner.stripeCustomerId,
+        owner.stripeCustomerId || "",
         parsed.data.expiresInDays
       );
 

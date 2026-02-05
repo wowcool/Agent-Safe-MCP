@@ -120,7 +120,7 @@ export default function Dashboard() {
     onError: (error: Error) => {
       toast({
         title: "Failed to create token",
-        description: error.message.includes("400") ? "Please add a payment method first" : error.message,
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -213,14 +213,14 @@ export default function Dashboard() {
         </div>
 
         {!user.hasPaymentMethod && (
-          <Card className="mb-6 border-warning bg-warning/5">
+          <Card className="mb-6 border-primary/30 bg-primary/5">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <CreditCard className="h-5 w-5" />
-                Add Payment Method
+                Set Up Payment
               </CardTitle>
               <CardDescription>
-                Add a payment method to create API tokens for your agents
+                Add a payment method to enable your agents to use the email safety API. You can create tokens now, but they won't work until payment is configured.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -319,7 +319,6 @@ export default function Dashboard() {
                 <DialogTrigger asChild>
                   <Button 
                     size="sm" 
-                    disabled={!user.hasPaymentMethod}
                     data-testid="button-new-token"
                   >
                     <Plus className="h-4 w-4 mr-2" />
