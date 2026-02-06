@@ -12,15 +12,17 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-background/80 backdrop-blur-md sticky top-0 z-[999] border-b border-border/30">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Shield className="h-7 w-7 text-primary" />
-            <span className="font-bold text-lg tracking-tight">Safe Message</span>
-          </div>
+      <header className="bg-black/60 backdrop-blur-[10px] sticky top-0 z-[999]">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between gap-4">
+          <Link href="/">
+            <div className="flex items-center gap-2.5 cursor-pointer">
+              <Shield className="h-6 w-6 text-white" />
+              <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
+            </div>
+          </Link>
           <div className="flex items-center gap-3 flex-wrap">
             <Link href="/login">
-              <Button variant="ghost" data-testid="link-login">Log in</Button>
+              <Button variant="ghost" className="text-white/80" data-testid="link-login">Log in</Button>
             </Link>
             <Link href="/signup">
               <Button data-testid="button-signup">Get Started</Button>
@@ -31,7 +33,7 @@ export default function Landing() {
 
       <section className="relative py-28 md:py-40 px-4 overflow-visible">
         <div className="absolute inset-0 pointer-events-none" style={{
-          background: "radial-gradient(ellipse 60% 50% at 50% 30%, hsl(200 70% 50% / 0.08), transparent)"
+          background: "radial-gradient(ellipse 60% 50% at 50% 30%, rgba(16, 106, 243, 0.08), transparent)"
         }} />
         <div className="container mx-auto max-w-4xl text-center relative z-10">
           <Badge variant="secondary" className="mb-8" data-testid="badge-mcp">
@@ -275,16 +277,40 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer className="py-12 px-4 border-t border-border/30 bg-background">
+      <footer className="relative py-16 px-6" style={{ background: "linear-gradient(180deg, #0a1628 0%, #030a14 100%)", borderTop: "1px solid rgba(16, 106, 243, 0.3)" }}>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4/5 h-px" style={{ background: "linear-gradient(90deg, transparent 0%, rgba(16, 106, 243, 0.6) 50%, transparent 100%)" }} />
         <div className="container mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
-              <Shield className="h-6 w-6 text-primary" />
-              <span className="font-bold tracking-tight">Safe Message</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            <div>
+              <Link href="/">
+                <div className="flex items-center gap-2.5 mb-4 cursor-pointer">
+                  <Shield className="h-5 w-5 text-white" />
+                  <span className="text-white font-semibold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
+                </div>
+              </Link>
+              <p className="text-white/80 text-sm leading-relaxed max-w-xs" data-testid="text-footer-tagline">
+                Safe Message protects AI agents from phishing, social engineering, and manipulation attempts.
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground" data-testid="text-footer-tagline">
-              Part of the Anti-Deepfake/Agent Abuse protection suite
-            </p>
+            <div>
+              <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">THE SERVICE</h4>
+              <ul className="space-y-2">
+                <li><Link href="/docs" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-docs">Documentation</Link></li>
+                <li><Link href="/signup" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-signup">Get Started</Link></li>
+                <li><Link href="/login" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-login">Sign In</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">COMPANY</h4>
+              <ul className="space-y-2">
+                <li><a href="https://locationledger.com" target="_blank" rel="noopener" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-parent">Location Ledger</a></li>
+                <li><a href="https://support.locationledger.com" target="_blank" rel="noopener" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-support">Support</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="pt-8 flex flex-wrap items-center justify-between gap-4" style={{ borderTop: "1px solid #232323" }}>
+            <p className="text-white/50 text-sm" data-testid="text-copyright">Part of the Anti-Deepfake/Agent Abuse protection suite</p>
+            <p className="text-white/40 text-xs">ALIBI LEDGER, LLC</p>
           </div>
         </div>
       </footer>

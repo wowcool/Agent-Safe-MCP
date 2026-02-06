@@ -128,8 +128,8 @@ switch (result.recommendation) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-background/80 backdrop-blur-md border-b border-border/30 sticky top-0 z-[100]">
-        <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
+      <header className="bg-black/60 backdrop-blur-[10px] sticky top-0 z-[100]">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/">
               <Button variant="ghost" size="icon" data-testid="button-back">
@@ -137,12 +137,12 @@ switch (result.recommendation) {
               </Button>
             </Link>
             <Link href="/">
-              <div className="flex items-center gap-2 cursor-pointer">
-                <Shield className="h-7 w-7 text-primary" />
-                <span className="font-bold text-lg text-foreground">Safe Message</span>
+              <div className="flex items-center gap-2.5 cursor-pointer">
+                <Shield className="h-6 w-6 text-white" />
+                <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
               </div>
             </Link>
-            <span className="text-muted-foreground">Documentation</span>
+            <span className="text-white/50">Documentation</span>
           </div>
         </div>
       </header>

@@ -59,14 +59,14 @@ export function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background relative">
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: "radial-gradient(ellipse 60% 50% at 50% 30%, hsl(200 70% 50% / 0.08), transparent)"
+        background: "radial-gradient(ellipse 60% 50% at 50% 30%, rgba(16, 106, 243, 0.08), transparent)"
       }} />
       <Card className="w-full max-w-md relative z-10">
         <CardHeader className="text-center">
           <Link href="/">
             <div className="flex items-center justify-center gap-2 mb-4 cursor-pointer">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl text-foreground">Safe Message</span>
+              <Shield className="h-6 w-6 text-white" />
+              <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
             </div>
           </Link>
           <CardTitle>Welcome back</CardTitle>
@@ -171,14 +171,14 @@ export function Signup() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background relative">
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: "radial-gradient(ellipse 60% 50% at 50% 30%, hsl(200 70% 50% / 0.08), transparent)"
+        background: "radial-gradient(ellipse 60% 50% at 50% 30%, rgba(16, 106, 243, 0.08), transparent)"
       }} />
       <Card className="w-full max-w-md relative z-10">
         <CardHeader className="text-center">
           <Link href="/">
             <div className="flex items-center justify-center gap-2 mb-4 cursor-pointer">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl text-foreground">Safe Message</span>
+              <Shield className="h-6 w-6 text-white" />
+              <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
             </div>
           </Link>
           <CardTitle>Create your account</CardTitle>
