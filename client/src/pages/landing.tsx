@@ -2,14 +2,9 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useQuery } from "@tanstack/react-query";
 import { Shield, Bot, CreditCard, Zap, Lock, BarChart3, CheckCircle2, AlertTriangle, Eye } from "lucide-react";
 
 export default function Landing() {
-  const { data: stats } = useQuery<{ agentsServed: number; threatsBlocked: number; totalChecks: number }>({
-    queryKey: ["/api/public/stats"],
-  });
-
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-black/60 backdrop-blur-[10px] sticky top-0 z-[999]">
@@ -248,32 +243,6 @@ export default function Landing() {
               </Link>
             </CardContent>
           </Card>
-        </div>
-      </section>
-
-      <section className="py-20 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center tracking-tight mb-16" data-testid="text-stats-heading">
-            Trusted by Agents Worldwide
-          </h2>
-          <div className="grid grid-cols-3 gap-8">
-            <div className="text-center" data-testid="stat-agents">
-              <div className="text-4xl md:text-5xl font-bold text-foreground mb-2">
-                {stats?.agentsServed || 0}+
-              </div>
-              <div className="text-sm text-muted-foreground">Agents Protected</div>
-            </div>
-            <div className="text-center" data-testid="stat-threats">
-              <div className="text-4xl md:text-5xl font-bold text-foreground mb-2">
-                {stats?.threatsBlocked || 0}+
-              </div>
-              <div className="text-sm text-muted-foreground">Threats Blocked</div>
-            </div>
-            <div className="text-center" data-testid="stat-uptime">
-              <div className="text-4xl md:text-5xl font-bold text-foreground mb-2">99.9%</div>
-              <div className="text-sm text-muted-foreground">Uptime</div>
-            </div>
-          </div>
         </div>
       </section>
 
