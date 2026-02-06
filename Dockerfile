@@ -16,7 +16,6 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/migrations ./migrations
 
 ENV NODE_ENV=production
 ENV PORT=8080
