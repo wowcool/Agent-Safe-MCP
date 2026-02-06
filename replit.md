@@ -1,10 +1,19 @@
-# SafeMessage MCP Service
+# Safe Message MCP Service
 
 ## Project Overview
 
-SafeMessage MCP is an email safety verification service designed for AI agents. It's part of an Anti-Deepfake/Agent Abuse suite that protects agents (and their owners) from phishing, social engineering, and manipulation attempts.
+Safe Message MCP is an email safety verification service designed for AI agents. It's part of an Anti-Deepfake/Agent Abuse suite that protects agents (and their owners) from phishing, social engineering, and manipulation attempts.
 
 **Key Innovation:** Agents are first-class customers who can discover, register, and pay autonomously.
+
+## Design
+
+- **Theme:** Dark premium aesthetic matching LocationLedger.com
+- **Colors:** Very dark backgrounds (#0f1012), white text, muted blue accent (hsl 200 70% 50%)
+- **Font:** Inter, system-ui, sans-serif
+- **Brand name:** "Safe Message" (with space)
+- **Header:** Sticky, backdrop-blur, subtle bottom border
+- **Footer:** Dark, minimal, with logo and tagline
 
 ## Quick Start
 
