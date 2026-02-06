@@ -128,34 +128,36 @@ switch (result.recommendation) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card/50 sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center gap-4">
-          <Link href="/">
-            <Button variant="ghost" size="icon" data-testid="button-back">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <Link href="/">
-            <div className="flex items-center gap-2 cursor-pointer">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl">SafeMessage</span>
-            </div>
-          </Link>
-          <span className="text-muted-foreground">Documentation</span>
+      <header className="bg-background/80 backdrop-blur-md border-b border-border/30 sticky top-0 z-[100]">
+        <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link href="/">
+              <Button variant="ghost" size="icon" data-testid="button-back">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            </Link>
+            <Link href="/">
+              <div className="flex items-center gap-2 cursor-pointer">
+                <Shield className="h-7 w-7 text-primary" />
+                <span className="font-bold text-lg text-foreground">Safe Message</span>
+              </div>
+            </Link>
+            <span className="text-muted-foreground">Documentation</span>
+          </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <h1 className="text-4xl font-bold mb-4">API Documentation</h1>
         <p className="text-xl text-muted-foreground mb-8">
-          Integrate SafeMessage email safety verification into your AI agents
+          Integrate Safe Message email safety verification into your AI agents
         </p>
 
         <div className="space-y-8">
           <Card>
             <CardHeader>
               <CardTitle>Quick Start</CardTitle>
-              <CardDescription>Get started with SafeMessage in minutes</CardDescription>
+              <CardDescription>Get started with Safe Message in minutes</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <ol className="list-decimal list-inside space-y-2">
@@ -181,7 +183,7 @@ switch (result.recommendation) {
                   Returns service information for MCP discovery. No authentication required.
                 </p>
                 <div className="relative">
-                  <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto">
+                  <pre className="bg-accent p-4 rounded-lg text-sm overflow-x-auto">
                     {discoverExample}
                   </pre>
                   <Button
@@ -205,7 +207,7 @@ switch (result.recommendation) {
                   Analyze an email for safety. Requires Bearer token authentication.
                 </p>
                 <div className="relative">
-                  <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto whitespace-pre-wrap">
+                  <pre className="bg-accent p-4 rounded-lg text-sm overflow-x-auto whitespace-pre-wrap">
                     {checkEmailExample}
                   </pre>
                   <Button
@@ -229,7 +231,7 @@ switch (result.recommendation) {
             </CardHeader>
             <CardContent>
               <div className="relative mb-4">
-                <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto">
+                <pre className="bg-accent p-4 rounded-lg text-sm overflow-x-auto">
                   {responseExample}
                 </pre>
                 <Button
@@ -275,7 +277,7 @@ switch (result.recommendation) {
                   <TabsTrigger value="javascript">JavaScript</TabsTrigger>
                 </TabsList>
                 <TabsContent value="python" className="relative">
-                  <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto mt-4">
+                  <pre className="bg-accent p-4 rounded-lg text-sm overflow-x-auto mt-4">
                     {pythonExample}
                   </pre>
                   <Button
@@ -289,7 +291,7 @@ switch (result.recommendation) {
                   </Button>
                 </TabsContent>
                 <TabsContent value="javascript" className="relative">
-                  <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto mt-4">
+                  <pre className="bg-accent p-4 rounded-lg text-sm overflow-x-auto mt-4">
                     {jsExample}
                   </pre>
                   <Button
@@ -314,7 +316,7 @@ switch (result.recommendation) {
               <p className="text-sm">
                 All API calls to protected endpoints require a Bearer token in the Authorization header:
               </p>
-              <pre className="bg-muted p-4 rounded-lg text-sm">
+              <pre className="bg-accent p-4 rounded-lg text-sm">
                 Authorization: Bearer sm_live_your_token_here
               </pre>
               <p className="text-sm text-muted-foreground">

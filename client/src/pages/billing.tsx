@@ -76,19 +76,19 @@ function PaymentForm({ clientSecret, onSuccess }: { clientSecret: string; onSucc
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="p-4 border rounded-lg bg-background">
+      <div className="p-4 border rounded-lg bg-accent">
         <CardElement
           options={{
             style: {
               base: {
                 fontSize: "16px",
-                color: "#424770",
+                color: "#e2e2e2",
                 "::placeholder": {
-                  color: "#aab7c4",
+                  color: "#6b7280",
                 },
               },
               invalid: {
-                color: "#9e2146",
+                color: "#ef4444",
               },
             },
           }}
@@ -153,7 +153,7 @@ export default function Billing() {
 
   if (userLoading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -161,19 +161,21 @@ export default function Billing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card/50 sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center gap-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="icon" data-testid="button-back">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <Link href="/">
-            <div className="flex items-center gap-2 cursor-pointer">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl">SafeMessage</span>
-            </div>
-          </Link>
+      <header className="bg-background/80 backdrop-blur-md border-b border-border/30 sticky top-0 z-[100]">
+        <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard">
+              <Button variant="ghost" size="icon" data-testid="button-back">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            </Link>
+            <Link href="/">
+              <div className="flex items-center gap-2 cursor-pointer">
+                <Shield className="h-7 w-7 text-primary" />
+                <span className="font-bold text-lg text-foreground">Safe Message</span>
+              </div>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -193,12 +195,12 @@ export default function Billing() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+              <div className="flex items-center gap-3 p-4 bg-accent rounded-lg">
                 <CreditCard className="h-6 w-6" />
                 <div>
                   <p className="font-medium">Credit Card</p>
                   <p className="text-sm text-muted-foreground">
-                    Your agents can now use SafeMessage and you'll be charged $0.05 per check
+                    Your agents can now use Safe Message and you'll be charged $0.05 per check
                   </p>
                 </div>
               </div>

@@ -57,13 +57,16 @@ export function Login() {
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background relative">
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: "radial-gradient(ellipse 60% 50% at 50% 30%, hsl(200 70% 50% / 0.08), transparent)"
+      }} />
+      <Card className="w-full max-w-md relative z-10">
         <CardHeader className="text-center">
           <Link href="/">
             <div className="flex items-center justify-center gap-2 mb-4 cursor-pointer">
               <Shield className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl">SafeMessage</span>
+              <span className="font-bold text-xl text-foreground">Safe Message</span>
             </div>
           </Link>
           <CardTitle>Welcome back</CardTitle>
@@ -152,7 +155,7 @@ export function Signup() {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       toast({
         title: "Account created!",
-        description: "Welcome to SafeMessage",
+        description: "Welcome to Safe Message",
       });
       setLocation("/dashboard");
     },
@@ -166,17 +169,20 @@ export function Signup() {
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background relative">
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: "radial-gradient(ellipse 60% 50% at 50% 30%, hsl(200 70% 50% / 0.08), transparent)"
+      }} />
+      <Card className="w-full max-w-md relative z-10">
         <CardHeader className="text-center">
           <Link href="/">
             <div className="flex items-center justify-center gap-2 mb-4 cursor-pointer">
               <Shield className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl">SafeMessage</span>
+              <span className="font-bold text-xl text-foreground">Safe Message</span>
             </div>
           </Link>
           <CardTitle>Create your account</CardTitle>
-          <CardDescription>Get started with SafeMessage protection</CardDescription>
+          <CardDescription>Get started with Safe Message protection</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>

@@ -183,15 +183,17 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card/50 sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-          <Link href="/">
-            <div className="flex items-center gap-2 cursor-pointer">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl">SafeMessage</span>
-            </div>
-          </Link>
-          <div className="flex items-center gap-4">
+      <header className="bg-background/80 backdrop-blur-md border-b border-border/30 sticky top-0 z-[100]">
+        <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link href="/">
+              <div className="flex items-center gap-2 cursor-pointer">
+                <Shield className="h-7 w-7 text-primary" />
+                <span className="font-bold text-lg text-foreground">Safe Message</span>
+              </div>
+            </Link>
+          </div>
+          <div className="flex items-center gap-4 flex-wrap">
             <span className="text-sm text-muted-foreground hidden sm:block">{user.email}</span>
             <Button 
               variant="ghost" 
@@ -232,7 +234,7 @@ export default function Dashboard() {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card>
+          <Card className="hover-elevate">
             <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Active Agents
@@ -250,7 +252,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover-elevate">
             <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Checks
@@ -268,7 +270,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover-elevate">
             <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Threats Blocked
@@ -286,7 +288,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover-elevate">
             <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Spent
@@ -329,12 +331,12 @@ export default function Dashboard() {
                   <DialogHeader>
                     <DialogTitle>Create API Token</DialogTitle>
                     <DialogDescription>
-                      Create a new token for your AI agent to use SafeMessage.
+                      Create a new token for your AI agent to use Safe Message.
                     </DialogDescription>
                   </DialogHeader>
                   {newToken ? (
                     <div className="space-y-4">
-                      <div className="p-4 bg-muted rounded-lg">
+                      <div className="p-4 bg-accent rounded-lg">
                         <Label className="text-sm text-muted-foreground">Your API Token</Label>
                         <div className="flex items-center gap-2 mt-2">
                           <code className="text-xs bg-background p-2 rounded flex-1 overflow-x-auto" data-testid="text-new-token">
@@ -473,7 +475,7 @@ export default function Dashboard() {
             <CardContent>
               {(recentChecks?.checks?.length || 0) === 0 ? (
                 <p className="text-muted-foreground text-center py-8">
-                  No checks yet. Your agents will appear here when they start using SafeMessage.
+                  No checks yet. Your agents will appear here when they start using Safe Message.
                 </p>
               ) : (
                 <Table>
