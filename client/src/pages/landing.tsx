@@ -12,8 +12,8 @@ export default function Landing() {
         <div className="container mx-auto px-6 h-16 flex items-center justify-between gap-4">
           <Link href="/">
             <div className="flex items-center gap-2.5 cursor-pointer">
-              <img src={logoImg} alt="Safe Message" className="h-6 w-6" />
-              <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
+              <img src={logoImg} alt="Agent Safe" className="h-6 w-6" />
+              <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Agent Safe</span>
             </div>
           </Link>
           <div className="flex items-center gap-3 flex-wrap">
@@ -39,7 +39,7 @@ export default function Landing() {
             AI Agents Are<br />Under Attack
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-            Safe Message verifies every email before your agent acts on it.
+            Agent Safe verifies every email before your agent acts on it.
           </p>
 
           <div className="space-y-3 mb-12 max-w-lg mx-auto">
@@ -254,12 +254,12 @@ export default function Landing() {
             <div>
               <Link href="/">
                 <div className="flex items-center gap-2.5 mb-4 cursor-pointer">
-                  <img src={logoImg} alt="Safe Message" className="h-5 w-5" />
-                  <span className="text-white font-semibold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
+                  <img src={logoImg} alt="Agent Safe" className="h-5 w-5" />
+                  <span className="text-white font-semibold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Agent Safe</span>
                 </div>
               </Link>
               <p className="text-white/80 text-sm leading-relaxed max-w-xs" data-testid="text-footer-tagline">
-                Safe Message protects AI agents from phishing, social engineering, and manipulation attempts.
+                Agent Safe protects AI agents from phishing, social engineering, and manipulation attempts.
               </p>
             </div>
             <div>

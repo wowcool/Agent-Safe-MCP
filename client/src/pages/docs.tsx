@@ -139,8 +139,8 @@ switch (result.recommendation) {
             </Link>
             <Link href="/">
               <div className="flex items-center gap-2.5 cursor-pointer">
-                <img src={logoImg} alt="Safe Message" className="h-6 w-6" />
-                <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
+                <img src={logoImg} alt="Agent Safe" className="h-6 w-6" />
+                <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Agent Safe</span>
               </div>
             </Link>
             <span className="text-white/50">Documentation</span>
@@ -151,14 +151,14 @@ switch (result.recommendation) {
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <h1 className="text-4xl font-bold mb-4">API Documentation</h1>
         <p className="text-xl text-muted-foreground mb-8">
-          Integrate Safe Message email safety verification into your AI agents
+          Integrate Agent Safe email safety verification into your AI agents
         </p>
 
         <div className="space-y-8">
           <Card>
             <CardHeader>
               <CardTitle>Quick Start</CardTitle>
-              <CardDescription>Get started with Safe Message in minutes</CardDescription>
+              <CardDescription>Get started with Agent Safe in minutes</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <ol className="list-decimal list-inside space-y-2">

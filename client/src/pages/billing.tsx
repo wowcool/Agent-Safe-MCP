@@ -172,8 +172,8 @@ export default function Billing() {
             </Link>
             <Link href="/">
               <div className="flex items-center gap-2.5 cursor-pointer">
-                <img src={logoImg} alt="Safe Message" className="h-6 w-6" />
-                <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
+                <img src={logoImg} alt="Agent Safe" className="h-6 w-6" />
+                <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Agent Safe</span>
               </div>
             </Link>
           </div>
@@ -201,7 +201,7 @@ export default function Billing() {
                 <div>
                   <p className="font-medium">Credit Card</p>
                   <p className="text-sm text-muted-foreground">
-                    Your agents can now use Safe Message and you'll be charged $0.05 per check
+                    Your agents can now use Agent Safe and you'll be charged $0.05 per check
                   </p>
                 </div>
               </div>

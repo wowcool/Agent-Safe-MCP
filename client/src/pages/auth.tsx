@@ -66,8 +66,8 @@ export function Login() {
         <CardHeader className="text-center">
           <Link href="/">
             <div className="flex items-center justify-center gap-2 mb-4 cursor-pointer">
-              <img src={logoImg} alt="Safe Message" className="h-6 w-6" />
-              <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
+              <img src={logoImg} alt="Agent Safe" className="h-6 w-6" />
+              <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Agent Safe</span>
             </div>
           </Link>
           <CardTitle>Welcome back</CardTitle>
@@ -156,7 +156,7 @@ export function Signup() {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       toast({
         title: "Account created!",
-        description: "Welcome to Safe Message",
+        description: "Welcome to Agent Safe",
       });
       setLocation("/dashboard");
     },
@@ -178,12 +178,12 @@ export function Signup() {
         <CardHeader className="text-center">
           <Link href="/">
             <div className="flex items-center justify-center gap-2 mb-4 cursor-pointer">
-              <img src={logoImg} alt="Safe Message" className="h-6 w-6" />
-              <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
+              <img src={logoImg} alt="Agent Safe" className="h-6 w-6" />
+              <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Agent Safe</span>
             </div>
           </Link>
           <CardTitle>Create your account</CardTitle>
-          <CardDescription>Get started with Safe Message protection</CardDescription>
+          <CardDescription>Get started with Agent Safe protection</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>

@@ -189,8 +189,8 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             <Link href="/">
               <div className="flex items-center gap-2.5 cursor-pointer">
-                <img src={logoImg} alt="Safe Message" className="h-6 w-6" />
-                <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
+                <img src={logoImg} alt="Agent Safe" className="h-6 w-6" />
+                <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Agent Safe</span>
               </div>
             </Link>
           </div>
@@ -332,7 +332,7 @@ export default function Dashboard() {
                   <DialogHeader>
                     <DialogTitle>Create API Token</DialogTitle>
                     <DialogDescription>
-                      Create a new token for your AI agent to use Safe Message.
+                      Create a new token for your AI agent to use Agent Safe.
                     </DialogDescription>
                   </DialogHeader>
                   {newToken ? (
@@ -476,7 +476,7 @@ export default function Dashboard() {
             <CardContent>
               {(recentChecks?.checks?.length || 0) === 0 ? (
                 <p className="text-muted-foreground text-center py-8">
-                  No checks yet. Your agents will appear here when they start using Safe Message.
+                  No checks yet. Your agents will appear here when they start using Agent Safe.
                 </p>
               ) : (
                 <Table>
