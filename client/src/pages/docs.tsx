@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Shield, ArrowLeft, Copy, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Copy, CheckCircle2 } from "lucide-react";
+import logoImg from "@assets/Screenshot_2026-02-06_at_09.52.49_1770389587007.png";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -138,7 +139,7 @@ switch (result.recommendation) {
             </Link>
             <Link href="/">
               <div className="flex items-center gap-2.5 cursor-pointer">
-                <Shield className="h-6 w-6 text-white" />
+                <img src={logoImg} alt="Safe Message" className="h-6 w-6" />
                 <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
               </div>
             </Link>

@@ -10,7 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import logoImg from "@assets/Screenshot_2026-02-06_at_09.52.49_1770389587007.png";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -65,7 +66,7 @@ export function Login() {
         <CardHeader className="text-center">
           <Link href="/">
             <div className="flex items-center justify-center gap-2 mb-4 cursor-pointer">
-              <Shield className="h-6 w-6 text-white" />
+              <img src={logoImg} alt="Safe Message" className="h-6 w-6" />
               <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
             </div>
           </Link>
@@ -177,7 +178,7 @@ export function Signup() {
         <CardHeader className="text-center">
           <Link href="/">
             <div className="flex items-center justify-center gap-2 mb-4 cursor-pointer">
-              <Shield className="h-6 w-6 text-white" />
+              <img src={logoImg} alt="Safe Message" className="h-6 w-6" />
               <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
             </div>
           </Link>

@@ -2,7 +2,8 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Bot, CreditCard, Zap, Lock, BarChart3, CheckCircle2, AlertTriangle, Eye } from "lucide-react";
+import { Bot, CreditCard, Zap, Lock, BarChart3, CheckCircle2, AlertTriangle, Eye } from "lucide-react";
+import logoImg from "@assets/Screenshot_2026-02-06_at_09.52.49_1770389587007.png";
 
 export default function Landing() {
   return (
@@ -11,7 +12,7 @@ export default function Landing() {
         <div className="container mx-auto px-6 h-16 flex items-center justify-between gap-4">
           <Link href="/">
             <div className="flex items-center gap-2.5 cursor-pointer">
-              <Shield className="h-6 w-6 text-white" />
+              <img src={logoImg} alt="Safe Message" className="h-6 w-6" />
               <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
             </div>
           </Link>
@@ -82,19 +83,19 @@ export default function Landing() {
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
             <div className="flex items-start gap-3">
-              <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
               <p className="text-sm text-muted-foreground">Detects phishing attempts before your agent can be manipulated</p>
             </div>
             <div className="flex items-start gap-3">
-              <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
               <p className="text-sm text-muted-foreground">Blocks social engineering attacks targeting autonomous systems</p>
             </div>
             <div className="flex items-start gap-3">
-              <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
               <p className="text-sm text-muted-foreground">Prevents unauthorized data exfiltration through crafted emails</p>
             </div>
             <div className="flex items-start gap-3">
-              <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
               <p className="text-sm text-muted-foreground">Stops prompt injection attacks hidden in email content</p>
             </div>
           </div>
@@ -253,7 +254,7 @@ export default function Landing() {
             <div>
               <Link href="/">
                 <div className="flex items-center gap-2.5 mb-4 cursor-pointer">
-                  <Shield className="h-5 w-5 text-white" />
+                  <img src={logoImg} alt="Safe Message" className="h-5 w-5" />
                   <span className="text-white font-semibold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
                 </div>
               </Link>

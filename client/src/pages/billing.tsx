@@ -5,7 +5,8 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, CreditCard, ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
+import { CreditCard, ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
+import logoImg from "@assets/Screenshot_2026-02-06_at_09.52.49_1770389587007.png";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
@@ -171,7 +172,7 @@ export default function Billing() {
             </Link>
             <Link href="/">
               <div className="flex items-center gap-2.5 cursor-pointer">
-                <Shield className="h-6 w-6 text-white" />
+                <img src={logoImg} alt="Safe Message" className="h-6 w-6" />
                 <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
               </div>
             </Link>

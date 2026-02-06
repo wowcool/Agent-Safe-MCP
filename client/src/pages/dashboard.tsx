@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  Shield, Bot, AlertTriangle, CheckCircle2, XCircle, 
+  Bot, AlertTriangle, CheckCircle2, XCircle, 
   CreditCard, Plus, Copy, Trash2, LogOut, BarChart3, Key
 } from "lucide-react";
+import logoImg from "@assets/Screenshot_2026-02-06_at_09.52.49_1770389587007.png";
 import {
   Dialog,
   DialogContent,
@@ -188,7 +189,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             <Link href="/">
               <div className="flex items-center gap-2.5 cursor-pointer">
-                <Shield className="h-6 w-6 text-white" />
+                <img src={logoImg} alt="Safe Message" className="h-6 w-6" />
                 <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Safe Message</span>
               </div>
             </Link>
@@ -467,7 +468,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
+                <CheckCircle2 className="h-5 w-5" />
                 Recent Checks
               </CardTitle>
               <CardDescription>Latest email safety verifications</CardDescription>
