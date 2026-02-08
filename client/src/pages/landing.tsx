@@ -2,8 +2,42 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, CreditCard, Zap, Lock, BarChart3, CheckCircle2, AlertTriangle, Eye } from "lucide-react";
+import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, Copy, ExternalLink } from "lucide-react";
 import logoImg from "@assets/mcp-logo-v4.png";
+import { useState } from "react";
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <Button
+      size="icon"
+      variant="ghost"
+      className="text-white/50 shrink-0"
+      data-testid="button-copy-config"
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+    >
+      {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+    </Button>
+  );
+}
+
+const MCP_CONFIG = `{
+  "mcpServers": {
+    "safemessage": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://agentsafe-api.fly.dev/mcp",
+        "--header",
+        "skyfire-pay-id: <YOUR_SKYFIRE_PAY_TOKEN>"
+      ]
+    }
+  }
+}`;
 
 export default function Landing() {
   return (
@@ -17,12 +51,15 @@ export default function Landing() {
             </div>
           </Link>
           <div className="flex items-center gap-3 flex-wrap">
-            <Link href="/login">
-              <Button variant="ghost" className="text-white/80" data-testid="link-login">Log in</Button>
+            <Link href="/docs">
+              <Button variant="ghost" className="text-white/80" data-testid="link-docs-header">Docs</Button>
             </Link>
-            <Link href="/signup">
-              <Button data-testid="button-signup">Get Started</Button>
-            </Link>
+            <a href="https://skyfire.xyz" target="_blank" rel="noopener">
+              <Button variant="outline" data-testid="link-skyfire-header">
+                <ExternalLink className="h-4 w-4 mr-1.5" />
+                Skyfire
+              </Button>
+            </a>
           </div>
         </div>
       </header>
@@ -33,32 +70,42 @@ export default function Landing() {
         }} />
         <div className="container mx-auto max-w-4xl text-center relative z-10">
           <Badge variant="secondary" className="mb-8" data-testid="badge-mcp">
-            MCP Service for AI Agents
+            Remote MCP Server
           </Badge>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1]" data-testid="text-hero-headline">
-            AI Agents Are<br />Under Attack
+            Email Safety<br />for AI Agents
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-            Agent Safe verifies every email before your agent acts on it.
+            A Remote MCP Server that checks every email before your agent acts on it. Connect via MCP protocol, pay per use with Skyfire.
           </p>
 
-          <div className="space-y-3 mb-12 max-w-lg mx-auto">
-            <p className="text-muted-foreground text-lg">Phishing is getting smarter.</p>
-            <p className="text-muted-foreground text-lg">Social engineering is getting harder to detect.</p>
-            <p className="text-foreground text-lg font-semibold">Your agent can't tell the difference.</p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
-            <Link href="/signup">
-              <Button size="lg" className="text-lg px-8" data-testid="button-get-started">
-                Start Free Trial
+          <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap mb-16">
+            <a href="#connect">
+              <Button size="lg" className="text-lg px-8" data-testid="button-connect">
+                <Terminal className="h-5 w-5 mr-2" />
+                Connect Your Agent
               </Button>
-            </Link>
+            </a>
             <Link href="/docs">
               <Button size="lg" variant="outline" className="text-lg px-8" data-testid="link-docs">
                 View Documentation
               </Button>
             </Link>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-6">
+            <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-skyfire">
+              <Shield className="h-3.5 w-3.5 mr-1.5" />
+              Listed on Skyfire
+            </Badge>
+            <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-protocol">
+              <Bot className="h-3.5 w-3.5 mr-1.5" />
+              MCP Protocol
+            </Badge>
+            <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-price">
+              <Zap className="h-3.5 w-3.5 mr-1.5" />
+              $0.05 / check
+            </Badge>
           </div>
         </div>
       </section>
@@ -75,45 +122,129 @@ export default function Landing() {
           </div>
 
           <p className="text-muted-foreground leading-relaxed mb-10 max-w-3xl mx-auto text-center">
-            AI agents are designed to be helpful and responsive. But that same helpfulness makes them
-            vulnerable. Attackers craft emails that exploit an agent's tendency to follow instructions,
+            Attackers craft emails that exploit an agent's tendency to follow instructions,
             tricking it into leaking data, making unauthorized payments, or executing harmful actions.
-            Without a verification layer, your agent is flying blind.
+            Agent Safe is a remote MCP tool that any MCP-compatible agent can call to verify an email before acting on it.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground">Detects phishing attempts before your agent can be manipulated</p>
+              <p className="text-sm text-muted-foreground">Detects phishing attempts targeting autonomous agents</p>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground">Blocks social engineering attacks targeting autonomous systems</p>
+              <p className="text-sm text-muted-foreground">Blocks social engineering and prompt injection via email</p>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground">Prevents unauthorized data exfiltration through crafted emails</p>
+              <p className="text-sm text-muted-foreground">Prevents unauthorized data exfiltration through crafted messages</p>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground">Stops prompt injection attacks hidden in email content</p>
+              <p className="text-sm text-muted-foreground">No signup required - pay per use via Skyfire PAY tokens</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20 px-4">
+      <section id="connect" className="py-20 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-connect-heading">
+              Connect in 30 Seconds
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Add Agent Safe to any MCP-compatible client. No signup, no API keys to manage.
+            </p>
+          </div>
+
+          <Card className="max-w-2xl mx-auto mb-12">
+            <CardHeader className="flex flex-row items-center justify-between gap-4 pb-3">
+              <CardTitle className="text-base font-medium">MCP Client Configuration</CardTitle>
+              <CopyButton text={MCP_CONFIG} />
+            </CardHeader>
+            <CardContent>
+              <pre className="text-sm text-muted-foreground overflow-x-auto leading-relaxed" data-testid="code-mcp-config">
+                <code>{MCP_CONFIG}</code>
+              </pre>
+            </CardContent>
+          </Card>
+
+          <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            <div className="text-center">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                <span className="text-primary font-bold text-sm">1</span>
+              </div>
+              <h3 className="font-semibold mb-1">Get a Skyfire Token</h3>
+              <p className="text-sm text-muted-foreground">
+                Create a buyer account at{" "}
+                <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-primary underline">skyfire.xyz</a>
+                {" "}and fund your wallet
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                <span className="text-primary font-bold text-sm">2</span>
+              </div>
+              <h3 className="font-semibold mb-1">Add MCP Config</h3>
+              <p className="text-sm text-muted-foreground">
+                Paste the config above into your MCP client (Claude Desktop, Cursor, etc.)
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                <span className="text-primary font-bold text-sm">3</span>
+              </div>
+              <h3 className="font-semibold mb-1">Check Emails</h3>
+              <p className="text-sm text-muted-foreground">
+                Your agent can now call <code className="text-xs bg-muted px-1 py-0.5 rounded">check_email_safety</code> on any email
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 px-4 bg-card/50">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-features-heading">
-              The Agent Threat Is Real
+              Built for Agents, Not Humans
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Built specifically for AI agents with autonomous payment support
+              A purpose-built MCP tool that agents discover, connect to, and pay for autonomously
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card className="hover-elevate" data-testid="card-feature-mcp">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
+                  <Bot className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="font-semibold text-lg">Remote MCP Server</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Standard MCP protocol (Streamable HTTP). Any MCP-compatible agent connects natively - no custom integration code.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover-elevate" data-testid="card-feature-skyfire">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
+                  <Shield className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="font-semibold text-lg">Skyfire Payments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Pay-per-use via Skyfire KYAPay. Agents send a PAY token in the header - no signup, no API keys, no subscriptions.
+                </p>
+              </CardContent>
+            </Card>
+
             <Card className="hover-elevate" data-testid="card-feature-ai">
               <CardHeader>
                 <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
@@ -123,77 +254,49 @@ export default function Landing() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Claude-powered threat detection specialized for agent-targeted attacks with deep semantic understanding.
+                  Claude-powered threat detection specialized for agent-targeted phishing, social engineering, and prompt injection.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="hover-elevate" data-testid="card-feature-payments">
+            <Card className="hover-elevate" data-testid="card-feature-secure">
               <CardHeader>
                 <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
                   <Lock className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="font-semibold text-lg">Delegated Payments</CardTitle>
+                <CardTitle className="font-semibold text-lg">Charge-First Security</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Set spending limits and let your agent operate autonomously within safe boundaries.
+                  Payment is validated and charged before analysis runs. No free rides, no unpaid usage, ever.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="hover-elevate" data-testid="card-feature-wallets">
+            <Card className="hover-elevate" data-testid="card-feature-response">
               <CardHeader>
                 <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <CreditCard className="h-6 w-6 text-primary" />
+                  <Terminal className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="font-semibold text-lg">Agent Wallets</CardTitle>
+                <CardTitle className="font-semibold text-lg">Structured Verdicts</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Agents with crypto wallets can register and pay independently without human intervention.
+                  Returns verdict, risk score, threats detected, safe/unsafe actions, and a plain-language explanation your agent can act on.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="hover-elevate" data-testid="card-feature-pattern">
+            <Card className="hover-elevate" data-testid="card-feature-discovery">
               <CardHeader>
                 <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <Eye className="h-6 w-6 text-primary" />
+                  <ExternalLink className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="font-semibold text-lg">Pattern Detection</CardTitle>
+                <CardTitle className="font-semibold text-lg">Directory Listed</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Real-time pattern matching for known phishing tactics and emerging threat vectors.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-elevate" data-testid="card-feature-mcp">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <Bot className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="font-semibold text-lg">MCP Compatible</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Standard MCP discovery for easy integration with any MCP-compatible AI agent framework.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-elevate" data-testid="card-feature-analytics">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <BarChart3 className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="font-semibold text-lg">Usage Analytics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Track threats blocked, spending patterns, and agent activity with a real-time dashboard.
+                  Discoverable on Skyfire's open directory. Agents find and use Agent Safe without human involvement.
                 </p>
               </CardContent>
             </Card>
@@ -201,7 +304,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="py-20 px-4 bg-card/50">
+      <section className="py-20 px-4">
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center tracking-tight mb-16" data-testid="text-pricing-heading">
             Simple, Transparent Pricing
@@ -218,32 +321,68 @@ export default function Landing() {
               <ul className="space-y-4">
                 <li className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm">AI-powered email analysis</span>
+                  <span className="text-sm">AI-powered email safety analysis</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm">Pattern-based threat detection</span>
+                  <span className="text-sm">No signup or API keys required</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm">Detailed threat reports</span>
+                  <span className="text-sm">Pay via Skyfire PAY tokens</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm">Real-time dashboard</span>
+                  <span className="text-sm">Detailed threat reports with actionable verdicts</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm">API access with spending limits</span>
+                  <span className="text-sm">Standard MCP protocol - works with any agent</span>
                 </li>
               </ul>
-              <Link href="/signup">
-                <Button className="w-full mt-8" size="lg" data-testid="button-start-free">
-                  Start Free Trial
+              <a href="https://skyfire.xyz" target="_blank" rel="noopener">
+                <Button className="w-full mt-8" size="lg" data-testid="button-get-skyfire">
+                  Get Skyfire Tokens
                 </Button>
-              </Link>
+              </a>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      <section className="py-16 px-4 bg-card/50">
+        <div className="container mx-auto max-w-4xl text-center">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-4" data-testid="text-where-heading">
+            Where to Find Us
+          </h2>
+          <p className="text-muted-foreground mb-10 max-w-xl mx-auto">
+            Agent Safe is available on these platforms and directories
+          </p>
+          <div className="flex flex-wrap justify-center gap-6">
+            <a href="https://skyfire.xyz" target="_blank" rel="noopener">
+              <Card className="hover-elevate p-6 min-w-[200px]" data-testid="card-listing-skyfire">
+                <div className="flex flex-col items-center gap-3">
+                  <Shield className="h-8 w-8 text-primary" />
+                  <span className="font-semibold">Skyfire Directory</span>
+                  <span className="text-xs text-muted-foreground">Agent payment network</span>
+                </div>
+              </Card>
+            </a>
+            <Card className="p-6 min-w-[200px] opacity-60" data-testid="card-listing-mcp-registry">
+              <div className="flex flex-col items-center gap-3">
+                <Bot className="h-8 w-8 text-muted-foreground" />
+                <span className="font-semibold text-muted-foreground">MCP Registry</span>
+                <span className="text-xs text-muted-foreground">Coming soon</span>
+              </div>
+            </Card>
+            <Card className="p-6 min-w-[200px] opacity-60" data-testid="card-listing-pulsemcp">
+              <div className="flex flex-col items-center gap-3">
+                <Terminal className="h-8 w-8 text-muted-foreground" />
+                <span className="font-semibold text-muted-foreground">PulseMCP</span>
+                <span className="text-xs text-muted-foreground">Coming soon</span>
+              </div>
+            </Card>
+          </div>
         </div>
       </section>
 
@@ -259,15 +398,15 @@ export default function Landing() {
                 </div>
               </Link>
               <p className="text-white/80 text-sm leading-relaxed max-w-xs" data-testid="text-footer-tagline">
-                Agent Safe protects AI agents from phishing, social engineering, and manipulation attempts.
+                A Remote MCP Server that protects AI agents from phishing, social engineering, and manipulation via email.
               </p>
             </div>
             <div>
-              <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">THE SERVICE</h4>
+              <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">MCP SERVER</h4>
               <ul className="space-y-2">
                 <li><Link href="/docs" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-docs">Documentation</Link></li>
-                <li><Link href="/signup" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-signup">Get Started</Link></li>
-                <li><Link href="/login" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-login">Sign In</Link></li>
+                <li><a href="https://agentsafe-api.fly.dev/mcp" target="_blank" rel="noopener" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-endpoint">MCP Endpoint</a></li>
+                <li><a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-skyfire">Skyfire Network</a></li>
               </ul>
             </div>
             <div>
