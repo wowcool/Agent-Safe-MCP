@@ -317,7 +317,7 @@ export async function registerRoutes(
         capabilities: ["email_safety_check"],
         domainFocus: "email",
         pricing: {
-          perCheck: 0.05,
+          perCheck: 0.01,
           currency: "USD",
         },
         paymentMethods: ["stripe_delegated", "skyfire_pay", "crypto_wallet"],
@@ -419,7 +419,7 @@ export async function registerRoutes(
         walletVerified: true,
         currentBalance: balance,
         minBalanceRequired: MIN_BALANCE,
-        pricePerCheck: 0.05,
+        pricePerCheck: 0.01,
       });
     } catch (error: any) {
       console.error("Autonomous registration error:", error);
@@ -468,7 +468,7 @@ export async function registerRoutes(
         success: true,
         apiToken: token,
         paymentMethod: "skyfire",
-        pricePerCheck: 0.05,
+        pricePerCheck: 0.01,
         message: "Registered via Skyfire. Use Bearer token for API calls, or include skyfire-pay-id header for pay-per-use.",
       });
     } catch (error: any) {
@@ -536,7 +536,7 @@ export async function registerRoutes(
         riskScore: String(analysisResult.riskScore),
         confidence: String(analysisResult.confidence),
         threatsDetected: analysisResult.threats,
-        chargedAmount: "0.05",
+        chargedAmount: "0.01",
         paymentType: tokenRecord.agentType === "delegated" ? "stripe" : "wallet",
         paymentReference: paymentResult.paymentIntentId || null,
         analysisDurationMs: durationMs,
@@ -547,7 +547,7 @@ export async function registerRoutes(
       await storage.createUsageLog({
         tokenId: tokenRecord.id,
         action: "email_check",
-        amount: "0.05",
+        amount: "0.01",
         paymentStatus: "success",
       });
 
@@ -561,7 +561,7 @@ export async function registerRoutes(
         safeActions: analysisResult.safeActions,
         unsafeActions: analysisResult.unsafeActions,
         checkId: emailCheck.id,
-        charged: 0.05,
+        charged: 0.01,
       };
 
       return res.json(response);
@@ -613,7 +613,7 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Missing required email fields (from, subject, body)" });
       }
 
-      const chargeResult = await chargeSkyfireToken(skyfireToken, 0.05);
+      const chargeResult = await chargeSkyfireToken(skyfireToken, 0.01);
       if (!chargeResult.success) {
         return res.status(402).json({
           error: "Skyfire payment failed",
@@ -634,7 +634,7 @@ export async function registerRoutes(
         riskScore: String(analysisResult.riskScore),
         confidence: String(analysisResult.confidence),
         threatsDetected: analysisResult.threats,
-        chargedAmount: "0.05",
+        chargedAmount: "0.01",
         paymentType: "skyfire",
         paymentReference: chargeResult.transactionId || null,
         analysisDurationMs: durationMs,
@@ -645,7 +645,7 @@ export async function registerRoutes(
       await storage.createUsageLog({
         tokenId: systemTokenId,
         action: "email_check",
-        amount: "0.05",
+        amount: "0.01",
         paymentStatus: "success",
       });
 
@@ -661,7 +661,7 @@ export async function registerRoutes(
         safeActions: analysisResult.safeActions,
         unsafeActions: analysisResult.unsafeActions,
         checkId: emailCheck.id,
-        charged: 0.05,
+        charged: 0.01,
       };
 
       return res.json(response);

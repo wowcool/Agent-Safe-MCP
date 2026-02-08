@@ -13,7 +13,7 @@ import { chargeForEmailCheck } from "./services/payment";
 import { storage } from "./storage";
 import type { CheckEmailRequest, CheckEmailResponse } from "@shared/schema";
 
-const TOOL_DESCRIPTION = "Analyze an email for phishing, social engineering, prompt injection, and other threats targeting AI agents. Returns a safety verdict, risk score, detected threats, and recommended actions. Costs $0.05 per check - payment via skyfire-pay-id header (Skyfire PAY token) or Authorization: Bearer <token>.";
+const TOOL_DESCRIPTION = "Analyze an email for phishing, social engineering, prompt injection, and other threats targeting AI agents. Returns a safety verdict, risk score, detected threats, and recommended actions. Costs $0.01 per check - payment via skyfire-pay-id header (Skyfire PAY token) or Authorization: Bearer <token>.";
 
 const TOOL_SCHEMA = {
   from: z.string().describe("Sender email address"),
@@ -99,7 +99,7 @@ async function recordEmailCheck(
     riskScore: String(analysisResult.riskScore),
     confidence: String(analysisResult.confidence),
     threatsDetected: analysisResult.threats,
-    chargedAmount: "0.05",
+    chargedAmount: "0.01",
     paymentType,
     paymentReference,
     analysisDurationMs: durationMs,
@@ -109,7 +109,7 @@ async function recordEmailCheck(
   await storage.createUsageLog({
     tokenId,
     action: "email_check",
-    amount: "0.05",
+    amount: "0.01",
     paymentStatus: "success",
   });
 
@@ -149,7 +149,7 @@ function createPerRequestMcpServer(
           return mcpError("Invalid Skyfire token", validation.error);
         }
 
-        const chargeResult = await chargeSkyfireToken(skyfireToken, 0.05);
+        const chargeResult = await chargeSkyfireToken(skyfireToken, 0.01);
         if (!chargeResult.success) {
           return mcpError("Skyfire payment failed", chargeResult.error);
         }
@@ -228,7 +228,7 @@ function buildToolResponse(analysisResult: any, checkId: string) {
     safeActions: analysisResult.safeActions,
     unsafeActions: analysisResult.unsafeActions,
     checkId,
-    charged: 0.05,
+    charged: 0.01,
   };
 
   return {

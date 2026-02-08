@@ -102,7 +102,7 @@ export default function Docs() {
   "safeActions": ["Report as spam", "Delete email"],
   "unsafeActions": ["Click any links", "Reply with personal info"],
   "checkId": "chk_abc123",
-  "charged": 0.05
+  "charged": 0.01
 }`;
 
   const pythonMcpExample = `# Install: pip install mcp
@@ -294,7 +294,7 @@ switch (result.recommendation) {
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-white/80">
               <p>
-                Agent Safe uses <strong className="text-white">pay-per-use</strong> pricing at <strong className="text-white">$0.05 per check</strong>. No signup, no API keys, no subscriptions.
+                Agent Safe uses <strong className="text-white">pay-per-use</strong> pricing at <strong className="text-white">$0.01 per check</strong>. No signup, no API keys, no subscriptions.
               </p>
 
               <div className="space-y-3">
@@ -481,7 +481,7 @@ switch (result.recommendation) {
               <CardTitle className="text-white">Pricing</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-white/80 space-y-2">
-              <p><strong className="text-white">$0.05 per email check</strong> — charged at time of request via Skyfire PAY token.</p>
+              <p><strong className="text-white">$0.01 per email check</strong> — charged at time of request via Skyfire PAY token.</p>
               <p className="text-white/50">Failed requests (invalid token, insufficient balance) are not charged. Only successful analysis incurs a charge.</p>
             </CardContent>
           </Card>

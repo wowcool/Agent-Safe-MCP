@@ -46,7 +46,7 @@ export default function Terms() {
           <section>
             <h2 className="text-lg font-semibold text-white mb-3">3. Payment and Pricing</h2>
             <p className="mb-3">
-              The Service charges $0.05 USD per email safety check. Payment is processed through the Skyfire Network using PAY tokens. By submitting a request with a valid Skyfire PAY token, you authorize the charge for that request.
+              The Service charges $0.01 USD per email safety check. Payment is processed through the Skyfire Network using PAY tokens. By submitting a request with a valid Skyfire PAY token, you authorize the charge for that request.
             </p>
             <ul className="list-disc pl-6 space-y-1.5">
               <li>All charges are final and non-refundable once the analysis has been performed.</li>
