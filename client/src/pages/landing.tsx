@@ -414,6 +414,7 @@ export default function Landing() {
               <ul className="space-y-2">
                 <li><a href="https://locationledger.com" target="_blank" rel="noopener" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-parent">Location Ledger</a></li>
                 <li><a href="https://support.locationledger.com" target="_blank" rel="noopener" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-support">Support</a></li>
+                <li><Link href="/terms" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-terms">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
