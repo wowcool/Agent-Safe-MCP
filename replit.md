@@ -34,13 +34,41 @@ See `BUILD_PLAN.md` for the complete technical specification.
 2. **Skyfire Pay-Per-Use:** Agent sends Skyfire PAY token via `skyfire-pay-id` header, no registration needed
 3. **Autonomous Model:** Agent registers with own crypto wallet (legacy)
 
-## Key Endpoints
+## MCP Remote Server
 
-- `GET /mcp/discover` - Service discovery for agents
+SafeMessage is a **Remote MCP Server** using the Streamable HTTP transport (MCP spec 2025).
+
+- **Endpoint:** `POST /mcp` (JSON-RPC 2.0 over Streamable HTTP)
+- **Protocol:** Model Context Protocol (Streamable HTTP transport)
+- **SDK:** `@modelcontextprotocol/sdk`
+- **Tool:** `check_email_safety` - analyzes emails for phishing, social engineering, prompt injection
+- **Auth:** `skyfire-pay-id` header (Skyfire PAY token) or `Authorization: Bearer <token>`
+- **Skyfire Listing:** Register as seller on Skyfire dashboard, agents discover via Skyfire directory
+
+### Connecting as an MCP Client
+
+```json
+{
+  "mcpServers": {
+    "safemessage": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://YOUR_DOMAIN/mcp",
+        "--header", "skyfire-pay-id: <SKYFIRE_PAY_TOKEN>"
+      ]
+    }
+  }
+}
+```
+
+## REST API Endpoints
+
+- `GET /mcp/discover` - Service discovery for agents (REST)
 - `POST /mcp/register/delegated` - Register with owner token
 - `POST /mcp/register/autonomous` - Register with own wallet
 - `POST /mcp/register/skyfire` - Register via Skyfire KYAPay token
-- `POST /mcp/tools/check_email_safety` - Core email safety check (accepts Bearer token or skyfire-pay-id header)
+- `POST /mcp/tools/check_email_safety` - Core email safety check (REST, accepts Bearer token or skyfire-pay-id header)
 
 ## Environment Variables
 

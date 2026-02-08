@@ -32,6 +32,7 @@ import {
   isSkyfireConfigured,
 } from "./services/skyfire";
 import { z } from "zod";
+import { mountMcpServer } from "./mcp-server";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -39,6 +40,9 @@ export async function registerRoutes(
 ): Promise<Server> {
   // Setup authentication
   setupAuth(app);
+
+  // Mount MCP Remote Server (Streamable HTTP at /mcp)
+  mountMcpServer(app);
 
   // ===== AUTH ROUTES =====
   
