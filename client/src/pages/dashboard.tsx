@@ -11,7 +11,7 @@ import {
   Bot, AlertTriangle, CheckCircle2, XCircle, 
   CreditCard, Plus, Copy, Trash2, LogOut, BarChart3, Key
 } from "lucide-react";
-import logoImg from "@assets/Screenshot_2026-02-06_at_09.52.49_1770389587007.png";
+import logoImg from "@assets/mcp-logo.png";
 import {
   Dialog,
   DialogContent,

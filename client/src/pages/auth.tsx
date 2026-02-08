@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import logoImg from "@assets/Screenshot_2026-02-06_at_09.52.49_1770389587007.png";
+import logoImg from "@assets/mcp-logo.png";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),

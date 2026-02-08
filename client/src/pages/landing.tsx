@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bot, CreditCard, Zap, Lock, BarChart3, CheckCircle2, AlertTriangle, Eye } from "lucide-react";
-import logoImg from "@assets/Screenshot_2026-02-06_at_09.52.49_1770389587007.png";
+import logoImg from "@assets/mcp-logo.png";
 
 export default function Landing() {
   return (
