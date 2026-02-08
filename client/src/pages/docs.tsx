@@ -4,9 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Copy, CheckCircle2 } from "lucide-react";
-import logoImg from "@assets/Screenshot_2026-02-06_at_09.52.49_1770389587007.png";
+import logoImg from "@assets/mcp-logo-v4.png";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+
+const BASE_URL = "https://agentsafe-api.fly.dev";
 
 export default function Docs() {
   const { toast } = useToast();
@@ -19,11 +21,57 @@ export default function Docs() {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const discoverExample = `curl https://your-domain.replit.app/mcp/discover`;
+  const mcpConfigExample = `{
+  "mcpServers": {
+    "safemessage": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "${BASE_URL}/mcp",
+        "--header",
+        "skyfire-pay-id: \${SKYFIRE_PAY_TOKEN}"
+      ]
+    }
+  }
+}`;
 
-  const checkEmailExample = `curl -X POST https://your-domain.replit.app/mcp/tools/check_email_safety \\
-  -H "Authorization: Bearer sm_live_your_token_here" \\
+  const discoverExample = `curl ${BASE_URL}/mcp/discover`;
+
+  const mcpInitExample = `curl -X POST ${BASE_URL}/mcp \\
   -H "Content-Type: application/json" \\
+  -H "skyfire-pay-id: YOUR_SKYFIRE_PAY_TOKEN" \\
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2025-01-01",
+      "capabilities": {},
+      "clientInfo": { "name": "my-agent", "version": "1.0" }
+    }
+  }'`;
+
+  const mcpToolCallExample = `curl -X POST ${BASE_URL}/mcp \\
+  -H "Content-Type: application/json" \\
+  -H "skyfire-pay-id: YOUR_SKYFIRE_PAY_TOKEN" \\
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/call",
+    "params": {
+      "name": "check_email_safety",
+      "arguments": {
+        "from": "sender@example.com",
+        "subject": "Urgent: Verify your account",
+        "body": "Click here to verify your account immediately...",
+        "links": ["https://suspicious-link.com/verify"]
+      }
+    }
+  }'`;
+
+  const restCheckExample = `curl -X POST ${BASE_URL}/mcp/tools/check_email_safety \\
+  -H "Content-Type: application/json" \\
+  -H "skyfire-pay-id: YOUR_SKYFIRE_PAY_TOKEN" \\
   -d '{
     "email": {
       "from": "sender@example.com",
@@ -57,30 +105,54 @@ export default function Docs() {
   "charged": 0.05
 }`;
 
-  const pythonExample = `import requests
+  const pythonMcpExample = `# Install: pip install mcp
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
 
-API_TOKEN = "sm_live_your_token_here"
-BASE_URL = "https://your-domain.replit.app"
+async def check_email():
+    headers = {"skyfire-pay-id": "YOUR_SKYFIRE_PAY_TOKEN"}
+    
+    async with streamablehttp_client(
+        "${BASE_URL}/mcp",
+        headers=headers
+    ) as (read, write, _):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+            
+            result = await session.call_tool(
+                "check_email_safety",
+                arguments={
+                    "from": "sender@example.com",
+                    "subject": "Important message",
+                    "body": "Hello, please review this document...",
+                    "links": ["https://example.com/doc"]
+                }
+            )
+            print(result)`;
 
-def check_email_safety(email_data):
+  const pythonRestExample = `import requests
+
+def check_email_safety(email_data, skyfire_token):
     response = requests.post(
-        f"{BASE_URL}/mcp/tools/check_email_safety",
+        "${BASE_URL}/mcp/tools/check_email_safety",
         headers={
-            "Authorization": f"Bearer {API_TOKEN}",
+            "skyfire-pay-id": skyfire_token,
             "Content-Type": "application/json"
         },
         json={"email": email_data}
     )
     return response.json()
 
-# Example usage
-result = check_email_safety({
-    "from": "sender@example.com",
-    "subject": "Important message",
-    "body": "Hello, please review this document...",
-    "links": ["https://example.com/doc"],
-    "attachments": [{"name": "document.pdf", "size": 1024}]
-})
+result = check_email_safety(
+    {
+        "from": "sender@example.com",
+        "subject": "Important message",
+        "body": "Hello, please review this document...",
+        "links": ["https://example.com/doc"],
+        "attachments": [{"name": "document.pdf", "size": 1024}]
+    },
+    skyfire_token="YOUR_SKYFIRE_PAY_TOKEN"
+)
 
 if result["verdict"] == "dangerous":
     print("Do not act on this email!")
@@ -89,16 +161,35 @@ elif result["verdict"] == "suspicious":
 else:
     print("Email appears safe")`;
 
-  const jsExample = `const API_TOKEN = "sm_live_your_token_here";
-const BASE_URL = "https://your-domain.replit.app";
+  const jsExample = `// Using MCP client (recommended)
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
-async function checkEmailSafety(email) {
+const transport = new StreamableHTTPClientTransport(
+  new URL("${BASE_URL}/mcp"),
+  { requestInit: { headers: { "skyfire-pay-id": "YOUR_SKYFIRE_PAY_TOKEN" } } }
+);
+
+const client = new Client({ name: "my-agent", version: "1.0" });
+await client.connect(transport);
+
+const result = await client.callTool("check_email_safety", {
+  from: "sender@example.com",
+  subject: "Meeting request",
+  body: "Can we schedule a call this week?",
+  links: []
+});
+
+console.log(result);`;
+
+  const jsRestExample = `// Using REST API (alternative)
+async function checkEmailSafety(email, skyfireToken) {
   const response = await fetch(
-    \`\${BASE_URL}/mcp/tools/check_email_safety\`,
+    "${BASE_URL}/mcp/tools/check_email_safety",
     {
       method: "POST",
       headers: {
-        "Authorization": \`Bearer \${API_TOKEN}\`,
+        "skyfire-pay-id": skyfireToken,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ email })
@@ -107,13 +198,15 @@ async function checkEmailSafety(email) {
   return response.json();
 }
 
-// Example usage
-const result = await checkEmailSafety({
-  from: "sender@example.com",
-  subject: "Meeting request",
-  body: "Can we schedule a call this week?",
-  links: []
-});
+const result = await checkEmailSafety(
+  {
+    from: "sender@example.com",
+    subject: "Meeting request",
+    body: "Can we schedule a call this week?",
+    links: []
+  },
+  "YOUR_SKYFIRE_PAY_TOKEN"
+);
 
 switch (result.recommendation) {
   case "proceed":
@@ -127,205 +220,284 @@ switch (result.recommendation) {
     break;
 }`;
 
+  function CodeBlock({ code, id, label }: { code: string; id: string; label?: string }) {
+    return (
+      <div className="relative">
+        {label && <p className="text-xs text-white/40 mb-1 font-mono">{label}</p>}
+        <pre className="p-4 rounded-lg text-sm overflow-x-auto whitespace-pre-wrap" style={{ background: "#111318", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <code className="text-white/80">{code}</code>
+        </pre>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-2 right-2 text-white/40"
+          onClick={() => copyCode(code, id)}
+          data-testid={`button-copy-${id}`}
+        >
+          {copied === id ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-black/60 backdrop-blur-[10px] sticky top-0 z-[100]">
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link href="/">
-              <Button variant="ghost" size="icon" data-testid="button-back">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/">
-              <div className="flex items-center gap-2.5 cursor-pointer">
-                <img src={logoImg} alt="Agent Safe" className="h-6 w-6" />
-                <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Agent Safe</span>
-              </div>
-            </Link>
-            <span className="text-white/50">Documentation</span>
-          </div>
+    <div className="min-h-screen" style={{ background: "#0f1012", color: "#e5e5e5", fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <header className="sticky top-0 z-50 px-6 py-4" style={{ background: "rgba(15, 16, 18, 0.85)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="container mx-auto max-w-4xl flex items-center gap-4">
+          <Link href="/">
+            <Button variant="ghost" size="icon" className="text-white/60" data-testid="button-back">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Link href="/">
+            <div className="flex items-center gap-2 cursor-pointer">
+              <img src={logoImg} alt="Agent Safe" className="h-5 w-5" />
+              <span className="text-white font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Agent Safe</span>
+            </div>
+          </Link>
+          <span className="text-white/40 text-sm">Documentation</span>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-4xl font-bold mb-4">API Documentation</h1>
-        <p className="text-xl text-muted-foreground mb-8">
-          Integrate Agent Safe email safety verification into your AI agents
+      <main className="container mx-auto px-6 py-12 max-w-4xl">
+        <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }} data-testid="text-docs-title">
+          MCP Server Documentation
+        </h1>
+        <p className="text-white/60 mb-10">
+          Connect your AI agent to Agent Safe for email safety verification. No signup required — just a Skyfire PAY token.
         </p>
 
         <div className="space-y-8">
-          <Card>
+          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
             <CardHeader>
-              <CardTitle>Quick Start</CardTitle>
-              <CardDescription>Get started with Agent Safe in minutes</CardDescription>
+              <CardTitle className="text-white">Quick Start</CardTitle>
+              <CardDescription className="text-white/50">Get connected in 3 steps</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <ol className="list-decimal list-inside space-y-2">
-                <li><Link href="/signup" className="text-primary hover:underline">Create an account</Link></li>
-                <li>Add a payment method in the billing section</li>
-                <li>Generate an API token for your agent</li>
-                <li>Call the check_email_safety endpoint before acting on emails</li>
+              <ol className="list-decimal list-inside space-y-3 text-white/80 text-sm">
+                <li>Get a <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-[hsl(200,70%,50%)] underline underline-offset-2">Skyfire PAY token</a> from the Skyfire Network</li>
+                <li>Add the MCP server config to your agent's MCP settings file</li>
+                <li>Your agent can now call <code className="px-1.5 py-0.5 rounded text-xs" style={{ background: "rgba(16, 106, 243, 0.15)", color: "hsl(200, 70%, 60%)" }}>check_email_safety</code> before acting on any email</li>
               </ol>
+
+              <div className="mt-4">
+                <p className="text-xs text-white/40 mb-2">MCP Client Configuration</p>
+                <CodeBlock code={mcpConfigExample} id="mcp-config" />
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
             <CardHeader>
-              <CardTitle>Endpoints</CardTitle>
+              <CardTitle className="text-white">Authentication</CardTitle>
+              <CardDescription className="text-white/50">How payment and auth work</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm text-white/80">
+              <p>
+                Agent Safe uses <strong className="text-white">pay-per-use</strong> pricing at <strong className="text-white">$0.05 per check</strong>. No signup, no API keys, no subscriptions.
+              </p>
+
+              <div className="space-y-3">
+                <div className="p-3 rounded-lg" style={{ background: "rgba(16, 106, 243, 0.08)", border: "1px solid rgba(16, 106, 243, 0.15)" }}>
+                  <p className="font-semibold text-white text-xs uppercase tracking-wider mb-1">Primary: Skyfire PAY Token</p>
+                  <p className="text-white/70 text-xs">
+                    Include a <code className="px-1 py-0.5 rounded text-[hsl(200,70%,60%)]" style={{ background: "rgba(16, 106, 243, 0.15)" }}>skyfire-pay-id</code> header with your Skyfire PAY token. The token is validated and charged automatically via the Skyfire Network.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <p className="font-semibold text-white text-xs uppercase tracking-wider mb-1">Alternative: Bearer Token</p>
+                  <p className="text-white/70 text-xs">
+                    For delegated setups, use an <code className="px-1 py-0.5 rounded text-white/60" style={{ background: "rgba(255,255,255,0.06)" }}>Authorization: Bearer &lt;token&gt;</code> header. Requires prior registration via the delegated registration endpoint.
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-white/50 text-xs">
+                If a <code>skyfire-pay-id</code> header is present, it takes priority. The Skyfire token must be valid and have sufficient balance — there is no fallback to Bearer auth.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <CardHeader>
+              <CardTitle className="text-white">MCP Protocol</CardTitle>
+              <CardDescription className="text-white/50">Connect via Model Context Protocol (recommended)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge>GET</Badge>
-                  <code className="text-sm">/mcp/discover</code>
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <Badge variant="secondary" data-testid="badge-mcp-post">POST</Badge>
+                  <code className="text-sm text-white/80">{BASE_URL}/mcp</code>
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Returns service information for MCP discovery. No authentication required.
+                <p className="text-sm text-white/50 mb-4">
+                  Streamable HTTP transport endpoint. Accepts JSON-RPC 2.0 messages per the MCP specification.
                 </p>
-                <div className="relative">
-                  <pre className="bg-accent p-4 rounded-lg text-sm overflow-x-auto">
-                    {discoverExample}
-                  </pre>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2"
-                    onClick={() => copyCode(discoverExample, "discover")}
-                    data-testid="button-copy-discover"
-                  >
-                    {copied === "discover" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  </Button>
+
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs text-white/40 mb-2 font-semibold uppercase tracking-wider">Initialize Connection</p>
+                    <CodeBlock code={mcpInitExample} id="mcp-init" />
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-white/40 mb-2 font-semibold uppercase tracking-wider">Call check_email_safety</p>
+                    <CodeBlock code={mcpToolCallExample} id="mcp-tool-call" />
+                  </div>
                 </div>
               </div>
 
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="secondary">POST</Badge>
-                  <code className="text-sm">/mcp/tools/check_email_safety</code>
+                <h4 className="font-semibold text-white text-sm mb-2">Available MCP Methods</h4>
+                <ul className="text-sm text-white/70 space-y-1.5">
+                  <li><code className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)" }}>initialize</code> — Handshake and capability negotiation</li>
+                  <li><code className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)" }}>tools/list</code> — Discover available tools</li>
+                  <li><code className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)" }}>tools/call</code> — Execute check_email_safety (requires payment)</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <CardHeader>
+              <CardTitle className="text-white">REST API</CardTitle>
+              <CardDescription className="text-white/50">Alternative REST endpoints</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <Badge data-testid="badge-discover-get">GET</Badge>
+                  <code className="text-sm text-white/80">/mcp/discover</code>
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Analyze an email for safety. Requires Bearer token authentication.
+                <p className="text-sm text-white/50 mb-3">
+                  Service discovery endpoint. No authentication required.
                 </p>
-                <div className="relative">
-                  <pre className="bg-accent p-4 rounded-lg text-sm overflow-x-auto whitespace-pre-wrap">
-                    {checkEmailExample}
-                  </pre>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2"
-                    onClick={() => copyCode(checkEmailExample, "check")}
-                    data-testid="button-copy-check"
-                  >
-                    {copied === "check" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  </Button>
+                <CodeBlock code={discoverExample} id="discover" />
+              </div>
+
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <Badge variant="secondary" data-testid="badge-check-post">POST</Badge>
+                  <code className="text-sm text-white/80">/mcp/tools/check_email_safety</code>
+                </div>
+                <p className="text-sm text-white/50 mb-3">
+                  REST wrapper for the email safety check. Accepts <code>skyfire-pay-id</code> or <code>Authorization: Bearer</code> header.
+                </p>
+                <CodeBlock code={restCheckExample} id="rest-check" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <CardHeader>
+              <CardTitle className="text-white">Tool: check_email_safety</CardTitle>
+              <CardDescription className="text-white/50">Input parameters and response format</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h4 className="font-semibold text-white text-sm mb-3">Input Parameters</h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm" style={{ borderCollapse: "separate", borderSpacing: 0 }}>
+                    <thead>
+                      <tr className="text-left text-white/40 text-xs uppercase tracking-wider">
+                        <th className="pb-2 pr-4">Parameter</th>
+                        <th className="pb-2 pr-4">Type</th>
+                        <th className="pb-2 pr-4">Required</th>
+                        <th className="pb-2">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-white/70">
+                      <tr><td className="py-1.5 pr-4"><code className="text-xs">from</code></td><td className="pr-4">string</td><td className="pr-4">Yes</td><td>Sender email address</td></tr>
+                      <tr><td className="py-1.5 pr-4"><code className="text-xs">subject</code></td><td className="pr-4">string</td><td className="pr-4">Yes</td><td>Email subject line</td></tr>
+                      <tr><td className="py-1.5 pr-4"><code className="text-xs">body</code></td><td className="pr-4">string</td><td className="pr-4">Yes</td><td>Email body content</td></tr>
+                      <tr><td className="py-1.5 pr-4"><code className="text-xs">links</code></td><td className="pr-4">string[]</td><td className="pr-4">No</td><td>URLs found in the email</td></tr>
+                      <tr><td className="py-1.5 pr-4"><code className="text-xs">attachments</code></td><td className="pr-4">object[]</td><td className="pr-4">No</td><td>Attachment metadata (name, size, type)</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-white text-sm mb-3">Response</h4>
+                <CodeBlock code={responseExample} id="response" />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold text-white text-sm mb-2">Verdict Values</h4>
+                  <ul className="space-y-1.5 text-sm">
+                    <li className="flex flex-wrap items-center gap-2"><Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30">safe</Badge> <span className="text-white/70">Email appears legitimate</span></li>
+                    <li className="flex flex-wrap items-center gap-2"><Badge className="bg-amber-600/20 text-amber-400 border-amber-600/30">suspicious</Badge> <span className="text-white/70">Contains potential threats</span></li>
+                    <li className="flex flex-wrap items-center gap-2"><Badge className="bg-red-600/20 text-red-400 border-red-600/30">dangerous</Badge> <span className="text-white/70">High-confidence threat</span></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-white text-sm mb-2">Threat Types</h4>
+                  <ul className="text-xs text-white/50 space-y-1">
+                    <li>PHISHING</li>
+                    <li>SOCIAL_ENGINEERING</li>
+                    <li>MALWARE</li>
+                    <li>IMPERSONATION</li>
+                    <li>URGENCY_MANIPULATION</li>
+                    <li>AUTHORITY_ABUSE</li>
+                    <li>DATA_EXFILTRATION</li>
+                    <li>COMMAND_INJECTION</li>
+                  </ul>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
             <CardHeader>
-              <CardTitle>Response Format</CardTitle>
-              <CardDescription>Understanding the safety check response</CardDescription>
+              <CardTitle className="text-white">Code Examples</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="relative mb-4">
-                <pre className="bg-accent p-4 rounded-lg text-sm overflow-x-auto">
-                  {responseExample}
-                </pre>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-2 right-2"
-                  onClick={() => copyCode(responseExample, "response")}
-                  data-testid="button-copy-response"
-                >
-                  {copied === "response" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold mb-2">Verdict Values</h4>
-                  <ul className="space-y-1 text-sm">
-                    <li><Badge className="bg-chart-4 mr-2">safe</Badge> Email appears legitimate</li>
-                    <li><Badge variant="secondary" className="mr-2">suspicious</Badge> Contains potential threats</li>
-                    <li><Badge variant="destructive" className="mr-2">dangerous</Badge> High-confidence threat detected</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-2">Threat Types</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>PHISHING, SOCIAL_ENGINEERING, MALWARE, IMPERSONATION</li>
-                    <li>URGENCY_MANIPULATION, AUTHORITY_ABUSE, DATA_EXFILTRATION, COMMAND_INJECTION</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Code Examples</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="python">
-                <TabsList>
-                  <TabsTrigger value="python">Python</TabsTrigger>
-                  <TabsTrigger value="javascript">JavaScript</TabsTrigger>
+              <Tabs defaultValue="python-mcp">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="python-mcp" data-testid="tab-python-mcp">Python MCP</TabsTrigger>
+                  <TabsTrigger value="python-rest" data-testid="tab-python-rest">Python REST</TabsTrigger>
+                  <TabsTrigger value="js-mcp" data-testid="tab-js-mcp">JS MCP</TabsTrigger>
+                  <TabsTrigger value="js-rest" data-testid="tab-js-rest">JS REST</TabsTrigger>
                 </TabsList>
-                <TabsContent value="python" className="relative">
-                  <pre className="bg-accent p-4 rounded-lg text-sm overflow-x-auto mt-4">
-                    {pythonExample}
-                  </pre>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-6 right-2"
-                    onClick={() => copyCode(pythonExample, "python")}
-                    data-testid="button-copy-python"
-                  >
-                    {copied === "python" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  </Button>
+                <TabsContent value="python-mcp">
+                  <CodeBlock code={pythonMcpExample} id="python-mcp" />
                 </TabsContent>
-                <TabsContent value="javascript" className="relative">
-                  <pre className="bg-accent p-4 rounded-lg text-sm overflow-x-auto mt-4">
-                    {jsExample}
-                  </pre>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-6 right-2"
-                    onClick={() => copyCode(jsExample, "js")}
-                    data-testid="button-copy-js"
-                  >
-                    {copied === "js" ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  </Button>
+                <TabsContent value="python-rest">
+                  <CodeBlock code={pythonRestExample} id="python-rest" />
+                </TabsContent>
+                <TabsContent value="js-mcp">
+                  <CodeBlock code={jsExample} id="js-mcp" />
+                </TabsContent>
+                <TabsContent value="js-rest">
+                  <CodeBlock code={jsRestExample} id="js-rest" />
                 </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
             <CardHeader>
-              <CardTitle>Authentication</CardTitle>
+              <CardTitle className="text-white">Pricing</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm">
-                All API calls to protected endpoints require a Bearer token in the Authorization header:
-              </p>
-              <pre className="bg-accent p-4 rounded-lg text-sm">
-                Authorization: Bearer sm_live_your_token_here
-              </pre>
-              <p className="text-sm text-muted-foreground">
-                Tokens are created in your dashboard and have configurable monthly limits. 
-                Each check costs $0.05 and is charged to the associated payment method.
-              </p>
+            <CardContent className="text-sm text-white/80 space-y-2">
+              <p><strong className="text-white">$0.05 per email check</strong> — charged at time of request via Skyfire PAY token.</p>
+              <p className="text-white/50">Failed requests (invalid token, insufficient balance) are not charged. Only successful analysis incurs a charge.</p>
             </CardContent>
           </Card>
+
+          <div className="pt-4 pb-8 flex flex-wrap items-center justify-between gap-4">
+            <Link href="/">
+              <Button variant="ghost" className="text-white/50" data-testid="button-back-home">
+                <ArrowLeft className="h-4 w-4 mr-2" /> Back to Home
+              </Button>
+            </Link>
+            <a href="https://skyfire.xyz" target="_blank" rel="noopener">
+              <Button variant="outline" className="text-white/70 border-white/10" data-testid="button-get-skyfire">
+                Get a Skyfire Token
+              </Button>
+            </a>
+          </div>
         </div>
       </main>
     </div>
