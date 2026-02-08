@@ -31,7 +31,7 @@ const MCP_CONFIG = `{
       "command": "npx",
       "args": [
         "-y", "mcp-remote",
-        "https://agentsafe-api.fly.dev/mcp",
+        "https://agentsafe.locationledger.com/mcp",
         "--header",
         "skyfire-pay-id: <YOUR_SKYFIRE_PAY_TOKEN>"
       ]
@@ -405,7 +405,7 @@ export default function Landing() {
               <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">MCP SERVER</h4>
               <ul className="space-y-2">
                 <li><Link href="/docs" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-docs">Documentation</Link></li>
-                <li><a href="https://agentsafe-api.fly.dev/mcp" target="_blank" rel="noopener" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-endpoint">MCP Endpoint</a></li>
+                <li><a href="https://agentsafe.locationledger.com/mcp" target="_blank" rel="noopener" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-endpoint">MCP Endpoint</a></li>
                 <li><a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-skyfire">Skyfire Network</a></li>
               </ul>
             </div>

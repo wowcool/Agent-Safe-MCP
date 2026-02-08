@@ -8,7 +8,7 @@ import logoImg from "@assets/mcp-logo-v4.png";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
-const BASE_URL = "https://agentsafe-api.fly.dev";
+const BASE_URL = "https://agentsafe.locationledger.com";
 
 export default function Docs() {
   const { toast } = useToast();

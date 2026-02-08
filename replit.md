@@ -54,7 +54,7 @@ SafeMessage is a **Remote MCP Server** using the Streamable HTTP transport (MCP 
       "command": "npx",
       "args": [
         "-y", "mcp-remote",
-        "https://YOUR_DOMAIN/mcp",
+        "https://agentsafe.locationledger.com/mcp",
         "--header", "skyfire-pay-id: <SKYFIRE_PAY_TOKEN>"
       ]
     }

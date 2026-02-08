@@ -1,5 +1,5 @@
 #!/bin/bash
-BASE_URL="https://agentsafe-api.fly.dev"
+BASE_URL="https://agentsafe.locationledger.com"
 PASS=0
 FAIL=0
 
