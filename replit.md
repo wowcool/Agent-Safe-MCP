@@ -24,21 +24,23 @@ See `BUILD_PLAN.md` for the complete technical specification.
 - **Backend:** Express.js on Node.js
 - **Frontend:** React with Vite, TailwindCSS, shadcn/ui
 - **Database:** PostgreSQL with Drizzle ORM
-- **Payments:** Stripe (delegated model) + Crypto wallets (autonomous model)
+- **Payments:** Stripe (delegated model) + Skyfire KYAPay (autonomous model) + Crypto wallets (legacy)
 - **AI:** Anthropic Claude for email analysis
 - **Email:** Postmark for owner notifications
 
 ## Payment Models
 
-1. **Delegated Model:** Owner sets up payment once, agent operates autonomously
-2. **Autonomous Model:** Agent has its own wallet, no owner ever needed
+1. **Delegated Model:** Owner sets up payment once via Stripe, agent operates autonomously
+2. **Skyfire Pay-Per-Use:** Agent sends Skyfire PAY token via `skyfire-pay-id` header, no registration needed
+3. **Autonomous Model:** Agent registers with own crypto wallet (legacy)
 
 ## Key Endpoints
 
 - `GET /mcp/discover` - Service discovery for agents
 - `POST /mcp/register/delegated` - Register with owner token
 - `POST /mcp/register/autonomous` - Register with own wallet
-- `POST /mcp/tools/check_email_safety` - Core email safety check
+- `POST /mcp/register/skyfire` - Register via Skyfire KYAPay token
+- `POST /mcp/tools/check_email_safety` - Core email safety check (accepts Bearer token or skyfire-pay-id header)
 
 ## Environment Variables
 
@@ -50,6 +52,7 @@ See `BUILD_PLAN.md` for the complete technical specification.
 | `STRIPE_PUBLISHABLE_KEY` | ✅ Set |
 | `JWT_SECRET` | ✅ Set |
 | `SESSION_SECRET` | ✅ Set |
+| `SKYFIRE_API` | ✅ Set |
 | `STRIPE_WEBHOOK_SECRET` | ⏳ Add after deploy |
 
 ## Directory Structure
@@ -83,7 +86,8 @@ $0.05 per email check (both payment models)
 ## External Integrations
 
 - **Anthropic Claude:** Email analysis
-- **Stripe:** Payment processing
+- **Stripe:** Payment processing (delegated model)
+- **Skyfire:** Agent payment network (KYAPay protocol, PAY tokens, JWKS validation)
 - **Postmark:** Email notifications (from support@locationledger.com)
 - **MoltBook:** Referral agent posts
 

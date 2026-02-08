@@ -246,6 +246,7 @@ export interface DiscoveryResponse {
     register: {
       delegated: string;
       autonomous: string;
+      skyfire?: string;
     };
     tools: {
       checkEmailSafety: string;

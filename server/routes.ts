@@ -26,6 +26,11 @@ import {
   getTokenWithOwner,
 } from "./services/token";
 import { analyzeEmail } from "./services/email-analyzer";
+import {
+  validateSkyfireToken,
+  chargeSkyfireToken,
+  isSkyfireConfigured,
+} from "./services/skyfire";
 import { z } from "zod";
 
 export async function registerRoutes(
@@ -311,11 +316,12 @@ export async function registerRoutes(
           perCheck: 0.05,
           currency: "USD",
         },
-        paymentMethods: ["stripe_delegated", "crypto_wallet"],
+        paymentMethods: ["stripe_delegated", "skyfire_pay", "crypto_wallet"],
         endpoints: {
           register: {
             delegated: "/mcp/register/delegated",
             autonomous: "/mcp/register/autonomous",
+            skyfire: "/mcp/register/skyfire",
           },
           tools: {
             checkEmailSafety: "/mcp/tools/check_email_safety",
@@ -417,20 +423,74 @@ export async function registerRoutes(
     }
   });
 
+  // ===== SKYFIRE REGISTRATION =====
+
+  app.post("/mcp/register/skyfire", async (req: Request, res: Response) => {
+    try {
+      if (!isSkyfireConfigured()) {
+        return res.status(503).json({ error: "Skyfire payments not configured" });
+      }
+
+      const skyfireToken = req.headers["skyfire-pay-id"] as string || req.body.skyfireToken;
+      if (!skyfireToken) {
+        return res.status(400).json({
+          error: "Missing Skyfire token",
+          hint: "Include skyfire-pay-id header or skyfireToken in request body",
+        });
+      }
+
+      const validation = await validateSkyfireToken(skyfireToken);
+      if (!validation.valid) {
+        return res.status(401).json({
+          error: "Invalid Skyfire token",
+          details: validation.error,
+        });
+      }
+
+      const { agentName } = req.body;
+      if (!agentName) {
+        return res.status(400).json({ error: "Missing agentName in request body" });
+      }
+
+      const agentId = validation.claims?.sub || `skyfire_${Date.now()}`;
+      const { token, tokenRecord } = await createAutonomousToken(
+        agentId,
+        agentName,
+        `skyfire:${validation.claims?.sub || "unknown"}`,
+        "skyfire"
+      );
+
+      return res.json({
+        success: true,
+        apiToken: token,
+        paymentMethod: "skyfire",
+        pricePerCheck: 0.05,
+        message: "Registered via Skyfire. Use Bearer token for API calls, or include skyfire-pay-id header for pay-per-use.",
+      });
+    } catch (error: any) {
+      console.error("Skyfire registration error:", error);
+      return res.status(500).json({ error: "Skyfire registration failed" });
+    }
+  });
+
   // ===== MCP TOOLS =====
 
   app.post("/mcp/tools/check_email_safety", async (req: Request, res: Response) => {
     const startTime = Date.now();
     
     try {
-      // Extract bearer token
+      const skyfireToken = req.headers["skyfire-pay-id"] as string;
       const authHeader = req.headers.authorization;
+
+      if (skyfireToken && isSkyfireConfigured()) {
+        return handleSkyfireEmailCheck(req, res, skyfireToken);
+      }
+
       if (!authHeader?.startsWith("Bearer ")) {
-        return res.status(401).json({ error: "Missing authorization token" });
+        return res.status(401).json({ error: "Missing authorization. Use Bearer token or skyfire-pay-id header." });
       }
       const apiToken = authHeader.substring(7);
 
-      // Validate token
       const validation = await validateApiToken(apiToken);
       if (!validation.valid || !validation.tokenRecord) {
         return res.status(401).json({ error: validation.error || "Invalid token" });
@@ -438,13 +498,11 @@ export async function registerRoutes(
 
       const tokenRecord = validation.tokenRecord;
 
-      // Validate request body
       const emailRequest = req.body as CheckEmailRequest;
       if (!emailRequest.email?.from || !emailRequest.email?.subject || !emailRequest.email?.body) {
         return res.status(400).json({ error: "Missing required email fields (from, subject, body)" });
       }
 
-      // Get payment info for delegated tokens
       let paymentResult: { success: boolean; paymentIntentId?: string; error?: string } = { success: true };
       
       if (tokenRecord.agentType === "delegated") {
@@ -453,7 +511,6 @@ export async function registerRoutes(
           return res.status(402).json({ error: "Payment method not configured" });
         }
 
-        // Charge for the check
         paymentResult = await chargeForEmailCheck(
           tokenWithOwner.stripeCustomerId,
           tokenWithOwner.stripePaymentMethodId
@@ -464,10 +521,8 @@ export async function registerRoutes(
         }
       }
 
-      // Analyze email
       const { result: analysisResult, durationMs } = await analyzeEmail(emailRequest);
 
-      // Record the check
       const emailCheck = await storage.createEmailCheck({
         tokenId: tokenRecord.id,
         senderDomain: emailRequest.email.from.split("@")[1] || null,
@@ -483,10 +538,8 @@ export async function registerRoutes(
         analysisDurationMs: durationMs,
       });
 
-      // Update token usage
       await storage.updateAgentTokenUsage(tokenRecord.id);
 
-      // Create usage log
       await storage.createUsageLog({
         tokenId: tokenRecord.id,
         action: "email_check",
@@ -513,6 +566,106 @@ export async function registerRoutes(
       return res.status(500).json({ error: "Analysis failed" });
     }
   });
+
+  let skyfireSystemTokenId: string | null = null;
+
+  async function getOrCreateSkyfireSystemToken(): Promise<string> {
+    if (skyfireSystemTokenId) {
+      const existing = await storage.getAgentToken(skyfireSystemTokenId);
+      if (existing && existing.status === "active") {
+        return skyfireSystemTokenId;
+      }
+    }
+
+    const existingTokens = await storage.getAgentTokenByHash("skyfire_system_token_hash");
+    if (existingTokens) {
+      skyfireSystemTokenId = existingTokens.id;
+      return skyfireSystemTokenId;
+    }
+
+    const { tokenRecord } = await createAutonomousToken(
+      "skyfire-system",
+      "Skyfire Pay-Per-Use",
+      "skyfire:system",
+      "skyfire",
+      365
+    );
+    skyfireSystemTokenId = tokenRecord.id;
+    return skyfireSystemTokenId;
+  }
+
+  async function handleSkyfireEmailCheck(req: Request, res: Response, skyfireToken: string) {
+    try {
+      const validation = await validateSkyfireToken(skyfireToken);
+      if (!validation.valid) {
+        return res.status(401).json({
+          error: "Invalid Skyfire payment token",
+          details: validation.error,
+        });
+      }
+
+      const emailRequest = req.body as CheckEmailRequest;
+      if (!emailRequest.email?.from || !emailRequest.email?.subject || !emailRequest.email?.body) {
+        return res.status(400).json({ error: "Missing required email fields (from, subject, body)" });
+      }
+
+      const chargeResult = await chargeSkyfireToken(skyfireToken, 0.05);
+      if (!chargeResult.success) {
+        return res.status(402).json({
+          error: "Skyfire payment failed",
+          details: chargeResult.error,
+        });
+      }
+
+      const { result: analysisResult, durationMs } = await analyzeEmail(emailRequest);
+
+      const systemTokenId = await getOrCreateSkyfireSystemToken();
+
+      const emailCheck = await storage.createEmailCheck({
+        tokenId: systemTokenId,
+        senderDomain: emailRequest.email.from.split("@")[1] || null,
+        hasLinks: (emailRequest.email.links?.length || 0) > 0,
+        hasAttachments: (emailRequest.email.attachments?.length || 0) > 0,
+        verdict: analysisResult.verdict,
+        riskScore: String(analysisResult.riskScore),
+        confidence: String(analysisResult.confidence),
+        threatsDetected: analysisResult.threats,
+        chargedAmount: "0.05",
+        paymentType: "skyfire",
+        paymentReference: chargeResult.transactionId || null,
+        analysisDurationMs: durationMs,
+      });
+
+      await storage.updateAgentTokenUsage(systemTokenId);
+
+      await storage.createUsageLog({
+        tokenId: systemTokenId,
+        action: "email_check",
+        amount: "0.05",
+        paymentStatus: "success",
+      });
+
+      console.log(`Skyfire payment: buyer=${validation.claims?.sub || "unknown"}, txn=${chargeResult.transactionId}, check=${emailCheck.id}`);
+
+      const response: CheckEmailResponse = {
+        verdict: analysisResult.verdict,
+        riskScore: analysisResult.riskScore,
+        confidence: analysisResult.confidence,
+        threats: analysisResult.threats,
+        recommendation: analysisResult.recommendation,
+        explanation: analysisResult.explanation,
+        safeActions: analysisResult.safeActions,
+        unsafeActions: analysisResult.unsafeActions,
+        checkId: emailCheck.id,
+        charged: 0.05,
+      };
+
+      return res.json(response);
+    } catch (error: any) {
+      console.error("Skyfire email check error:", error);
+      return res.status(500).json({ error: "Analysis failed" });
+    }
+  }
 
   // ===== PUBLIC STATS (for landing page) =====
 
