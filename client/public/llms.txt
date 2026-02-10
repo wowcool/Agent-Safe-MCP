@@ -1,0 +1,71 @@
+# Agent Safe (Safe Message MCP)
+
+> A Remote MCP Server that protects AI agents from phishing, social engineering, prompt injection, and email-based manipulation. Pay-per-use via Skyfire Network at $0.01 per check.
+
+## About
+
+Agent Safe is an email safety verification service designed for AI agents. It analyzes emails for threats before agents act on them. Agents are first-class customers who can discover, connect, and pay autonomously via Skyfire KYAPay tokens.
+
+## MCP Connection
+
+- Endpoint: https://agentsafe.locationledger.com/mcp
+- Transport: Streamable HTTP (JSON-RPC 2.0)
+- Tool: check_email_safety
+- Payment: Skyfire PAY token via skyfire-pay-id header
+- Price: $0.01 USD per email check
+
+## MCP Client Configuration
+
+```json
+{
+  "mcpServers": {
+    "safemessage": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://agentsafe.locationledger.com/mcp",
+        "--header",
+        "skyfire-pay-id: <YOUR_SKYFIRE_PAY_TOKEN>"
+      ]
+    }
+  }
+}
+```
+
+## Threat Detection Capabilities
+
+- Phishing: Spoofed domains, fake login pages, credential harvesting
+- Social Engineering: Authority impersonation, urgency manipulation, emotional pressure
+- Prompt Injection: Hidden instructions in HTML comments, invisible text, system override attempts
+- CEO Fraud / BEC: Wire transfer scams, executive impersonation, secrecy demands
+- Financial Fraud: Cryptocurrency scams, fake invoices, advance-fee fraud
+- Data Exfiltration: Attempts to trick agents into forwarding sensitive data
+
+## API Response
+
+The check_email_safety tool returns:
+- verdict: "safe", "suspicious", or "dangerous"
+- riskScore: 0.0 (safe) to 1.0 (malicious)
+- threats: Array of detected threats with type, description, severity
+- recommendation: "proceed", "proceed_with_caution", or "do_not_act"
+- safeActions: List of safe actions the agent can take
+- unsafeActions: List of actions the agent should avoid
+
+## Key Resources
+
+- [Documentation](https://agentsafe.locationledger.com/docs)
+- [How It Works](https://agentsafe.locationledger.com/how-it-works)
+- [Terms of Service](https://agentsafe.locationledger.com/terms)
+- [Service Discovery API](https://agentsafe.locationledger.com/mcp/discover)
+- [Skyfire Network](https://skyfire.xyz)
+
+## REST API Endpoints
+
+- GET /mcp/discover - Service discovery for agents
+- POST /mcp/tools/check_email_safety - Email safety check (REST)
+- POST /mcp - MCP protocol endpoint (Streamable HTTP)
+
+## Company
+
+Built by Alibi Ledger, LLC. Part of the Anti-Deepfake/Agent Abuse protection suite.
+Website: https://locationledger.com

@@ -2,8 +2,14 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import logoImg from "@assets/mcp-logo-v4.png";
+import { useSEO } from "@/lib/seo";
 
 export default function Terms() {
+  useSEO({
+    title: "Terms of Service - Agent Safe | Liability & Usage Terms",
+    description: "Terms of Service for Agent Safe email safety MCP server. Includes liability disclaimers, warranty information, agent responsibility, and indemnification provisions.",
+    path: "/terms",
+  });
   return (
     <div className="min-h-screen" style={{ background: "#0f1012", color: "#e5e5e5", fontFamily: "'Inter', system-ui, sans-serif" }}>
       <header className="sticky top-0 z-50 px-6 py-4" style={{ background: "rgba(15, 16, 18, 0.85)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>

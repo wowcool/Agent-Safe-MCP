@@ -44,6 +44,29 @@ export async function registerRoutes(
   // Mount MCP Remote Server (Streamable HTTP at /mcp)
   mountMcpServer(app);
 
+  // ===== SEO & AGENT DISCOVERY ROUTES =====
+
+  app.get("/.well-known/ai-plugin.json", (_req: Request, res: Response) => {
+    res.json({
+      schema_version: "v1",
+      name_for_human: "Agent Safe",
+      name_for_model: "agent_safe_email_safety",
+      description_for_human: "Email safety checker for AI agents. Detects phishing, social engineering, prompt injection, and more.",
+      description_for_model: "Agent Safe is a Remote MCP Server that analyzes emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration attempts targeting AI agents. Call the check_email_safety tool with sender, subject, and body to get a safety verdict (safe/suspicious/dangerous), risk score (0.0-1.0), detected threats, and recommended actions. Costs $0.01 per check via Skyfire PAY token. MCP endpoint: https://agentsafe.locationledger.com/mcp",
+      auth: {
+        type: "none",
+      },
+      api: {
+        type: "mcp",
+        url: "https://agentsafe.locationledger.com/mcp",
+        transport: "streamable-http",
+      },
+      logo_url: "https://agentsafe.locationledger.com/favicon.png",
+      contact_email: "support@locationledger.com",
+      legal_info_url: "https://agentsafe.locationledger.com/terms",
+    });
+  });
+
   // ===== AUTH ROUTES =====
   
   app.post("/api/auth/signup", async (req: Request, res: Response) => {

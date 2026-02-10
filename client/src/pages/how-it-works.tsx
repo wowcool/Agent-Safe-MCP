@@ -8,6 +8,7 @@ import {
   Eye, Brain, ShieldAlert, Skull, Fingerprint, MessageSquareWarning
 } from "lucide-react";
 import logoImg from "@assets/mcp-logo-v4.png";
+import { useSEO } from "@/lib/seo";
 
 function ThreatCard({ icon: Icon, title, description, example, riskLevel }: {
   icon: any;
@@ -68,6 +69,11 @@ function StepCard({ number, title, description, icon: Icon }: {
 }
 
 export default function HowItWorks() {
+  useSEO({
+    title: "How Agent Safe Works - Email Threat Detection for AI Agents | MCP Server",
+    description: "Learn how Agent Safe analyzes emails for phishing, prompt injection, CEO fraud, and social engineering. See real testing results and example responses from our MCP server.",
+    path: "/how-it-works",
+  });
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-black/60 backdrop-blur-[10px] sticky top-0 z-[999]">

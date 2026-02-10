@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, Copy, ExternalLink } from "lucide-react";
 import logoImg from "@assets/mcp-logo-v4.png";
 import { useState } from "react";
+import { useSEO } from "@/lib/seo";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -40,6 +41,11 @@ const MCP_CONFIG = `{
 }`;
 
 export default function Landing() {
+  useSEO({
+    title: "Agent Safe - Email Safety MCP Server for AI Agents | Phishing & Prompt Injection Protection",
+    description: "A Remote MCP Server that checks every email before your AI agent acts on it. Detects phishing, social engineering, prompt injection. Pay-per-use via Skyfire. $0.01/check.",
+    path: "/",
+  });
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-black/60 backdrop-blur-[10px] sticky top-0 z-[999]">

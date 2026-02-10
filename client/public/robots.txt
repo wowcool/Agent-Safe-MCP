@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://agentsafe.locationledger.com/sitemap.xml
+
+# AI Agent Discovery
+# llms.txt: https://agentsafe.locationledger.com/llms.txt
+# MCP Endpoint: https://agentsafe.locationledger.com/mcp
+# Service Discovery: https://agentsafe.locationledger.com/mcp/discover

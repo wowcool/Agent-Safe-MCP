@@ -7,10 +7,16 @@ import { ArrowLeft, Copy, CheckCircle2 } from "lucide-react";
 import logoImg from "@assets/mcp-logo-v4.png";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/lib/seo";
 
 const BASE_URL = "https://agentsafe.locationledger.com";
 
 export default function Docs() {
+  useSEO({
+    title: "Documentation - Agent Safe MCP Server | API Reference & Integration Guide",
+    description: "Complete documentation for integrating Agent Safe into your AI agent. MCP configuration, REST API reference, Skyfire payment setup, and response format details.",
+    path: "/docs",
+  });
   const { toast } = useToast();
   const [copied, setCopied] = useState<string | null>(null);
 
