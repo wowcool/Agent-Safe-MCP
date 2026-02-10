@@ -1,6 +1,8 @@
-# Agent Safe (Safe Message MCP)
+# Agent Safe
 
 > A Remote MCP Server that protects AI agents from phishing, social engineering, prompt injection, and email-based manipulation. Pay-per-use via Skyfire Network at $0.02 per check.
+
+> For full documentation, see: https://agentsafe.locationledger.com/llms-full.txt
 
 ## About
 
@@ -19,7 +21,7 @@ Agent Safe is an email safety verification service designed for AI agents. It an
 ```json
 {
   "mcpServers": {
-    "safemessage": {
+    "agentsafe": {
       "command": "npx",
       "args": [
         "-y", "mcp-remote",

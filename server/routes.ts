@@ -46,6 +46,50 @@ export async function registerRoutes(
 
   // ===== SEO & AGENT DISCOVERY ROUTES =====
 
+  app.get("/.well-known/mcp.json", (_req: Request, res: Response) => {
+    res.json({
+      name: "Agent Safe",
+      description: "Email safety MCP server. Detects phishing, prompt injection, CEO fraud for AI agents.",
+      version: "1.0.0",
+      protocol: "mcp",
+      transport: {
+        type: "streamable-http",
+        url: "https://agentsafe.locationledger.com/mcp",
+      },
+      authentication: {
+        type: "header",
+        header_name: "skyfire-pay-id",
+        description: "Skyfire PAY token for payment. Get one at skyfire.xyz. $0.02 per email check.",
+      },
+      tools: [
+        {
+          name: "check_email_safety",
+          description: "Analyze an email for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration threats. Returns verdict, risk score, detected threats, and recommended actions.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              sender: { type: "string", description: "Email sender address" },
+              subject: { type: "string", description: "Email subject line" },
+              body: { type: "string", description: "Email body content (plain text or HTML)" },
+              recipientContext: { type: "string", description: "Optional context about the recipient agent" },
+            },
+            required: ["sender", "subject", "body"],
+          },
+        },
+      ],
+      pricing: {
+        model: "per_request",
+        amount: "0.02",
+        currency: "USD",
+        payment_network: "Skyfire",
+      },
+      contact: "support@locationledger.com",
+      legal: "https://agentsafe.locationledger.com/terms",
+      homepage: "https://agentsafe.locationledger.com",
+      repository: "https://github.com/wowcool/Agent-Safe-MCP",
+    });
+  });
+
   app.get("/.well-known/ai-plugin.json", (_req: Request, res: Response) => {
     res.json({
       schema_version: "v1",

@@ -6,5 +6,8 @@ Sitemap: https://agentsafe.locationledger.com/sitemap.xml
 
 # AI Agent Discovery
 # llms.txt: https://agentsafe.locationledger.com/llms.txt
+# llms-full.txt: https://agentsafe.locationledger.com/llms-full.txt
+# MCP Discovery: https://agentsafe.locationledger.com/.well-known/mcp.json
+# AI Plugin: https://agentsafe.locationledger.com/.well-known/ai-plugin.json
 # MCP Endpoint: https://agentsafe.locationledger.com/mcp
 # Service Discovery: https://agentsafe.locationledger.com/mcp/discover

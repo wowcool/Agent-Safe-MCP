@@ -1,0 +1,193 @@
+# Agent Safe - Full Documentation for AI Systems
+
+> A Remote MCP Server that protects AI agents from phishing, social engineering, prompt injection, and email-based manipulation. Pay-per-use via Skyfire Network at $0.02 per check.
+
+## Overview
+
+Agent Safe (formerly Safe Message) is an email safety verification service designed specifically for AI agents. Before an agent processes, replies to, or acts on an email, it can call Agent Safe to get a safety analysis. The service uses Claude AI to detect six categories of threats and returns structured, actionable results.
+
+Agents are first-class customers. No human signup required. No API keys to manage. Just send a Skyfire PAY token with each request and get instant results.
+
+## MCP Protocol Connection
+
+Agent Safe implements the Model Context Protocol (MCP) using Streamable HTTP transport.
+
+- **Endpoint:** `POST https://agentsafe.locationledger.com/mcp`
+- **Transport:** Streamable HTTP (JSON-RPC 2.0)
+- **Protocol Version:** 2025-03-26
+- **SDK:** `@modelcontextprotocol/sdk`
+
+### MCP Client Configuration
+
+To connect from any MCP-compatible client (Claude Desktop, Cursor, Windsurf, etc.):
+
+```json
+{
+  "mcpServers": {
+    "agentsafe": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://agentsafe.locationledger.com/mcp",
+        "--header",
+        "skyfire-pay-id: <YOUR_SKYFIRE_PAY_TOKEN>"
+      ]
+    }
+  }
+}
+```
+
+Get your Skyfire PAY token at https://skyfire.xyz
+
+## Tool: check_email_safety
+
+The single MCP tool provided by Agent Safe.
+
+### Input Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| sender | string | Yes | The email sender's address (e.g., "ceo@company.com") |
+| subject | string | Yes | The email subject line |
+| body | string | Yes | The full email body content (plain text or HTML) |
+| recipientContext | string | No | Context about the recipient agent's role or permissions |
+
+### Output Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| verdict | string | "safe", "suspicious", or "dangerous" |
+| riskScore | number | 0.0 (completely safe) to 1.0 (confirmed malicious) |
+| threats | array | List of detected threats, each with type, description, severity, and indicators |
+| recommendation | string | "proceed", "proceed_with_caution", or "do_not_act" |
+| safeActions | array | Actions the agent can safely take |
+| unsafeActions | array | Actions the agent should avoid |
+| summary | string | Human-readable summary of the analysis |
+
+### Example MCP Tool Call
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "check_email_safety",
+    "arguments": {
+      "sender": "urgent-security@g00gle-support.com",
+      "subject": "URGENT: Your account will be suspended",
+      "body": "Dear user, your Google account has been compromised. Click here immediately to verify your identity: http://g00gle-secure-login.tk/verify"
+    }
+  }
+}
+```
+
+### Example Response
+
+```json
+{
+  "verdict": "dangerous",
+  "riskScore": 0.95,
+  "threats": [
+    {
+      "type": "phishing",
+      "severity": "critical",
+      "description": "Spoofed Google domain using character substitution (g00gle)",
+      "indicators": ["g00gle-support.com", "g00gle-secure-login.tk"]
+    },
+    {
+      "type": "social_engineering",
+      "severity": "high",
+      "description": "Creates false urgency with account suspension threat",
+      "indicators": ["URGENT", "will be suspended", "immediately"]
+    }
+  ],
+  "recommendation": "do_not_act",
+  "safeActions": ["Report as phishing", "Delete email", "Notify user"],
+  "unsafeActions": ["Click any links", "Reply to sender", "Forward email"],
+  "summary": "This is a phishing attempt using a spoofed Google domain. The email creates false urgency to trick the recipient into clicking a malicious link."
+}
+```
+
+## Threat Detection Categories
+
+### 1. Phishing
+Spoofed domains, lookalike URLs, fake login pages, credential harvesting attempts, homoglyph attacks, URL shortener abuse.
+
+### 2. Social Engineering
+Authority impersonation, urgency manipulation, emotional pressure, trust exploitation, pretexting, reciprocity exploitation.
+
+### 3. Prompt Injection
+Hidden instructions in HTML comments, invisible Unicode text, base64-encoded commands, system prompt override attempts, instruction injection targeting the receiving agent.
+
+### 4. CEO Fraud / Business Email Compromise (BEC)
+Executive impersonation, wire transfer requests, vendor payment changes, secrecy demands, unusual authorization patterns.
+
+### 5. Financial Fraud
+Cryptocurrency scams, fake invoices, advance-fee fraud, money laundering attempts, fraudulent payment requests.
+
+### 6. Data Exfiltration
+Attempts to trick agents into forwarding sensitive data, exporting databases, sharing credentials, or transmitting confidential information to external addresses.
+
+## REST API (Alternative to MCP)
+
+For agents that don't support MCP, a REST API is also available:
+
+### Service Discovery
+```
+GET https://agentsafe.locationledger.com/mcp/discover
+```
+
+Returns service capabilities, pricing, and connection instructions.
+
+### Email Safety Check (REST)
+```
+POST https://agentsafe.locationledger.com/mcp/tools/check_email_safety
+Content-Type: application/json
+skyfire-pay-id: <YOUR_SKYFIRE_PAY_TOKEN>
+
+{
+  "sender": "example@domain.com",
+  "subject": "Email subject",
+  "body": "Email body content"
+}
+```
+
+Returns the same structured response as the MCP tool.
+
+## Payment
+
+Agent Safe uses the Skyfire Network for pay-per-use billing:
+
+- **Cost:** $0.02 USD per email check
+- **Payment method:** Skyfire PAY token sent via `skyfire-pay-id` HTTP header
+- **No signup required:** Just get a Skyfire PAY token and start using the service
+- **No API keys:** The PAY token handles both authentication and payment
+- **Get started:** Visit https://skyfire.xyz to obtain a PAY token
+
+## Discovery Endpoints
+
+| URL | Purpose |
+|-----|---------|
+| https://agentsafe.locationledger.com/mcp | MCP Streamable HTTP endpoint |
+| https://agentsafe.locationledger.com/mcp/discover | REST service discovery |
+| https://agentsafe.locationledger.com/.well-known/mcp.json | MCP auto-discovery manifest |
+| https://agentsafe.locationledger.com/.well-known/ai-plugin.json | AI plugin manifest |
+| https://agentsafe.locationledger.com/llms.txt | AI-readable summary |
+| https://agentsafe.locationledger.com/llms-full.txt | Full AI-readable documentation (this file) |
+
+## Registry Listings
+
+- **Official MCP Registry:** `io.github.wowcool/agentsafe`
+- **Skyfire Marketplace:** Listed as approved seller
+- **GitHub:** https://github.com/wowcool/Agent-Safe-MCP
+
+## Legal
+
+- **Terms of Service:** https://agentsafe.locationledger.com/terms
+- **License:** Proprietary - All Rights Reserved
+- **Company:** Alibi Ledger, LLC
+- **Contact:** support@locationledger.com
+- **Website:** https://locationledger.com
+
+## Liability
+
+Agent Safe provides threat analysis to assist AI agent decision-making. Results are advisory and should not be the sole basis for security decisions. See Terms of Service for full liability limitations.
