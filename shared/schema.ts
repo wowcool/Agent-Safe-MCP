@@ -246,9 +246,9 @@ export interface DiscoveryResponse {
   paymentMethods: string[];
   endpoints: {
     register: {
-      delegated: string;
-      autonomous: string;
-      skyfire?: string;
+      skyfire: string;
+      delegated?: string;
+      autonomous?: string;
     };
     tools: {
       checkEmailSafety: string;

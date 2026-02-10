@@ -8,12 +8,11 @@ import {
   chargeSkyfireToken,
   isSkyfireConfigured,
 } from "./services/skyfire";
-import { validateApiToken, getTokenWithOwner, createAutonomousToken } from "./services/token";
-import { chargeForEmailCheck } from "./services/payment";
+import { createAutonomousToken } from "./services/token";
 import { storage } from "./storage";
 import type { CheckEmailRequest, CheckEmailResponse } from "@shared/schema";
 
-const TOOL_DESCRIPTION = "Analyze an email for phishing, social engineering, prompt injection, and other threats targeting AI agents. Returns a safety verdict, risk score, detected threats, and recommended actions. Costs $0.02 per check - payment via skyfire-pay-id header (Skyfire PAY token) or Authorization: Bearer <token>. By using this tool you accept the Terms of Service at https://agentsafe.locationledger.com/terms. This is an advisory service; we are not liable for undetected threats or agent actions based on results.";
+const TOOL_DESCRIPTION = "Analyze an email for phishing, social engineering, prompt injection, and other threats targeting AI agents. Returns a safety verdict, risk score, detected threats, and recommended actions. Costs $0.02 per check - payment via skyfire-pay-id header (Skyfire PAY token). By using this tool you accept the Terms of Service at https://agentsafe.locationledger.com/terms. This is an advisory service; we are not liable for undetected threats or agent actions based on results.";
 
 const TOOL_SCHEMA = {
   from: z.string().describe("Sender email address"),
@@ -118,7 +117,6 @@ async function recordEmailCheck(
 
 function createPerRequestMcpServer(
   skyfireToken: string | undefined,
-  bearerToken: string | undefined,
 ): McpServer {
   const server = new McpServer({
     name: "SafeMessage",
@@ -130,87 +128,44 @@ function createPerRequestMcpServer(
     TOOL_DESCRIPTION,
     TOOL_SCHEMA,
     async (args) => {
-      if (!skyfireToken && !bearerToken) {
+      if (!skyfireToken) {
         return mcpError(
           "Payment required",
-          "Include a skyfire-pay-id header with a Skyfire PAY token, or an Authorization: Bearer <token> header."
+          "Include a skyfire-pay-id header with your Skyfire PAY token. Get one at skyfire.xyz."
         );
       }
 
       const emailRequest = buildEmailRequest(args);
 
-      if (skyfireToken) {
-        if (!isSkyfireConfigured()) {
-          return mcpError("Skyfire payments not available", "Server Skyfire integration is not configured.");
-        }
-
-        const validation = await validateSkyfireToken(skyfireToken);
-        if (!validation.valid) {
-          return mcpError("Invalid Skyfire token", validation.error);
-        }
-
-        const chargeResult = await chargeSkyfireToken(skyfireToken, 0.02);
-        if (!chargeResult.success) {
-          return mcpError("Skyfire payment failed", chargeResult.error);
-        }
-
-        const { result: analysisResult, durationMs } = await analyzeEmail(emailRequest);
-
-        let checkId = "mcp-" + Date.now().toString(36);
-        try {
-          const systemTokenId = await getOrCreateSkyfireSystemToken();
-          checkId = await recordEmailCheck(
-            systemTokenId, emailRequest, analysisResult, durationMs,
-            "skyfire", chargeResult.transactionId || null,
-          );
-          console.log(`MCP Skyfire: buyer=${validation.claims?.sub || "unknown"}, txn=${chargeResult.transactionId}, check=${checkId}`);
-        } catch (e) {
-          console.error("MCP: Failed to record Skyfire email check:", e);
-        }
-
-        return buildToolResponse(analysisResult, checkId);
+      if (!isSkyfireConfigured()) {
+        return mcpError("Skyfire payments not available", "Server Skyfire integration is not configured.");
       }
 
-      if (bearerToken) {
-        const tokenValidation = await validateApiToken(bearerToken);
-        if (!tokenValidation.valid || !tokenValidation.tokenRecord) {
-          return mcpError("Invalid token", tokenValidation.error);
-        }
-
-        const tokenRecord = tokenValidation.tokenRecord;
-
-        if (tokenRecord.agentType === "delegated") {
-          const tokenWithOwner = await getTokenWithOwner(tokenRecord.id);
-          if (!tokenWithOwner?.stripeCustomerId || !tokenWithOwner?.stripePaymentMethodId) {
-            return mcpError("Payment method not configured");
-          }
-
-          const paymentResult = await chargeForEmailCheck(
-            tokenWithOwner.stripeCustomerId,
-            tokenWithOwner.stripePaymentMethodId
-          );
-
-          if (!paymentResult.success) {
-            return mcpError("Payment failed", paymentResult.error);
-          }
-        }
-
-        const { result: analysisResult, durationMs } = await analyzeEmail(emailRequest);
-
-        let checkId = "mcp-" + Date.now().toString(36);
-        try {
-          checkId = await recordEmailCheck(
-            tokenRecord.id, emailRequest, analysisResult, durationMs,
-            tokenRecord.agentType === "delegated" ? "stripe" : "wallet", null,
-          );
-        } catch (e) {
-          console.error("MCP: Failed to record Bearer email check:", e);
-        }
-
-        return buildToolResponse(analysisResult, checkId);
+      const validation = await validateSkyfireToken(skyfireToken);
+      if (!validation.valid) {
+        return mcpError("Invalid Skyfire token", validation.error);
       }
 
-      return mcpError("Payment required");
+      const chargeResult = await chargeSkyfireToken(skyfireToken, 0.02);
+      if (!chargeResult.success) {
+        return mcpError("Skyfire payment failed", chargeResult.error);
+      }
+
+      const { result: analysisResult, durationMs } = await analyzeEmail(emailRequest);
+
+      let checkId = "mcp-" + Date.now().toString(36);
+      try {
+        const systemTokenId = await getOrCreateSkyfireSystemToken();
+        checkId = await recordEmailCheck(
+          systemTokenId, emailRequest, analysisResult, durationMs,
+          "skyfire", chargeResult.transactionId || null,
+        );
+        console.log(`MCP Skyfire: buyer=${validation.claims?.sub || "unknown"}, txn=${chargeResult.transactionId}, check=${checkId}`);
+      } catch (e) {
+        console.error("MCP: Failed to record Skyfire email check:", e);
+      }
+
+      return buildToolResponse(analysisResult, checkId);
     }
   );
 
@@ -245,10 +200,8 @@ export function mountMcpServer(app: Express): void {
   app.post("/mcp", async (req: Request, res: Response) => {
     try {
       const skyfireToken = req.headers["skyfire-pay-id"] as string | undefined;
-      const authHeader = req.headers.authorization;
-      const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.substring(7) : undefined;
 
-      const server = createPerRequestMcpServer(skyfireToken, bearerToken);
+      const server = createPerRequestMcpServer(skyfireToken);
 
       const transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: undefined,

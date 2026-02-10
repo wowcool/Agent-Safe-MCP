@@ -387,11 +387,9 @@ export async function registerRoutes(
           perCheck: 0.02,
           currency: "USD",
         },
-        paymentMethods: ["stripe_delegated", "skyfire_pay", "crypto_wallet"],
+        paymentMethods: ["skyfire_pay"],
         endpoints: {
           register: {
-            delegated: "/mcp/register/delegated",
-            autonomous: "/mcp/register/autonomous",
             skyfire: "/mcp/register/skyfire",
           },
           tools: {
@@ -538,7 +536,7 @@ export async function registerRoutes(
         apiToken: token,
         paymentMethod: "skyfire",
         pricePerCheck: 0.02,
-        message: "Registered via Skyfire. Use Bearer token for API calls, or include skyfire-pay-id header for pay-per-use.",
+        message: "Registered via Skyfire. Include skyfire-pay-id header with your PAY token for all API calls.",
       });
     } catch (error: any) {
       console.error("Skyfire registration error:", error);
@@ -553,89 +551,12 @@ export async function registerRoutes(
     
     try {
       const skyfireToken = req.headers["skyfire-pay-id"] as string;
-      const authHeader = req.headers.authorization;
 
-      if (skyfireToken && isSkyfireConfigured()) {
-        return handleSkyfireEmailCheck(req, res, skyfireToken);
+      if (!skyfireToken || !isSkyfireConfigured()) {
+        return res.status(401).json({ error: "Missing skyfire-pay-id header. Get a Skyfire PAY token at skyfire.xyz." });
       }
 
-      if (!authHeader?.startsWith("Bearer ")) {
-        return res.status(401).json({ error: "Missing authorization. Use Bearer token or skyfire-pay-id header." });
-      }
-      const apiToken = authHeader.substring(7);
-
-      const validation = await validateApiToken(apiToken);
-      if (!validation.valid || !validation.tokenRecord) {
-        return res.status(401).json({ error: validation.error || "Invalid token" });
-      }
-
-      const tokenRecord = validation.tokenRecord;
-
-      const emailRequest = req.body as CheckEmailRequest;
-      if (!emailRequest.email?.from || !emailRequest.email?.subject || !emailRequest.email?.body) {
-        return res.status(400).json({ error: "Missing required email fields (from, subject, body)" });
-      }
-
-      let paymentResult: { success: boolean; paymentIntentId?: string; error?: string } = { success: true };
-      
-      if (tokenRecord.agentType === "delegated") {
-        const tokenWithOwner = await getTokenWithOwner(tokenRecord.id);
-        if (!tokenWithOwner?.stripeCustomerId || !tokenWithOwner?.stripePaymentMethodId) {
-          return res.status(402).json({ error: "Payment method not configured" });
-        }
-
-        paymentResult = await chargeForEmailCheck(
-          tokenWithOwner.stripeCustomerId,
-          tokenWithOwner.stripePaymentMethodId
-        );
-
-        if (!paymentResult.success) {
-          return res.status(402).json({ error: paymentResult.error || "Payment failed" });
-        }
-      }
-
-      const { result: analysisResult, durationMs } = await analyzeEmail(emailRequest);
-
-      const emailCheck = await storage.createEmailCheck({
-        tokenId: tokenRecord.id,
-        senderDomain: emailRequest.email.from.split("@")[1] || null,
-        hasLinks: (emailRequest.email.links?.length || 0) > 0,
-        hasAttachments: (emailRequest.email.attachments?.length || 0) > 0,
-        verdict: analysisResult.verdict,
-        riskScore: String(analysisResult.riskScore),
-        confidence: String(analysisResult.confidence),
-        threatsDetected: analysisResult.threats,
-        chargedAmount: "0.02",
-        paymentType: tokenRecord.agentType === "delegated" ? "stripe" : "wallet",
-        paymentReference: paymentResult.paymentIntentId || null,
-        analysisDurationMs: durationMs,
-      });
-
-      await storage.updateAgentTokenUsage(tokenRecord.id);
-
-      await storage.createUsageLog({
-        tokenId: tokenRecord.id,
-        action: "email_check",
-        amount: "0.02",
-        paymentStatus: "success",
-      });
-
-      const response: CheckEmailResponse = {
-        verdict: analysisResult.verdict,
-        riskScore: analysisResult.riskScore,
-        confidence: analysisResult.confidence,
-        threats: analysisResult.threats,
-        recommendation: analysisResult.recommendation,
-        explanation: analysisResult.explanation,
-        safeActions: analysisResult.safeActions,
-        unsafeActions: analysisResult.unsafeActions,
-        checkId: emailCheck.id,
-        charged: 0.02,
-        termsOfService: "https://agentsafe.locationledger.com/terms",
-        termsAccepted: "By using this service you have accepted the Terms of Service. This is an advisory service only.",
-      };
-
-      return res.json(response);
+      return handleSkyfireEmailCheck(req, res, skyfireToken);
     } catch (error: any) {
       console.error("Email safety check error:", error);
       return res.status(500).json({ error: "Analysis failed" });

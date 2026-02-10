@@ -29,7 +29,7 @@ export default function Docs() {
 
   const mcpConfigExample = `{
   "mcpServers": {
-    "safemessage": {
+    "agentsafe": {
       "command": "npx",
       "args": [
         "-y", "mcp-remote",
@@ -311,16 +311,10 @@ switch (result.recommendation) {
                   </p>
                 </div>
 
-                <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <p className="font-semibold text-white text-xs uppercase tracking-wider mb-1">Alternative: Bearer Token</p>
-                  <p className="text-white/70 text-xs">
-                    For delegated setups, use an <code className="px-1 py-0.5 rounded text-white/60" style={{ background: "rgba(255,255,255,0.06)" }}>Authorization: Bearer &lt;token&gt;</code> header. Requires prior registration via the delegated registration endpoint.
-                  </p>
-                </div>
               </div>
 
               <p className="text-white/50 text-xs">
-                If a <code>skyfire-pay-id</code> header is present, it takes priority. The Skyfire token must be valid and have sufficient balance — there is no fallback to Bearer auth.
+                The Skyfire token must be valid and have sufficient balance. Each call is charged $0.02 automatically via the Skyfire Network.
               </p>
             </CardContent>
           </Card>
@@ -387,7 +381,7 @@ switch (result.recommendation) {
                   <code className="text-sm text-white/80">/mcp/tools/check_email_safety</code>
                 </div>
                 <p className="text-sm text-white/50 mb-3">
-                  REST wrapper for the email safety check. Accepts <code>skyfire-pay-id</code> or <code>Authorization: Bearer</code> header.
+                  REST wrapper for the email safety check. Requires <code>skyfire-pay-id</code> header.
                 </p>
                 <CodeBlock code={restCheckExample} id="rest-check" />
               </div>
