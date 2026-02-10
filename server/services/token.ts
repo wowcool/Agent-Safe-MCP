@@ -84,7 +84,7 @@ export async function createAutonomousToken(
     walletAddress,
     walletType,
     scopes: ["email_check"],
-    limits: { maxPerMonth: 1000, pricePerCheck: 0.01 },
+    limits: { maxPerMonth: 1000, pricePerCheck: 0.02 },
     expiresAt,
   });
 

@@ -24,7 +24,7 @@ Agent Safe is an email safety verification MCP server built for AI agents. Befor
 Agents connect via MCP Streamable HTTP transport. Send a Skyfire PAY token in the `skyfire-pay-id` header. No registration, no API keys, no setup. Just connect and check.
 
 ### Pricing
-$0.01 per email check.
+$0.02 per email check.
 
 ### MCP Endpoint
 `https://agentsafe.locationledger.com/mcp`

@@ -24,7 +24,7 @@ export const agentTokens = pgTable("agent_tokens", {
   
   // For delegated agents
   scopes: jsonb("scopes").default(["email_check"]),
-  limits: jsonb("limits").default({ maxPerMonth: 100, pricePerCheck: 0.01 }),
+  limits: jsonb("limits").default({ maxPerMonth: 100, pricePerCheck: 0.02 }),
   
   // For autonomous agents
   walletAddress: varchar("wallet_address", { length: 255 }),
@@ -279,8 +279,8 @@ export const createTokenSchema = z.object({
   scopes: z.array(z.string()).default(["email_check"]),
   limits: z.object({
     maxPerMonth: z.number().min(1).max(10000).default(100),
-    pricePerCheck: z.number().min(0.001).max(1).default(0.01),
-  }).default({ maxPerMonth: 100, pricePerCheck: 0.01 }),
+    pricePerCheck: z.number().min(0.001).max(1).default(0.02),
+  }).default({ maxPerMonth: 100, pricePerCheck: 0.02 }),
   expiresInDays: z.number().min(1).max(365).default(30),
 });
 

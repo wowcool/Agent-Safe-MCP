@@ -43,7 +43,7 @@ const MCP_CONFIG = `{
 export default function Landing() {
   useSEO({
     title: "Agent Safe - Email Safety MCP Server for AI Agents | Phishing & Prompt Injection Protection",
-    description: "A Remote MCP Server that checks every email before your AI agent acts on it. Detects phishing, social engineering, prompt injection. Pay-per-use via Skyfire. $0.01/check.",
+    description: "A Remote MCP Server that checks every email before your AI agent acts on it. Detects phishing, social engineering, prompt injection. Pay-per-use via Skyfire. $0.02/check.",
     path: "/",
   });
   return (
@@ -113,7 +113,7 @@ export default function Landing() {
             </Badge>
             <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-price">
               <Zap className="h-3.5 w-3.5 mr-1.5" />
-              $0.01 / check
+              $0.02 / check
             </Badge>
           </div>
         </div>
@@ -322,7 +322,7 @@ export default function Landing() {
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-2xl mb-4">Pay Per Check</CardTitle>
               <div>
-                <span className="text-5xl font-bold" data-testid="text-price">$0.01</span>
+                <span className="text-5xl font-bold" data-testid="text-price">$0.02</span>
                 <span className="text-muted-foreground ml-1">/check</span>
               </div>
             </CardHeader>

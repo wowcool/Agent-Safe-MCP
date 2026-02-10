@@ -11,7 +11,7 @@ Security
 Under the **Security** section (or create if it doesn't exist), add:
 
 ```markdown
-- **[Agent Safe](https://agentsafe.locationledger.com)** - Remote MCP Server that analyzes emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration targeting AI agents. Pay-per-use via Skyfire Network ($0.01/check). [Docs](https://agentsafe.locationledger.com/docs)
+- **[Agent Safe](https://agentsafe.locationledger.com)** - Remote MCP Server that analyzes emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration targeting AI agents. Pay-per-use via Skyfire Network ($0.02/check). [Docs](https://agentsafe.locationledger.com/docs)
 ```
 
 ## PR Description
@@ -33,7 +33,7 @@ Agents connect via MCP Streamable HTTP transport to `https://agentsafe.locationl
 
 ### Payment
 
-$0.01 per check via Skyfire Network PAY tokens. No registration required.
+$0.02 per check via Skyfire Network PAY tokens. No registration required.
 
 ### MCP Client Config
 

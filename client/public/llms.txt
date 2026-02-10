@@ -1,6 +1,6 @@
 # Agent Safe (Safe Message MCP)
 
-> A Remote MCP Server that protects AI agents from phishing, social engineering, prompt injection, and email-based manipulation. Pay-per-use via Skyfire Network at $0.01 per check.
+> A Remote MCP Server that protects AI agents from phishing, social engineering, prompt injection, and email-based manipulation. Pay-per-use via Skyfire Network at $0.02 per check.
 
 ## About
 
@@ -12,7 +12,7 @@ Agent Safe is an email safety verification service designed for AI agents. It an
 - Transport: Streamable HTTP (JSON-RPC 2.0)
 - Tool: check_email_safety
 - Payment: Skyfire PAY token via skyfire-pay-id header
-- Price: $0.01 USD per email check
+- Price: $0.02 USD per email check
 
 ## MCP Client Configuration
 

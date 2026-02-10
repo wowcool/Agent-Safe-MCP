@@ -130,7 +130,7 @@ export default function HowItWorks() {
                 number={2}
                 icon={Lock}
                 title="Payment is Authorized"
-                description="The agent (or the Skyfire network on its behalf) creates a PAY token — a signed JWT containing $0.01 worth of USDC. This token is included in the skyfire-pay-id header with every request. No signup, no API keys, no subscriptions."
+                description="The agent (or the Skyfire network on its behalf) creates a PAY token — a signed JWT containing $0.02 worth of USDC. This token is included in the skyfire-pay-id header with every request. No signup, no API keys, no subscriptions."
               />
               <StepCard
                 number={3}
@@ -142,7 +142,7 @@ export default function HowItWorks() {
                 number={4}
                 icon={Brain}
                 title="AI Analyzes for Threats"
-                description="Agent Safe uses Claude AI with a specialized prompt engineered for agent-targeted threats. It analyzes the email across multiple threat categories simultaneously: phishing signals, social engineering tactics, prompt injection patterns, financial fraud indicators, and more. The PAY token is charged $0.01 via Skyfire."
+                description="Agent Safe uses Claude AI with a specialized prompt engineered for agent-targeted threats. It analyzes the email across multiple threat categories simultaneously: phishing signals, social engineering tactics, prompt injection patterns, financial fraud indicators, and more. The PAY token is charged $0.02 via Skyfire."
               />
               <StepCard
                 number={5}

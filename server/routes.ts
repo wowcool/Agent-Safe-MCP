@@ -52,7 +52,7 @@ export async function registerRoutes(
       name_for_human: "Agent Safe",
       name_for_model: "agent_safe_email_safety",
       description_for_human: "Email safety checker for AI agents. Detects phishing, social engineering, prompt injection, and more.",
-      description_for_model: "Agent Safe is a Remote MCP Server that analyzes emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration attempts targeting AI agents. Call the check_email_safety tool with sender, subject, and body to get a safety verdict (safe/suspicious/dangerous), risk score (0.0-1.0), detected threats, and recommended actions. Costs $0.01 per check via Skyfire PAY token. MCP endpoint: https://agentsafe.locationledger.com/mcp",
+      description_for_model: "Agent Safe is a Remote MCP Server that analyzes emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration attempts targeting AI agents. Call the check_email_safety tool with sender, subject, and body to get a safety verdict (safe/suspicious/dangerous), risk score (0.0-1.0), detected threats, and recommended actions. Costs $0.02 per check via Skyfire PAY token. MCP endpoint: https://agentsafe.locationledger.com/mcp",
       auth: {
         type: "none",
       },
@@ -444,7 +444,7 @@ export async function registerRoutes(
         walletVerified: true,
         currentBalance: balance,
         minBalanceRequired: MIN_BALANCE,
-        pricePerCheck: 0.01,
+        pricePerCheck: 0.02,
       });
     } catch (error: any) {
       console.error("Autonomous registration error:", error);
@@ -493,7 +493,7 @@ export async function registerRoutes(
         success: true,
         apiToken: token,
         paymentMethod: "skyfire",
-        pricePerCheck: 0.01,
+        pricePerCheck: 0.02,
         message: "Registered via Skyfire. Use Bearer token for API calls, or include skyfire-pay-id header for pay-per-use.",
       });
     } catch (error: any) {

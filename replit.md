@@ -109,7 +109,7 @@ npm run build  # Build for production
 
 ## Pricing
 
-$0.01 per email check (both payment models)
+$0.02 per email check (both payment models)
 
 ## External Integrations
 

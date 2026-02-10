@@ -7,7 +7,7 @@ agent-safe
 Agent Safe
 
 ## Description
-Remote MCP Server that analyzes emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration targeting AI agents. Returns verdict, risk score, threat list, and recommended action. Pay-per-use via Skyfire Network at $0.01/check.
+Remote MCP Server that analyzes emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration targeting AI agents. Returns verdict, risk score, threat list, and recommended action. Pay-per-use via Skyfire Network at $0.02/check.
 
 ## Transport
 Streamable HTTP
@@ -39,7 +39,7 @@ Analyzes an email for security threats before an AI agent acts on it.
 Skyfire PAY token via `skyfire-pay-id` header, or Bearer token via `Authorization` header.
 
 ## Pricing
-$0.01 USD per email check via Skyfire Network.
+$0.02 USD per email check via Skyfire Network.
 
 ## Client Configuration
 ```json
