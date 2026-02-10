@@ -229,6 +229,8 @@ export interface CheckEmailResponse {
   unsafeActions: string[];
   checkId: string;
   charged: number;
+  termsOfService?: string;
+  termsAccepted?: string;
 }
 
 export interface DiscoveryResponse {
@@ -253,6 +255,8 @@ export interface DiscoveryResponse {
     };
   };
   documentation: string;
+  termsOfService?: string;
+  termsNotice?: string;
   trustSignals: {
     uptime: string;
     avgResponseMs: number;

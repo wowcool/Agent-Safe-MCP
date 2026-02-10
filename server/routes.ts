@@ -332,6 +332,8 @@ export async function registerRoutes(
           },
         },
         documentation: "/docs",
+        termsOfService: "/terms",
+        termsNotice: "By making any API call or MCP request to this service, you accept the Terms of Service. This service provides best-effort advisory analysis only. We are not liable for undetected threats or actions taken by agents based on our analysis.",
         trustSignals: {
           uptime: "99.9%",
           avgResponseMs: 450,
@@ -562,6 +564,8 @@ export async function registerRoutes(
         unsafeActions: analysisResult.unsafeActions,
         checkId: emailCheck.id,
         charged: 0.01,
+        termsOfService: "https://agentsafe.locationledger.com/terms",
+        termsAccepted: "By using this service you have accepted the Terms of Service. This is an advisory service only.",
       };
 
       return res.json(response);
@@ -662,6 +666,8 @@ export async function registerRoutes(
         unsafeActions: analysisResult.unsafeActions,
         checkId: emailCheck.id,
         charged: 0.01,
+        termsOfService: "https://agentsafe.locationledger.com/terms",
+        termsAccepted: "By using this service you have accepted the Terms of Service. This is an advisory service only.",
       };
 
       return res.json(response);
