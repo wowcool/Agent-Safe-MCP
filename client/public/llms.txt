@@ -6,7 +6,7 @@
 
 ## About
 
-Agent Safe is an email safety verification service designed for AI agents. It analyzes emails for threats before agents act on them. Agents are first-class customers who can discover, connect, and pay autonomously via Skyfire KYAPay tokens.
+Agent Safe is an email safety verification service designed for AI agents. It analyzes emails for threats before agents act on them. No signup or API keys required — just include a Skyfire PAY token with each request.
 
 ## MCP Connection
 
@@ -63,9 +63,9 @@ The check_email_safety tool returns:
 
 ## REST API Endpoints
 
-- GET /mcp/discover - Service discovery for agents
-- POST /mcp/tools/check_email_safety - Email safety check (REST)
-- POST /mcp - MCP protocol endpoint (Streamable HTTP)
+- GET /mcp/discover - Service discovery for agents (no auth required)
+- POST /mcp/tools/check_email_safety - Email safety check (REST, requires skyfire-pay-id header)
+- POST /mcp - MCP protocol endpoint (Streamable HTTP, requires skyfire-pay-id header)
 
 ## Company
 
