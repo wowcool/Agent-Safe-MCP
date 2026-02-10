@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.wowcool/agentsafe",
+  "title": "Agent Safe",
+  "description": "Email safety MCP server for AI agents. Analyzes emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration before your agent acts on them. Pay-per-use via Skyfire Network at $0.02 per check. No signup or API keys required.",
+  "version": "1.0.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://agentsafe.locationledger.com/mcp",
+      "headers": [
+        {
+          "name": "skyfire-pay-id",
+          "description": "Your Skyfire PAY token for payment authentication. Get one at skyfire.xyz. Charged $0.02 per email check.",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
