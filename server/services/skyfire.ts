@@ -111,7 +111,7 @@ export async function chargeSkyfireToken(
       },
       body: JSON.stringify({
         token,
-        amount,
+        chargeAmount: String(amount),
       }),
     });
 
