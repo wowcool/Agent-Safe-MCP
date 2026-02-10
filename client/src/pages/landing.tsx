@@ -51,6 +51,9 @@ export default function Landing() {
             </div>
           </Link>
           <div className="flex items-center gap-3 flex-wrap">
+            <Link href="/how-it-works">
+              <Button variant="ghost" className="text-white/80" data-testid="link-how-header">How It Works</Button>
+            </Link>
             <Link href="/docs">
               <Button variant="ghost" className="text-white/80" data-testid="link-docs-header">Docs</Button>
             </Link>
@@ -404,6 +407,7 @@ export default function Landing() {
             <div>
               <h4 className="text-white font-semibold text-sm uppercase tracking-wider mb-4">MCP SERVER</h4>
               <ul className="space-y-2">
+                <li><Link href="/how-it-works" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-how">How It Works</Link></li>
                 <li><Link href="/docs" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-docs">Documentation</Link></li>
                 <li><a href="https://agentsafe.locationledger.com/mcp" target="_blank" rel="noopener" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-endpoint">MCP Endpoint</a></li>
                 <li><a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-white/60 text-sm transition-colors duration-150" data-testid="link-footer-skyfire">Skyfire Network</a></li>
