@@ -277,7 +277,7 @@ export default function HowItWorks() {
   "safeActions": ["Delete the email", "Report as phishing"],
   "unsafeActions": ["Click any links", "Enter credentials", "Forward to others"],
   "checkId": "abc123",
-  "charged": 0.01,
+  "charged": 0.02,
   "termsOfService": "https://agentsafe.locationledger.com/terms"
 }`}</code>
               </pre>

@@ -108,7 +108,7 @@ export default function Docs() {
   "safeActions": ["Report as spam", "Delete email"],
   "unsafeActions": ["Click any links", "Reply with personal info"],
   "checkId": "chk_abc123",
-  "charged": 0.01
+  "charged": 0.02
 }`;
 
   const pythonMcpExample = `# Install: pip install mcp

@@ -2,7 +2,7 @@ import * as jose from "jose";
 
 const SKYFIRE_API_URL = "https://api.skyfire.xyz";
 const SKYFIRE_JWKS_URL = "https://app.skyfire.xyz/.well-known/jwks.json";
-const PRICE_PER_CHECK = 0.01;
+const PRICE_PER_CHECK = 0.02;
 
 let jwksCache: jose.JSONWebKeySet | null = null;
 let jwksCacheTime = 0;

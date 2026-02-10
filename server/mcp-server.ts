@@ -99,7 +99,7 @@ async function recordEmailCheck(
     riskScore: String(analysisResult.riskScore),
     confidence: String(analysisResult.confidence),
     threatsDetected: analysisResult.threats,
-    chargedAmount: "0.01",
+    chargedAmount: "0.02",
     paymentType,
     paymentReference,
     analysisDurationMs: durationMs,
@@ -109,7 +109,7 @@ async function recordEmailCheck(
   await storage.createUsageLog({
     tokenId,
     action: "email_check",
-    amount: "0.01",
+    amount: "0.02",
     paymentStatus: "success",
   });
 
@@ -149,7 +149,7 @@ function createPerRequestMcpServer(
           return mcpError("Invalid Skyfire token", validation.error);
         }
 
-        const chargeResult = await chargeSkyfireToken(skyfireToken, 0.01);
+        const chargeResult = await chargeSkyfireToken(skyfireToken, 0.02);
         if (!chargeResult.success) {
           return mcpError("Skyfire payment failed", chargeResult.error);
         }
@@ -228,7 +228,7 @@ function buildToolResponse(analysisResult: any, checkId: string) {
     safeActions: analysisResult.safeActions,
     unsafeActions: analysisResult.unsafeActions,
     checkId,
-    charged: 0.01,
+    charged: 0.02,
     termsOfService: "https://agentsafe.locationledger.com/terms",
     termsAccepted: "By using this service you have accepted the Terms of Service. This is an advisory service only.",
   };

@@ -340,7 +340,7 @@ export async function registerRoutes(
         capabilities: ["email_safety_check"],
         domainFocus: "email",
         pricing: {
-          perCheck: 0.01,
+          perCheck: 0.02,
           currency: "USD",
         },
         paymentMethods: ["stripe_delegated", "skyfire_pay", "crypto_wallet"],
@@ -561,7 +561,7 @@ export async function registerRoutes(
         riskScore: String(analysisResult.riskScore),
         confidence: String(analysisResult.confidence),
         threatsDetected: analysisResult.threats,
-        chargedAmount: "0.01",
+        chargedAmount: "0.02",
         paymentType: tokenRecord.agentType === "delegated" ? "stripe" : "wallet",
         paymentReference: paymentResult.paymentIntentId || null,
         analysisDurationMs: durationMs,
@@ -572,7 +572,7 @@ export async function registerRoutes(
       await storage.createUsageLog({
         tokenId: tokenRecord.id,
         action: "email_check",
-        amount: "0.01",
+        amount: "0.02",
         paymentStatus: "success",
       });
 
@@ -586,7 +586,7 @@ export async function registerRoutes(
         safeActions: analysisResult.safeActions,
         unsafeActions: analysisResult.unsafeActions,
         checkId: emailCheck.id,
-        charged: 0.01,
+        charged: 0.02,
         termsOfService: "https://agentsafe.locationledger.com/terms",
         termsAccepted: "By using this service you have accepted the Terms of Service. This is an advisory service only.",
       };
@@ -640,7 +640,7 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Missing required email fields (from, subject, body)" });
       }
 
-      const chargeResult = await chargeSkyfireToken(skyfireToken, 0.01);
+      const chargeResult = await chargeSkyfireToken(skyfireToken, 0.02);
       if (!chargeResult.success) {
         return res.status(402).json({
           error: "Skyfire payment failed",
@@ -661,7 +661,7 @@ export async function registerRoutes(
         riskScore: String(analysisResult.riskScore),
         confidence: String(analysisResult.confidence),
         threatsDetected: analysisResult.threats,
-        chargedAmount: "0.01",
+        chargedAmount: "0.02",
         paymentType: "skyfire",
         paymentReference: chargeResult.transactionId || null,
         analysisDurationMs: durationMs,
@@ -672,7 +672,7 @@ export async function registerRoutes(
       await storage.createUsageLog({
         tokenId: systemTokenId,
         action: "email_check",
-        amount: "0.01",
+        amount: "0.02",
         paymentStatus: "success",
       });
 
@@ -688,7 +688,7 @@ export async function registerRoutes(
         safeActions: analysisResult.safeActions,
         unsafeActions: analysisResult.unsafeActions,
         checkId: emailCheck.id,
-        charged: 0.01,
+        charged: 0.02,
         termsOfService: "https://agentsafe.locationledger.com/terms",
         termsAccepted: "By using this service you have accepted the Terms of Service. This is an advisory service only.",
       };

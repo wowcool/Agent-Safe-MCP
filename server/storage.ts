@@ -134,7 +134,7 @@ export class DatabaseStorage implements IStorage {
       .set({
         usageThisMonth: sql`${agentTokens.usageThisMonth} + 1`,
         totalUsage: sql`${agentTokens.totalUsage} + 1`,
-        totalSpent: sql`${agentTokens.totalSpent} + 0.01`,
+        totalSpent: sql`${agentTokens.totalSpent} + 0.02`,
         lastUsedAt: new Date(),
       })
       .where(eq(agentTokens.id, id));
