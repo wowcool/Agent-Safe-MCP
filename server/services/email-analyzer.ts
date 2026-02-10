@@ -210,6 +210,8 @@ export async function analyzeEmail(request: CheckEmailRequest): Promise<{ result
     const textContent = response.content.find(c => c.type === "text");
     const result = parseResponse(textContent?.text || "");
     
+    console.log(`[COST] Claude API usage - model: ${response.model}, input_tokens: ${response.usage.input_tokens}, output_tokens: ${response.usage.output_tokens}`);
+    
     // Merge pattern-detected threats
     const allThreats = [...result.threats];
     for (const patternThreat of patternThreats) {
