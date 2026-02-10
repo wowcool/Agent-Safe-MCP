@@ -4,3 +4,6 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+BUILD_PLAN.md
+RESEARCH_AGENT_PAYMENTS_AND_DISCOVERY.md
+replit.md
