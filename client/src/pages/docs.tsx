@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Copy, CheckCircle2 } from "lucide-react";
-import logoImg from "@assets/mcp-logo-v4.png";
+import { Copy, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/lib/seo";
 import { GlobalFooter } from "@/components/global-footer";
+import { SiteHeader } from "@/components/site-header";
 
 const BASE_URL = "https://agentsafe.locationledger.com";
 
@@ -249,22 +249,7 @@ switch (result.recommendation) {
 
   return (
     <div className="min-h-screen" style={{ background: "#0f1012", color: "#e5e5e5", fontFamily: "'Inter', system-ui, sans-serif" }}>
-      <header className="sticky top-0 z-50 px-6 py-4" style={{ background: "rgba(15, 16, 18, 0.85)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="container mx-auto max-w-4xl flex items-center gap-4">
-          <Link href="/">
-            <Button variant="ghost" size="icon" className="text-white/60" data-testid="button-back">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <Link href="/">
-            <div className="flex items-center gap-2 cursor-pointer">
-              <img src={logoImg} alt="Agent Safe" className="h-5 w-5" />
-              <span className="text-white font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Agent Safe</span>
-            </div>
-          </Link>
-          <span className="text-white/40 text-sm">Documentation</span>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main className="container mx-auto px-6 py-12 max-w-4xl">
         <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }} data-testid="text-docs-title">

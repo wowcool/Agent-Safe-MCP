@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Bot, Shield, Zap, Lock, Terminal, CheckCircle2, AlertTriangle,
-  XCircle, Search, ArrowRight, ExternalLink, Mail, FileWarning,
+  XCircle, Search, ArrowRight, Mail, FileWarning,
   Eye, Brain, ShieldAlert, Skull, Fingerprint, MessageSquareWarning
 } from "lucide-react";
-import logoImg from "@assets/mcp-logo-v4.png";
 import { GlobalFooter } from "@/components/global-footer";
+import { SiteHeader } from "@/components/site-header";
 import { useSEO } from "@/lib/seo";
 
 function ThreatCard({ icon: Icon, title, description, example, riskLevel }: {
@@ -77,30 +77,7 @@ export default function HowItWorks() {
   });
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-black/60 backdrop-blur-[10px] sticky top-0 z-[999]">
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between gap-4">
-          <Link href="/">
-            <div className="flex items-center gap-2.5 cursor-pointer">
-              <img src={logoImg} alt="Agent Safe" className="h-6 w-6" />
-              <span className="text-white font-medium text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Agent Safe</span>
-            </div>
-          </Link>
-          <div className="flex items-center gap-3 flex-wrap">
-            <Link href="/how-it-works">
-              <Button variant="ghost" className="text-white" data-testid="link-how-header-active">How It Works</Button>
-            </Link>
-            <Link href="/docs">
-              <Button variant="ghost" className="text-white/80" data-testid="link-docs-header">Docs</Button>
-            </Link>
-            <a href="https://skyfire.xyz" target="_blank" rel="noopener">
-              <Button variant="outline" data-testid="link-skyfire-header">
-                <ExternalLink className="h-4 w-4 mr-1.5" />
-                Skyfire
-              </Button>
-            </a>
-          </div>
-        </div>
-      </header>
+      <SiteHeader />
 
       <section className="py-20 md:py-28 px-4">
         <div className="container mx-auto max-w-4xl">
