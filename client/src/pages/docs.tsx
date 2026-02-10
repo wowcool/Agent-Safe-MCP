@@ -8,6 +8,7 @@ import logoImg from "@assets/mcp-logo-v4.png";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/lib/seo";
+import { GlobalFooter } from "@/components/global-footer";
 
 const BASE_URL = "https://agentsafe.locationledger.com";
 
@@ -500,6 +501,8 @@ switch (result.recommendation) {
           </div>
         </div>
       </main>
+
+      <GlobalFooter />
     </div>
   );
 }

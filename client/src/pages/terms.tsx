@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import logoImg from "@assets/mcp-logo-v4.png";
 import { useSEO } from "@/lib/seo";
+import { GlobalFooter } from "@/components/global-footer";
 
 export default function Terms() {
   useSEO({
@@ -184,12 +185,7 @@ export default function Terms() {
         </div>
       </main>
 
-      <footer className="py-8 px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="container mx-auto max-w-4xl flex flex-wrap items-center justify-between gap-4">
-          <p className="text-white/40 text-xs">Alibi Ledger, LLC</p>
-          <Link href="/" className="text-white/40 text-xs transition-colors duration-150">Back to Home</Link>
-        </div>
-      </footer>
+      <GlobalFooter />
     </div>
   );
 }
