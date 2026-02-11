@@ -1,9 +1,0 @@
-node_modules
-dist
-.git
-.replit
-replit.nix
-.cache
-.config
-.local
-*.md
