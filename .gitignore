@@ -7,3 +7,23 @@ vite.config.ts.*
 BUILD_PLAN.md
 RESEARCH_AGENT_PAYMENTS_AND_DISCOVERY.md
 replit.md
+tool-concepts-research.md
+
+# Replit-specific (contains env vars and deployment config)
+.replit
+replit.nix
+.cache
+.config
+.local
+generated-icon.png
+
+# Deployment-specific configs
+fly.toml
+Dockerfile
+.dockerignore
+
+# Internal documentation and build instructions
+attached_assets/
+
+# Registry submission drafts
+registry-submissions/

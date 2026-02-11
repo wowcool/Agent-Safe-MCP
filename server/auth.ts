@@ -25,7 +25,7 @@ export function setupAuth(app: Express) {
   app.use(
     session({
       store: sessionStore,
-      secret: process.env.SESSION_SECRET || "safemessage-session-secret",
+      secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || (() => { throw new Error("SESSION_SECRET or JWT_SECRET environment variable is required"); })(),
       resave: false,
       saveUninitialized: false,
       cookie: {

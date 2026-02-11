@@ -3,7 +3,10 @@ import crypto from "crypto";
 import { storage } from "../storage";
 import type { AgentToken, TokenLimits } from "@shared/schema";
 
-const JWT_SECRET = process.env.JWT_SECRET || "safemessage-jwt-secret-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
 
 export interface DelegatedTokenPayload {
   sub: string; // owner_id

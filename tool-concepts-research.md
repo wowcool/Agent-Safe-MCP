@@ -269,6 +269,9 @@ All 5 tool concepts were tested against the Claude Haiku 4.5 API with realistic 
 - Latency: 6,257ms
 - Correctly identified: 93% BEC probability, 6 identity issues, "likely_fraudulent" verdict
 
+
+Dev Question: Can we integrate DMARC checks into this somehow? LIke, could we combine CLaude with another API here that actually does some kind of additional ayer of check? 
+
 ---
 
 ## Pricing Recommendation
@@ -285,6 +288,8 @@ All tools should be priced at **$0.02 per call** to maintain consistency with `c
 | check_sender_reputation | ~$0.0038 | $0.02 | ~5.3x |
 
 Note: Thread analysis uses more tokens because it processes multiple messages. Real-world threads with more messages will use proportionally more tokens, but should still stay within the $0.02 margin for typical 3-5 message threads.
+
+Dev Question: Ok, we need to be smart about this. If a super long thread comes in, it needs to be charged according to size. We need to charge $.02 per call but define what a 'call' can include in terms of length. SO one large message could end up being multiple calls. 
 
 ---
 
