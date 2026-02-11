@@ -3,7 +3,13 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Bot, Shield, Zap, Lock, Terminal, CheckCircle2, AlertTriangle,
   XCircle, Search, ArrowRight, Mail, FileWarning,
@@ -372,7 +378,7 @@ export default function HowItWorks() {
               How Agent Safe Protects<br />Your AI Agent
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              A deep look at how our 6-tool suite — covering message safety, URL analysis, response checking, attachment scanning, sender reputation, and thread analysis — detects phishing, prompt injection, social engineering, and more. Works with emails and any other message your agent receives.
+              A deep look at how our <a href="#tools-section" className="text-primary underline" data-testid="link-tools-section" onClick={(e) => { e.preventDefault(); document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>6-tool suite</a> — covering message safety, URL analysis, response checking, attachment scanning, sender reputation, and thread analysis — detects phishing, prompt injection, social engineering, and more. Works with emails and any other message your agent receives.
             </p>
           </div>
 
@@ -416,7 +422,7 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      <section className="py-20 px-4 bg-card/50" data-testid="section-tool-explorer">
+      <section id="tools-section" className="py-20 px-4 bg-card/50" data-testid="section-tool-explorer">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center mb-12">
             <Badge variant="secondary" className="mb-6" data-testid="badge-explore-tools">
@@ -430,32 +436,30 @@ export default function HowItWorks() {
             </p>
           </div>
 
-          <Tabs value={selectedTool} onValueChange={setSelectedTool}>
-            <div className="overflow-x-auto pb-2 mb-6">
-              <TabsList className="w-full flex" data-testid="tabs-tool-selector">
+          <div className="mb-6 max-w-md mx-auto">
+            <Select value={selectedTool} onValueChange={setSelectedTool}>
+              <SelectTrigger data-testid="select-tool-selector">
+                <SelectValue placeholder="Select a tool" />
+              </SelectTrigger>
+              <SelectContent>
                 {toolsData.map((tool) => {
                   const Icon = tool.icon;
                   return (
-                    <TabsTrigger
-                      key={tool.id}
-                      value={tool.id}
-                      className="flex items-center gap-2 min-w-0 flex-1"
-                      data-testid={`tab-${tool.id}`}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      <span className="hidden sm:inline truncate">{tool.label}</span>
-                    </TabsTrigger>
+                    <SelectItem key={tool.id} value={tool.id} data-testid={`select-item-${tool.id}`}>
+                      <span className="flex items-center gap-2">
+                        <Icon className="h-4 w-4 shrink-0" />
+                        {tool.name}
+                      </span>
+                    </SelectItem>
                   );
                 })}
-              </TabsList>
-            </div>
+              </SelectContent>
+            </Select>
+          </div>
 
-            {toolsData.map((tool) => (
-              <TabsContent key={tool.id} value={tool.id}>
-                <ToolDetailCard tool={tool} />
-              </TabsContent>
-            ))}
-          </Tabs>
+          {toolsData.map((tool) => (
+            tool.id === selectedTool ? <ToolDetailCard key={tool.id} tool={tool} /> : null
+          ))}
         </div>
       </section>
 
@@ -523,16 +527,48 @@ export default function HowItWorks() {
               icon={LinkIcon}
               title="URL Threats"
               riskLevel="high"
-              description="Detects phishing URLs, malware download links, suspicious redirects, and typosquatting domains designed to steal credentials or deliver malicious payloads to your agent."
+              description="Detects phishing URLs, malware download links, suspicious redirects, typosquatting domains, redirect abuse, command injection in URLs, and excessive tracking parameters."
               example="A URL that appears to be 'google.com' but uses a look-alike domain with a subtle character swap, redirecting through multiple hops to a credential harvesting site. Caught with risk score 0.90 — flagged typosquatting, suspicious redirect chain, and credential harvesting destination."
+            />
+
+            <ThreatCard
+              icon={Reply}
+              title="Response Data Leakage"
+              riskLevel="critical"
+              description="Scans your agent's draft replies before sending to catch data leaks, over-sharing of sensitive information, compliance violations, unauthorized actions, and social engineering compliance where your agent unknowingly follows manipulation."
+              example="Agent drafts a reply containing employee SSNs and internal banking details in response to a social engineering request disguised as a vendor onboarding form. Caught with risk score 0.95 — flagged data leakage, compliance risk, and social engineering compliance."
             />
 
             <ThreatCard
               icon={MessageSquare}
               title="Thread Manipulation"
               riskLevel="high"
-              description="Identifies escalating social engineering across message threads, where attackers use gradual scope creep to move from legitimate-sounding requests to sensitive data extraction over multiple messages."
+              description="Identifies escalating social engineering across message threads, including scope creep, trust-building exploitation, authority escalation, deadline manufacturing, and systematic information harvesting over multiple messages."
               example="A multi-message thread that starts with a reasonable vendor question about invoice formatting, then gradually escalates across replies to requesting bank account details and wire transfer authorization. Caught with risk score 0.85 — flagged escalation pattern, scope creep from benign to sensitive requests, and social engineering across thread context."
+            />
+
+            <ThreatCard
+              icon={Paperclip}
+              title="Malicious Attachments"
+              riskLevel="critical"
+              description="Assesses attachment risk based on metadata before your agent opens or downloads files. Detects executable masquerades, double extensions (.pdf.exe), macro-enabled documents, archive risks, size anomalies, and MIME type mismatches."
+              example="A file named 'invoice.pdf.exe' sent as a supposed PDF attachment with a MIME type mismatch and suspicious size. Caught with risk score 0.95 — flagged double extension attack, executable masquerade, and MIME mismatch indicating a disguised malware payload."
+            />
+
+            <ThreatCard
+              icon={UserCheck}
+              title="Sender Identity Fraud"
+              riskLevel="critical"
+              description="Verifies sender identity using live DNS DMARC lookups, RDAP domain age checks, and AI analysis. Catches domain spoofing, display name fraud, reply-to mismatches, BEC indicators, newly registered domains, and missing DMARC policies."
+              example="A sender claiming to be the CFO from a domain registered 3 days ago with no DMARC policy. Live DNS lookup confirmed no authentication, RDAP showed brand-new registration. Caught with 93% BEC probability — flagged display name fraud, domain age risk, and authentication failure."
+            />
+
+            <ThreatCard
+              icon={Shield}
+              title="Compliance Risks"
+              riskLevel="high"
+              description="Identifies potential compliance violations including PII exposure, financial data regulation issues, unauthorized disclosures, and excessive information sharing that could violate privacy or regulatory requirements."
+              example="Agent about to share customer personal data and financial records in a reply to an unverified external party. Caught with risk score 0.80 — flagged PII exposure, unauthorized disclosure to external recipient, and compliance risk with data protection regulations."
             />
           </div>
         </div>
