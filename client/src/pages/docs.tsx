@@ -231,21 +231,19 @@ switch (result.recommendation) {
     break;
 }`;
 
-  const codeStyle = { background: "rgba(16, 106, 243, 0.15)", color: "hsl(200, 70%, 60%)" };
-  const cardStyle = { background: "#161820", border: "1px solid rgba(255,255,255,0.06)" };
-  const inlineCodeStyle = { background: "rgba(255,255,255,0.06)" };
+  const codeStyle = { background: "hsl(var(--primary) / 0.1)", color: "hsl(var(--primary))" };
 
   function CodeBlock({ code, id, label }: { code: string; id: string; label?: string }) {
     return (
       <div className="relative">
-        {label && <p className="text-xs text-white/40 mb-1 font-mono">{label}</p>}
-        <pre className="p-4 rounded-lg text-sm overflow-x-auto whitespace-pre-wrap" style={{ background: "#111318", border: "1px solid rgba(255,255,255,0.06)" }}>
-          <code className="text-white/80">{code}</code>
+        {label && <p className="text-xs text-muted-foreground/70 mb-1 font-mono">{label}</p>}
+        <pre className="p-4 rounded-lg text-sm overflow-x-auto whitespace-pre-wrap bg-card border border-border">
+          <code className="text-foreground/80">{code}</code>
         </pre>
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 text-white/40"
+          className="absolute top-2 right-2 text-muted-foreground"
           onClick={() => copyCode(code, id)}
           data-testid={`button-copy-${id}`}
         >
@@ -260,14 +258,14 @@ switch (result.recommendation) {
       <div className="overflow-x-auto">
         <table className="w-full text-sm" style={{ borderCollapse: "separate", borderSpacing: 0 }}>
           <thead>
-            <tr className="text-left text-white/40 text-xs uppercase tracking-wider">
+            <tr className="text-left text-muted-foreground/70 text-xs uppercase tracking-wider">
               <th className="pb-2 pr-4">Parameter</th>
               <th className="pb-2 pr-4">Type</th>
               <th className="pb-2 pr-4">Required</th>
               <th className="pb-2">Description</th>
             </tr>
           </thead>
-          <tbody className="text-white/70">
+          <tbody className="text-muted-foreground">
             {rows.map((row) => (
               <tr key={row.name}>
                 <td className="py-1.5 pr-4"><code className="text-xs">{row.name}</code></td>
@@ -372,99 +370,99 @@ switch (result.recommendation) {
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: "#0f1012", color: "#e5e5e5", fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
 
       <main className="container mx-auto px-6 py-12 max-w-4xl">
-        <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }} data-testid="text-docs-title">
+        <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }} data-testid="text-docs-title">
           MCP Server Documentation
         </h1>
-        <p className="text-white/60 mb-10">
+        <p className="text-muted-foreground mb-10">
           Connect your AI agent to Agent Safe's 7-tool message security suite. Protect against threats across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. No signup required — just a Skyfire Buyer API Key.
         </p>
 
         <div className="space-y-8">
-          <Card className="border-0" style={cardStyle}>
+          <Card>
             <CardHeader>
-              <CardTitle className="text-white">Quick Start</CardTitle>
-              <CardDescription className="text-white/50">Get connected in 3 steps</CardDescription>
+              <CardTitle>Quick Start</CardTitle>
+              <CardDescription>Get connected in 3 steps</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <ol className="list-decimal list-inside space-y-3 text-white/80 text-sm">
-                <li>Get a <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-[hsl(200,70%,50%)] underline underline-offset-2">Skyfire Buyer API Key</a> from the Skyfire Network</li>
+              <ol className="list-decimal list-inside space-y-3 text-foreground/80 text-sm">
+                <li>Get a <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-primary underline underline-offset-2">Skyfire Buyer API Key</a> from the Skyfire Network</li>
                 <li>Add the MCP server config to your agent's MCP settings file</li>
-                <li>Your agent can now use all <strong className="text-white">7 message security tools</strong> — including <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_email_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_url_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_response_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>analyze_email_thread</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_attachment_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_sender_reputation</code>, and <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_message_safety</code></li>
+                <li>Your agent can now use all <strong>7 message security tools</strong> — including <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_email_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_url_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_response_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>analyze_email_thread</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_attachment_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_sender_reputation</code>, and <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_message_safety</code></li>
               </ol>
 
               <div className="mt-4">
-                <p className="text-xs text-white/40 mb-2">MCP Client Configuration</p>
+                <p className="text-xs text-muted-foreground/70 mb-2">MCP Client Configuration</p>
                 <CodeBlock code={mcpConfigExample} id="mcp-config" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={cardStyle}>
+          <Card>
             <CardHeader>
-              <CardTitle className="text-white">Authentication</CardTitle>
-              <CardDescription className="text-white/50">How payment and auth work</CardDescription>
+              <CardTitle>Authentication</CardTitle>
+              <CardDescription>How payment and auth work</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4 text-sm text-white/80">
+            <CardContent className="space-y-4 text-sm text-foreground/80">
               <p>
-                Agent Safe uses <strong className="text-white">pay-per-use</strong> pricing at <strong className="text-white">$0.02 per tool call</strong>. No signup with Agent Safe — just your Skyfire Buyer API Key.
+                Agent Safe uses <strong>pay-per-use</strong> pricing at <strong>$0.02 per tool call</strong>. No signup with Agent Safe — just your Skyfire Buyer API Key.
               </p>
 
               <div className="space-y-3">
-                <div className="p-3 rounded-lg" style={{ background: "rgba(16, 106, 243, 0.08)", border: "1px solid rgba(16, 106, 243, 0.15)" }}>
-                  <p className="font-semibold text-white text-xs uppercase tracking-wider mb-1">Skyfire Buyer API Key (Recommended)</p>
-                  <p className="text-white/70 text-xs">
-                    Include a <code className="px-1 py-0.5 rounded text-[hsl(200,70%,60%)]" style={{ background: "rgba(16, 106, 243, 0.15)" }}>skyfire-api-key</code> header with your Skyfire Buyer API Key. Agent Safe automatically generates a PAY token and charges $0.02 per call. Alternatively, your agent can generate its own PAY tokens and send them via the <code className="px-1 py-0.5 rounded text-[hsl(200,70%,60%)]" style={{ background: "rgba(16, 106, 243, 0.15)" }}>skyfire-pay-id</code> header.
+                <div className="bg-primary/10 border border-primary/20 p-3 rounded-lg">
+                  <p className="font-semibold text-xs uppercase tracking-wider mb-1">Skyfire Buyer API Key (Recommended)</p>
+                  <p className="text-muted-foreground text-xs">
+                    Include a <code className="px-1 py-0.5 rounded text-xs" style={codeStyle}>skyfire-api-key</code> header with your Skyfire Buyer API Key. Agent Safe automatically generates a PAY token and charges $0.02 per call. Alternatively, your agent can generate its own PAY tokens and send them via the <code className="px-1 py-0.5 rounded text-xs" style={codeStyle}>skyfire-pay-id</code> header.
                   </p>
                 </div>
 
               </div>
 
-              <p className="text-white/50 text-xs">
+              <p className="text-muted-foreground text-xs">
                 Your Skyfire Buyer API Key must be valid and have sufficient wallet balance. Each tool call is charged $0.02 automatically via the Skyfire Network.
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={cardStyle}>
+          <Card>
             <CardHeader>
-              <CardTitle className="text-white">MCP Protocol</CardTitle>
-              <CardDescription className="text-white/50">Connect via Model Context Protocol (recommended)</CardDescription>
+              <CardTitle>MCP Protocol</CardTitle>
+              <CardDescription>Connect via Model Context Protocol (recommended)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <Badge variant="secondary" data-testid="badge-mcp-post">POST</Badge>
-                  <code className="text-sm text-white/80">{BASE_URL}/mcp</code>
+                  <code className="text-sm text-foreground/80">{BASE_URL}/mcp</code>
                 </div>
-                <p className="text-sm text-white/50 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   Streamable HTTP transport endpoint. Accepts JSON-RPC 2.0 messages per the MCP specification.
                 </p>
 
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs text-white/40 mb-2 font-semibold uppercase tracking-wider">Initialize Connection</p>
+                    <p className="text-xs text-muted-foreground/70 mb-2 font-semibold uppercase tracking-wider">Initialize Connection</p>
                     <CodeBlock code={mcpInitExample} id="mcp-init" />
                   </div>
 
                   <div>
-                    <p className="text-xs text-white/40 mb-2 font-semibold uppercase tracking-wider">Call check_email_safety</p>
+                    <p className="text-xs text-muted-foreground/70 mb-2 font-semibold uppercase tracking-wider">Call check_email_safety</p>
                     <CodeBlock code={mcpToolCallExample} id="mcp-tool-call" />
                   </div>
                 </div>
               </div>
 
               <div>
-                <h4 className="font-semibold text-white text-sm mb-2">Available MCP Methods</h4>
-                <ul className="text-sm text-white/70 space-y-1.5">
-                  <li><code className="text-xs px-1.5 py-0.5 rounded" style={inlineCodeStyle}>initialize</code> — Handshake and capability negotiation</li>
-                  <li><code className="text-xs px-1.5 py-0.5 rounded" style={inlineCodeStyle}>tools/list</code> — Discover all 7 available tools</li>
+                <h4 className="font-semibold text-sm mb-2">Available MCP Methods</h4>
+                <ul className="text-sm text-muted-foreground space-y-1.5">
+                  <li><code className="text-xs px-1.5 py-0.5 rounded bg-muted">initialize</code> — Handshake and capability negotiation</li>
+                  <li><code className="text-xs px-1.5 py-0.5 rounded bg-muted">tools/list</code> — Discover all 7 available tools</li>
                   <li className="space-y-1">
-                    <span><code className="text-xs px-1.5 py-0.5 rounded" style={inlineCodeStyle}>tools/call</code> — Execute any of the 7 security tools (requires payment):</span>
-                    <ul className="ml-6 mt-1 space-y-0.5 text-white/50 text-xs">
+                    <span><code className="text-xs px-1.5 py-0.5 rounded bg-muted">tools/call</code> — Execute any of the 7 security tools (requires payment):</span>
+                    <ul className="ml-6 mt-1 space-y-0.5 text-muted-foreground text-xs">
                       <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_email_safety</code> — Analyze emails for threats</li>
                       <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_url_safety</code> — Check URL safety</li>
                       <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_response_safety</code> — Verify draft replies</li>
@@ -479,18 +477,18 @@ switch (result.recommendation) {
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={cardStyle}>
+          <Card>
             <CardHeader>
-              <CardTitle className="text-white">REST API</CardTitle>
-              <CardDescription className="text-white/50">Alternative REST endpoints for all 7 tools</CardDescription>
+              <CardTitle>REST API</CardTitle>
+              <CardDescription>Alternative REST endpoints for all 7 tools</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <Badge data-testid="badge-discover-get">GET</Badge>
-                  <code className="text-sm text-white/80">/mcp/discover</code>
+                  <code className="text-sm text-foreground/80">/mcp/discover</code>
                 </div>
-                <p className="text-sm text-white/50 mb-3">
+                <p className="text-sm text-muted-foreground mb-3">
                   Service discovery endpoint. No authentication required.
                 </p>
                 <CodeBlock code={discoverExample} id="discover" />
@@ -500,95 +498,95 @@ switch (result.recommendation) {
                 <div key={endpoint.path}>
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <Badge variant="secondary" data-testid={`badge-rest-post-${idx}`}>POST</Badge>
-                    <code className="text-sm text-white/80">{endpoint.path}</code>
+                    <code className="text-sm text-foreground/80">{endpoint.path}</code>
                   </div>
-                  <p className="text-sm text-white/50 mb-1">
+                  <p className="text-sm text-muted-foreground mb-1">
                     {endpoint.description}. Requires <code className="text-xs" style={codeStyle}>skyfire-api-key</code> or <code className="text-xs" style={codeStyle}>skyfire-pay-id</code> header.
                   </p>
                 </div>
               ))}
 
               <div className="mt-2">
-                <p className="text-xs text-white/40 mb-2 font-semibold uppercase tracking-wider">Example: check_email_safety</p>
+                <p className="text-xs text-muted-foreground/70 mb-2 font-semibold uppercase tracking-wider">Example: check_email_safety</p>
                 <CodeBlock code={restCheckExample} id="rest-check" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={cardStyle}>
+          <Card>
             <CardHeader>
-              <CardTitle className="text-white">Tool Reference</CardTitle>
-              <CardDescription className="text-white/50">Input parameters for all 7 security tools</CardDescription>
+              <CardTitle>Tool Reference</CardTitle>
+              <CardDescription>Input parameters for all 7 security tools</CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
               {toolDefinitions.map((tool) => (
                 <div key={tool.name} data-testid={`section-tool-${tool.name}`}>
-                  <h4 className="font-semibold text-white text-sm mb-1">
+                  <h4 className="font-semibold text-sm mb-1">
                     <code className="px-1.5 py-0.5 rounded text-sm" style={codeStyle}>{tool.name}</code>
                   </h4>
-                  <p className="text-sm text-white/60 mb-3">{tool.description}</p>
+                  <p className="text-sm text-muted-foreground mb-3">{tool.description}</p>
                   <ParamTable rows={tool.params} />
                   {tool.responseNote && (
-                    <p className="text-xs text-white/40 mt-2 italic">{tool.responseNote}</p>
+                    <p className="text-xs text-muted-foreground/70 mt-2 italic">{tool.responseNote}</p>
                   )}
                 </div>
               ))}
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={cardStyle}>
+          <Card>
             <CardHeader>
-              <CardTitle className="text-white">Response Format</CardTitle>
-              <CardDescription className="text-white/50">Response structure and verdict values</CardDescription>
+              <CardTitle>Response Format</CardTitle>
+              <CardDescription>Response structure and verdict values</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <h4 className="font-semibold text-white text-sm mb-3">Example Response (check_email_safety)</h4>
+                <h4 className="font-semibold text-sm mb-3">Example Response (check_email_safety)</h4>
                 <CodeBlock code={responseExample} id="response" />
               </div>
 
               <div>
-                <h4 className="font-semibold text-white text-sm mb-3">Response Differences by Tool</h4>
-                <div className="space-y-2 text-sm text-white/70">
-                  <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <h4 className="font-semibold text-sm mb-3">Response Differences by Tool</h4>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
                     <code className="text-xs" style={codeStyle}>check_url_safety</code>
-                    <span className="ml-2">returns <code className="text-xs text-white/50">{"{ overallVerdict, overallRiskScore, urlResults: [...] }"}</code></span>
+                    <span className="ml-2">returns <code className="text-xs text-muted-foreground">{"{ overallVerdict, overallRiskScore, urlResults: [...] }"}</code></span>
                   </div>
-                  <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
                     <code className="text-xs" style={codeStyle}>check_response_safety</code>
-                    <span className="ml-2">returns <code className="text-xs text-white/50">{"{ verdict, riskScore, confidence, threats, recommendation }"}</code></span>
+                    <span className="ml-2">returns <code className="text-xs text-muted-foreground">{"{ verdict, riskScore, confidence, threats, recommendation }"}</code></span>
                   </div>
-                  <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
                     <code className="text-xs" style={codeStyle}>analyze_email_thread</code>
-                    <span className="ml-2">returns <code className="text-xs text-white/50">{"{ verdict, riskScore, confidence, manipulationPatterns, threadProgression }"}</code></span>
+                    <span className="ml-2">returns <code className="text-xs text-muted-foreground">{"{ verdict, riskScore, confidence, manipulationPatterns, threadProgression }"}</code></span>
                   </div>
-                  <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
                     <code className="text-xs" style={codeStyle}>check_attachment_safety</code>
-                    <span className="ml-2">returns <code className="text-xs text-white/50">{"{ overallVerdict, overallRiskScore, attachmentResults: [...] }"}</code></span>
+                    <span className="ml-2">returns <code className="text-xs text-muted-foreground">{"{ overallVerdict, overallRiskScore, attachmentResults: [...] }"}</code></span>
                   </div>
-                  <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
                     <code className="text-xs" style={codeStyle}>check_sender_reputation</code>
-                    <span className="ml-2">returns <code className="text-xs text-white/50">{"{ senderVerdict, trustScore, confidence, identityIssues, domainIntel }"}</code></span>
+                    <span className="ml-2">returns <code className="text-xs text-muted-foreground">{"{ senderVerdict, trustScore, confidence, identityIssues, domainIntel }"}</code></span>
                   </div>
-                  <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
                     <code className="text-xs" style={codeStyle}>check_message_safety</code>
-                    <span className="ml-2">returns <code className="text-xs text-white/50">{"{ verdict, riskScore, confidence, platform, threats, recommendation, platformTips }"}</code></span>
+                    <span className="ml-2">returns <code className="text-xs text-muted-foreground">{"{ verdict, riskScore, confidence, platform, threats, recommendation, platformTips }"}</code></span>
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-semibold text-white text-sm mb-2">Verdict Values</h4>
+                  <h4 className="font-semibold text-sm mb-2">Verdict Values</h4>
                   <ul className="space-y-1.5 text-sm">
-                    <li className="flex flex-wrap items-center gap-2"><Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30">safe</Badge> <span className="text-white/70">Email appears legitimate</span></li>
-                    <li className="flex flex-wrap items-center gap-2"><Badge className="bg-amber-600/20 text-amber-400 border-amber-600/30">suspicious</Badge> <span className="text-white/70">Contains potential threats</span></li>
-                    <li className="flex flex-wrap items-center gap-2"><Badge className="bg-red-600/20 text-red-400 border-red-600/30">dangerous</Badge> <span className="text-white/70">High-confidence threat</span></li>
+                    <li className="flex flex-wrap items-center gap-2"><Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30">safe</Badge> <span className="text-muted-foreground">Email appears legitimate</span></li>
+                    <li className="flex flex-wrap items-center gap-2"><Badge className="bg-amber-600/20 text-amber-400 border-amber-600/30">suspicious</Badge> <span className="text-muted-foreground">Contains potential threats</span></li>
+                    <li className="flex flex-wrap items-center gap-2"><Badge className="bg-red-600/20 text-red-400 border-red-600/30">dangerous</Badge> <span className="text-muted-foreground">High-confidence threat</span></li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white text-sm mb-2">Threat Types</h4>
-                  <ul className="text-xs text-white/50 space-y-1">
+                  <h4 className="font-semibold text-sm mb-2">Threat Types</h4>
+                  <ul className="text-xs text-muted-foreground space-y-1">
                     <li>PHISHING</li>
                     <li>SOCIAL_ENGINEERING</li>
                     <li>MALWARE</li>
@@ -603,10 +601,10 @@ switch (result.recommendation) {
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={cardStyle}>
+          <Card>
             <CardHeader>
-              <CardTitle className="text-white">Code Examples</CardTitle>
-              <CardDescription className="text-white/50">Examples use check_email_safety — all 7 tools are called the same way</CardDescription>
+              <CardTitle>Code Examples</CardTitle>
+              <CardDescription>Examples use check_email_safety — all 7 tools are called the same way</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="python-mcp">
@@ -632,24 +630,24 @@ switch (result.recommendation) {
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={cardStyle}>
+          <Card>
             <CardHeader>
-              <CardTitle className="text-white">Pricing</CardTitle>
+              <CardTitle>Pricing</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-white/80 space-y-2">
-              <p><strong className="text-white">$0.02 per tool call</strong> — charged at time of request via your Skyfire Buyer API Key. Applies to all 7 tools.</p>
-              <p className="text-white/50">Failed requests (invalid token, insufficient balance) are not charged. Only successful analysis incurs a charge.</p>
+            <CardContent className="text-sm text-foreground/80 space-y-2">
+              <p><strong>$0.02 per tool call</strong> — charged at time of request via your Skyfire Buyer API Key. Applies to all 7 tools.</p>
+              <p className="text-muted-foreground">Failed requests (invalid token, insufficient balance) are not charged. Only successful analysis incurs a charge.</p>
             </CardContent>
           </Card>
 
           <div className="pt-4 pb-8 flex flex-wrap items-center justify-between gap-4">
             <Link href="/">
-              <Button variant="ghost" className="text-white/50" data-testid="button-back-home">
+              <Button variant="ghost" className="text-muted-foreground" data-testid="button-back-home">
                 <ArrowLeft className="h-4 w-4 mr-2" /> Back to Home
               </Button>
             </Link>
             <a href="https://skyfire.xyz" target="_blank" rel="noopener">
-              <Button variant="outline" className="text-white/70 border-white/10" data-testid="button-get-skyfire">
+              <Button variant="outline" className="text-muted-foreground border-border" data-testid="button-get-skyfire">
                 Get a Skyfire Buyer API Key
               </Button>
             </a>

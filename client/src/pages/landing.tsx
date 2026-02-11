@@ -22,7 +22,7 @@ function CopyButton({ text }: { text: string }) {
     <Button
       size="icon"
       variant="ghost"
-      className="text-white/50 shrink-0"
+      className="text-muted-foreground shrink-0"
       data-testid="button-copy-config"
       onClick={() => {
         navigator.clipboard.writeText(text);
