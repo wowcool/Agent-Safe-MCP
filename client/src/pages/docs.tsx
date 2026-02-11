@@ -14,8 +14,8 @@ const BASE_URL = "https://agentsafe.locationledger.com";
 
 export default function Docs() {
   useSEO({
-    title: "Documentation - Agent Safe 7-Tool Email Security Suite | API Reference & Integration Guide",
-    description: "Complete documentation for Agent Safe's 7-tool email security suite. MCP configuration, REST API reference for check_email_safety, check_url_safety, check_response_safety, analyze_email_thread, check_attachment_safety, check_sender_reputation, and check_message_safety.",
+    title: "Documentation - Agent Safe 7-Tool Message Security Suite | API Reference & Integration Guide",
+    description: "Complete documentation for Agent Safe's 7-tool message security suite. Protects AI agents across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. MCP configuration, REST API reference for all 7 tools including check_message_safety.",
     path: "/docs",
   });
   const { toast } = useToast();
@@ -380,7 +380,7 @@ switch (result.recommendation) {
           MCP Server Documentation
         </h1>
         <p className="text-white/60 mb-10">
-          Connect your AI agent to Agent Safe's 7-tool email security suite. No signup required — just a Skyfire PAY token.
+          Connect your AI agent to Agent Safe's 7-tool message security suite. Protect against threats across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. No signup required — just a Skyfire PAY token.
         </p>
 
         <div className="space-y-8">

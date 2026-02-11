@@ -92,9 +92,9 @@ const toolsData = [
     icon: Mail,
     image: toolEmailImg,
     label: "Email Safety",
-    purpose: "Analyzes any incoming message for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration. Works with emails, chat messages, DMs, or any text your agent receives. This is the core tool in the suite, designed to be the first line of defense when an AI agent receives any message.",
-    purposeExtra: "All threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. The tool uses Claude AI with a specialized prompt engineered specifically for message threat detection, covering 8 distinct threat categories simultaneously.",
-    useCase: "Agent receives a message (email, chat, DM, or any other format). Before acting on it, it passes the message contents (sender, subject, body) to this tool for safety analysis. The tool returns a structured verdict the agent can use to decide whether to proceed, exercise caution, or refuse to act.",
+    purpose: "Analyzes incoming emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration. This is the core email security tool in the suite, designed to be the first line of defense when an AI agent receives an email. For non-email messages (SMS, WhatsApp, Slack, Discord, etc.), use check_message_safety instead.",
+    purposeExtra: "All threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. The tool uses Claude AI with a specialized prompt engineered specifically for email threat detection, covering 8 distinct threat categories simultaneously.",
+    useCase: "Agent receives an email. Before acting on it, it passes the email contents (sender, subject, body) to this tool for safety analysis. The tool returns a structured verdict the agent can use to decide whether to proceed, exercise caution, or refuse to act. For messages from other platforms like SMS, WhatsApp, or Slack, use check_message_safety.",
     categories: [
       { name: "PHISHING", description: "Fake login pages, spoofed domains, credential harvesting" },
       { name: "SOCIAL_ENGINEERING", description: "Manipulation tactics, urgency, emotional pressure" },
@@ -393,8 +393,8 @@ export default function HowItWorks() {
   }, []);
 
   useSEO({
-    title: "How Agent Safe Works - 7-Tool Message Security Suite for AI Agents | MCP Server",
-    description: "Learn how Agent Safe's 7-tool message security suite analyzes any message, URL, reply, attachment, sender reputation, and thread for phishing, prompt injection, CEO fraud, and social engineering. Works with emails and any other message format. See real testing results and example responses.",
+    title: "How Agent Safe Works - 7-Tool Security for Every Messaging Platform | MCP Server",
+    description: "Learn how Agent Safe protects AI agents across every platform — email, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, and more. 7-tool MCP suite detects phishing, smishing, BEC, prompt injection, and social engineering on any messaging platform. See real test results.",
     path: "/how-it-works",
   });
   return (
@@ -408,10 +408,10 @@ export default function HowItWorks() {
               How It Works
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 leading-[1.1]" data-testid="text-how-headline">
-              How Agent Safe Protects<br />Your AI Agent
+              Security Across Every<br />Messaging Platform
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              A deep look at how our <a href="#tools-section" className="text-primary underline" data-testid="link-tools-section" onClick={(e) => { e.preventDefault(); document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>7-tool suite</a> — covering message safety, URL analysis, response checking, attachment scanning, sender reputation, thread analysis, and non-email platform messages — detects phishing, prompt injection, social engineering, and more. Works with emails and any other message your agent receives.
+              Your agent handles messages on email, SMS, WhatsApp, Slack, Discord, Telegram, and more. Our <a href="#tools-section" className="text-primary underline" data-testid="link-tools-section" onClick={(e) => { e.preventDefault(); document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>7-tool MCP suite</a> detects phishing, smishing, prompt injection, social engineering, and platform-specific threats — no matter where the message comes from.
             </p>
           </div>
 
@@ -738,7 +738,7 @@ export default function HowItWorks() {
             Protect Your Agent Now
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Add Agent Safe's 7 message security tools to your MCP client in 30 seconds. No signup required.
+            Secure your agent on every platform — email, SMS, WhatsApp, Slack, Discord, and more. Connect in 30 seconds, no signup required.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/#connect">

@@ -50,8 +50,8 @@ const MCP_CONFIG = `{
 
 export default function Landing() {
   useSEO({
-    title: "Agent Safe - Protect Your Agents from Scam Messages | 7-Tool Security Suite",
-    description: "Your AI agent processes messages — but should it trust them? Agent Safe is a 7-tool MCP security suite that protects AI agents from phishing, BEC, malware, and manipulation across any message, URL, or attachment. $0.02 per tool call via Skyfire.",
+    title: "Agent Safe - Secure Every Message Your Agent Touches | 7-Tool MCP Security Suite",
+    description: "Protect your AI agent on every platform — email, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, and more. Agent Safe is a 7-tool MCP security suite that detects phishing, BEC, smishing, and manipulation across any message. $0.02 per check via Skyfire.",
     path: "/",
   });
   return (
@@ -67,14 +67,25 @@ export default function Landing() {
             Remote MCP Server
           </Badge>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1]" data-testid="text-hero-headline">
-            Protect Your Agents<br />from Scam Messages
+            Secure Every Message<br />Your Agent Touches
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-            Your AI agent processes messages. But should it trust them?
+            Email. SMS. WhatsApp. Slack. Discord. DMs. Any platform, any message.
           </p>
-          <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-            <a href="#tools" className="text-primary font-bold hover:underline"><strong>7 tools</strong></a> that protect your AI agent from phishing, BEC, malware, and manipulation across any message (emails, chats, DMs, SMS), URL, reply, thread, attachment, or sender identity. Connect via MCP, pay per use with Skyfire.
+          <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto leading-relaxed">
+            Your AI agent processes messages across every platform — but should it trust them? Agent Safe is a <a href="#tools" className="text-primary font-bold hover:underline"><strong>7-tool MCP security suite</strong></a> that protects against phishing, BEC, malware, and manipulation on <strong>any messaging platform</strong> your agent operates on.
           </p>
+          <div className="flex flex-wrap justify-center gap-2 mb-10">
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-email"><Mail className="h-3 w-3 mr-1" /> Email</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-sms"><Smartphone className="h-3 w-3 mr-1" /> SMS</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-whatsapp"><MessageSquare className="h-3 w-3 mr-1" /> WhatsApp</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-slack"><MessageSquare className="h-3 w-3 mr-1" /> Slack</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-discord"><MessageSquare className="h-3 w-3 mr-1" /> Discord</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-telegram"><MessageSquare className="h-3 w-3 mr-1" /> Telegram</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-instagram"><MessageSquare className="h-3 w-3 mr-1" /> Instagram</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-imessage"><Smartphone className="h-3 w-3 mr-1" /> iMessage</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-more">+ More</Badge>
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap mb-16">
             <a href="#connect">
@@ -117,35 +128,34 @@ export default function Landing() {
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6" data-testid="text-problem-heading">
-              Your AI Agent Is One Message Away From Being Compromised
+              Threats Come From Every Platform
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Every day, AI agents process thousands of messages, URLs, attachments, and threads autonomously. A single malicious message, link, or file can compromise your entire operation.
+              Your AI agent handles messages across email, SMS, WhatsApp, Slack, Discord, and more. Attackers know this — and they target every channel.
             </p>
           </div>
 
           <p className="text-muted-foreground leading-relaxed mb-10 max-w-3xl mx-auto text-center">
-            Attackers craft deceptive messages, embed malicious URLs, poison reply threads, and disguise dangerous attachments to exploit an agent's tendency to follow instructions,
-            tricking it into leaking data, making unauthorized payments, or executing harmful actions.
-            Agent Safe is a suite of <a href="#tools" className="text-primary font-bold hover:underline">7 tools</a> that any MCP-compatible agent can call to verify any message, URL, reply, thread, attachment, or sender identity before acting. It works with emails and any other message format your agent encounters.
+            Smishing via SMS. Wrong-number scams on WhatsApp. Fake brand DMs on Instagram. Impersonation in Slack. Phishing emails. Attackers craft platform-specific attacks designed to exploit an agent's tendency to follow instructions, tricking it into leaking data, making unauthorized payments, or executing harmful actions.
+            Agent Safe gives your agent <a href="#tools" className="text-primary font-bold hover:underline">7 security tools</a> to verify <strong>any message on any platform</strong> before acting — from emails to texts to DMs to chat messages.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground">Detects phishing, BEC, and social engineering across any message or thread</p>
+              <p className="text-sm text-muted-foreground"><strong>Any platform:</strong> Email, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, iMessage, Signal, LinkedIn, and more</p>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground">Scans URLs for malware, redirects, and domain spoofing</p>
+              <p className="text-sm text-muted-foreground"><strong>Platform-aware:</strong> Detects platform-specific threats like smishing, OTP interception, and wrong-number crypto scams</p>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground">Checks draft replies for data leakage and verifies sender reputation with live DNS</p>
+              <p className="text-sm text-muted-foreground"><strong>Full coverage:</strong> Messages, URLs, replies, threads, attachments, and sender identity — all verified</p>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground">No signup required - pay per use via Skyfire PAY tokens</p>
+              <p className="text-sm text-muted-foreground"><strong>No signup:</strong> Connect via MCP, pay $0.02 per check with Skyfire tokens</p>
             </div>
           </div>
         </div>
@@ -268,6 +278,28 @@ export default function Landing() {
             </p>
           </div>
 
+          <a href="/how-it-works#tool-check_message_safety" className="block mb-8" data-testid="link-tool-check-message-featured">
+            <Card className="hover-elevate cursor-pointer border-primary/20 bg-primary/[0.03]" data-testid="card-feature-check-message-featured">
+              <CardContent className="pt-6">
+                <div className="flex flex-col md:flex-row items-start gap-6">
+                  <img src={toolMessageImg} alt="Message safety analysis across platforms" className="w-20 h-20 object-contain rounded-md shrink-0" data-testid="img-card-check-message-featured" />
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-3 mb-2">
+                      <span className="text-lg font-bold">check_message_safety</span>
+                      <Badge variant="secondary" className="text-xs">NEW</Badge>
+                    </div>
+                    <p className="text-muted-foreground mb-3">
+                      Purpose-built for non-email platforms. Analyzes messages from <strong>SMS, WhatsApp, Instagram DMs, Facebook Messenger, Telegram, Discord, Slack, LinkedIn, iMessage, Signal</strong>, and any other messaging platform your agent operates on. Detects smishing, wrong-number scams, OTP interception, impersonation, payment fraud, romance scams, and more with platform-specific threat intelligence.
+                    </p>
+                    <span className="text-sm text-primary flex items-center gap-1 font-medium">
+                      See how it works <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </a>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <a href="/how-it-works#tool-check_email_safety" data-testid="link-tool-check-email">
               <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-email">
@@ -277,7 +309,7 @@ export default function Landing() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Analyze any message for phishing, social engineering, prompt injection, CEO fraud, and data exfiltration
+                    Analyze emails for phishing, social engineering, prompt injection, CEO fraud, and BEC attacks
                   </p>
                   <span className="text-xs text-primary flex items-center gap-1">
                     Learn more <ArrowRight className="h-3 w-3" />
@@ -371,22 +403,42 @@ export default function Landing() {
               </Card>
             </a>
 
-            <a href="/how-it-works#tool-check_message_safety" data-testid="link-tool-check-message">
-              <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-message">
-                <CardHeader>
-                  <img src={toolMessageImg} alt="Message safety analysis" className="w-16 h-16 object-contain rounded-md mb-3" data-testid="img-card-check-message" />
-                  <CardTitle className="font-semibold text-lg">check_message_safety</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Analyze SMS, WhatsApp, Instagram DMs, Discord, Slack, and other messaging platform threats
-                  </p>
-                  <span className="text-xs text-primary flex items-center gap-1">
-                    Learn more <ArrowRight className="h-3 w-3" />
-                  </span>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-platforms-heading">
+              Every Platform Your Agent Touches
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+              Wherever your agent receives messages, Agent Safe can protect it
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+            {[
+              { name: "Email", desc: "Phishing, BEC, prompt injection" },
+              { name: "SMS / iMessage", desc: "Smishing, fake alerts, OTP theft" },
+              { name: "WhatsApp", desc: "Wrong-number scams, payment fraud" },
+              { name: "Slack", desc: "Impersonation, credential harvesting" },
+              { name: "Discord", desc: "Malicious links, tech support scams" },
+              { name: "Telegram", desc: "Crypto scams, OTP interception" },
+              { name: "Instagram DMs", desc: "Brand impersonation, romance scams" },
+              { name: "Facebook Messenger", desc: "Account takeover, phishing links" },
+              { name: "LinkedIn", desc: "Recruiter scams, data harvesting" },
+              { name: "Signal", desc: "Social engineering, identity fraud" },
+              { name: "Microsoft Teams", desc: "Corporate impersonation, BEC" },
+              { name: "Any Platform", desc: "Custom platform support via 'other'" },
+            ].map((p) => (
+              <Card key={p.name} className="text-center" data-testid={`card-platform-${p.name.toLowerCase().replace(/[^a-z]/g, "-")}`}>
+                <CardContent className="pt-4 pb-4">
+                  <p className="text-sm font-semibold mb-1">{p.name}</p>
+                  <p className="text-xs text-muted-foreground">{p.desc}</p>
                 </CardContent>
               </Card>
-            </a>
+            ))}
           </div>
         </div>
       </section>
@@ -478,6 +530,10 @@ export default function Landing() {
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs text-muted-foreground">Sender reputation</span>
                     <Badge variant="secondary" className="text-xs" data-testid="badge-cost-sender">1 unit - $0.02</Badge>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">Message safety (any platform)</span>
+                    <Badge variant="secondary" className="text-xs" data-testid="badge-cost-message">1 unit - $0.02</Badge>
                   </div>
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs text-muted-foreground">Short thread (3-5 messages)</span>
