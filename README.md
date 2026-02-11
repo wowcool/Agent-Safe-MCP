@@ -8,7 +8,7 @@ Agent Safe is a Remote MCP Server providing 7 security tools that protect AI age
 
 All rights reserved. This software is proprietary and confidential. No permission is granted to use, copy, modify, merge, publish, distribute, sublicense, or sell copies of this software. Unauthorized use, reproduction, or distribution is strictly prohibited.
 
-Copyright (c) 2025 Alibi Ledger, LLC
+Copyright (c) 2026 Alibi Ledger, LLC
 
 ---
 

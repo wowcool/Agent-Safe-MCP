@@ -38,7 +38,7 @@ export function GlobalFooter() {
         </div>
         <div className="pt-8 flex flex-wrap items-center justify-between gap-4" style={{ borderTop: "1px solid #232323" }}>
           <p className="text-white/50 text-sm" data-testid="text-copyright">Part of the Anti-Deepfake/Agent Abuse protection suite</p>
-          <p className="text-white/40 text-xs">ALIBI LEDGER, LLC</p>
+          <p className="text-white/40 text-xs">&copy; 2026 ALIBI LEDGER, LLC</p>
         </div>
       </div>
     </footer>
