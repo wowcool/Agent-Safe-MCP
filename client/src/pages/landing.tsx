@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, Copy, ExternalLink } from "lucide-react";
+import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, Copy, ExternalLink, Mail, Link as LinkIcon, Reply, MessageSquare, Paperclip, UserCheck } from "lucide-react";
 import { useState } from "react";
 import { useSEO } from "@/lib/seo";
 import { GlobalFooter } from "@/components/global-footer";
@@ -29,7 +29,7 @@ function CopyButton({ text }: { text: string }) {
 
 const MCP_CONFIG = `{
   "mcpServers": {
-    "safemessage": {
+    "agentsafe": {
       "command": "npx",
       "args": [
         "-y", "mcp-remote",
@@ -43,8 +43,8 @@ const MCP_CONFIG = `{
 
 export default function Landing() {
   useSEO({
-    title: "Agent Safe - Email Safety MCP Server for AI Agents | Phishing & Prompt Injection Protection",
-    description: "A Remote MCP Server that checks every email before your AI agent acts on it. Detects phishing, social engineering, prompt injection. Pay-per-use via Skyfire. $0.02/check.",
+    title: "Agent Safe - Email Security Suite for AI Agents | 6 Tools for Phishing, BEC & Malware Protection",
+    description: "A Remote MCP Server with 6 tools that protect your AI agent from phishing, BEC, malware, and manipulation across emails, URLs, replies, threads, attachments, and sender identities. Pay-per-use via Skyfire. $0.02/tool call.",
     path: "/",
   });
   return (
@@ -60,10 +60,10 @@ export default function Landing() {
             Remote MCP Server
           </Badge>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1]" data-testid="text-hero-headline">
-            Email Safety<br />for AI Agents
+            Email Security Suite<br />for AI Agents
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-            A Remote MCP Server that checks every email before your agent acts on it. Connect via MCP protocol, pay per use with Skyfire.
+            6 tools that protect your AI agent from phishing, BEC, malware, and manipulation across emails, URLs, replies, threads, attachments, and sender identities. Connect via MCP, pay per use with Skyfire.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap mb-16">
@@ -81,6 +81,10 @@ export default function Landing() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-6">
+            <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-tools">
+              <Shield className="h-3.5 w-3.5 mr-1.5" />
+              6 Tools
+            </Badge>
             <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-skyfire">
               <Shield className="h-3.5 w-3.5 mr-1.5" />
               Listed on Skyfire
@@ -91,7 +95,7 @@ export default function Landing() {
             </Badge>
             <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-price">
               <Zap className="h-3.5 w-3.5 mr-1.5" />
-              $0.02 / check
+              $0.02 / tool call
             </Badge>
           </div>
         </div>
@@ -101,31 +105,31 @@ export default function Landing() {
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6" data-testid="text-problem-heading">
-              Your AI Agent Is One Email Away From Being Compromised
+              Your AI Agent Is One Message Away From Being Compromised
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Every day, AI agents process thousands of emails autonomously. A single malicious message can compromise your entire operation.
+              Every day, AI agents process thousands of emails, URLs, attachments, and threads autonomously. A single malicious message, link, or file can compromise your entire operation.
             </p>
           </div>
 
           <p className="text-muted-foreground leading-relaxed mb-10 max-w-3xl mx-auto text-center">
-            Attackers craft emails that exploit an agent's tendency to follow instructions,
+            Attackers craft emails, embed malicious URLs, poison reply threads, and disguise dangerous attachments to exploit an agent's tendency to follow instructions,
             tricking it into leaking data, making unauthorized payments, or executing harmful actions.
-            Agent Safe is a remote MCP tool that any MCP-compatible agent can call to verify an email before acting on it.
+            Agent Safe is a suite of 6 remote MCP tools that any MCP-compatible agent can call to verify emails, URLs, replies, threads, attachments, and sender identities before acting.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground">Detects phishing attempts targeting autonomous agents</p>
+              <p className="text-sm text-muted-foreground">Detects phishing, BEC, and social engineering across emails and threads</p>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground">Blocks social engineering and prompt injection via email</p>
+              <p className="text-sm text-muted-foreground">Scans URLs for malware, redirects, and domain spoofing</p>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground">Prevents unauthorized data exfiltration through crafted messages</p>
+              <p className="text-sm text-muted-foreground">Checks draft replies for data leakage and verifies sender reputation with live DNS</p>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -183,9 +187,9 @@ export default function Landing() {
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                 <span className="text-primary font-bold text-sm">3</span>
               </div>
-              <h3 className="font-semibold mb-1">Check Emails</h3>
+              <h3 className="font-semibold mb-1">Secure Everything</h3>
               <p className="text-sm text-muted-foreground">
-                Your agent can now call <code className="text-xs bg-muted px-1 py-0.5 rounded">check_email_safety</code> on any email
+                Your agent can now call any of 6 email security tools to protect against threats
               </p>
             </div>
           </div>
@@ -196,94 +200,94 @@ export default function Landing() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-features-heading">
-              Built for Agents, Not Humans
+              6 Tools. Complete Email Security.
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              A purpose-built MCP tool that agents discover, connect to, and pay for autonomously
+              A purpose-built MCP tool suite that agents discover, connect to, and pay for autonomously
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="hover-elevate" data-testid="card-feature-mcp">
+            <Card className="hover-elevate" data-testid="card-feature-check-email">
               <CardHeader>
                 <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <Bot className="h-6 w-6 text-primary" />
+                  <Mail className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="font-semibold text-lg">Remote MCP Server</CardTitle>
+                <CardTitle className="font-semibold text-lg">check_email_safety</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Standard MCP protocol (Streamable HTTP). Any MCP-compatible agent connects natively - no custom integration code.
+                  Analyze emails for phishing, social engineering, prompt injection, CEO fraud
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="hover-elevate" data-testid="card-feature-skyfire">
+            <Card className="hover-elevate" data-testid="card-feature-check-url">
               <CardHeader>
                 <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <Shield className="h-6 w-6 text-primary" />
+                  <LinkIcon className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="font-semibold text-lg">Skyfire Payments</CardTitle>
+                <CardTitle className="font-semibold text-lg">check_url_safety</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Pay-per-use via Skyfire KYAPay. Agents send a PAY token in the header - no signup, no API keys, no subscriptions.
+                  Analyze URLs for phishing, malware, redirects, and spoofing
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="hover-elevate" data-testid="card-feature-ai">
+            <Card className="hover-elevate" data-testid="card-feature-check-response">
               <CardHeader>
                 <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <Zap className="h-6 w-6 text-primary" />
+                  <Reply className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="font-semibold text-lg">AI-Powered Analysis</CardTitle>
+                <CardTitle className="font-semibold text-lg">check_response_safety</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Claude-powered threat detection specialized for agent-targeted phishing, social engineering, and prompt injection.
+                  Check draft replies BEFORE sending for data leakage and unauthorized disclosure
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="hover-elevate" data-testid="card-feature-secure">
+            <Card className="hover-elevate" data-testid="card-feature-analyze-thread">
               <CardHeader>
                 <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <Lock className="h-6 w-6 text-primary" />
+                  <MessageSquare className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="font-semibold text-lg">Charge-First Security</CardTitle>
+                <CardTitle className="font-semibold text-lg">analyze_email_thread</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Payment is validated and charged before analysis runs. No free rides, no unpaid usage, ever.
+                  Analyze full email threads for escalating social engineering and manipulation
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="hover-elevate" data-testid="card-feature-response">
+            <Card className="hover-elevate" data-testid="card-feature-check-attachment">
               <CardHeader>
                 <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <Terminal className="h-6 w-6 text-primary" />
+                  <Paperclip className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="font-semibold text-lg">Structured Verdicts</CardTitle>
+                <CardTitle className="font-semibold text-lg">check_attachment_safety</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Returns verdict, risk score, threats detected, safe/unsafe actions, and a plain-language explanation your agent can act on.
+                  Assess attachments for malware risk based on filename, MIME type, and size
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="hover-elevate" data-testid="card-feature-discovery">
+            <Card className="hover-elevate" data-testid="card-feature-check-sender">
               <CardHeader>
                 <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <ExternalLink className="h-6 w-6 text-primary" />
+                  <UserCheck className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="font-semibold text-lg">Directory Listed</CardTitle>
+                <CardTitle className="font-semibold text-lg">check_sender_reputation</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Discoverable on Skyfire's open directory. Agents find and use Agent Safe without human involvement.
+                  Verify sender identity with live DNS DMARC and RDAP domain age checks
                 </p>
               </CardContent>
             </Card>
@@ -298,17 +302,17 @@ export default function Landing() {
           </h2>
           <Card className="max-w-md mx-auto">
             <CardHeader className="text-center pb-2">
-              <CardTitle className="text-2xl mb-4">Pay Per Check</CardTitle>
+              <CardTitle className="text-2xl mb-4">Pay Per Tool Call</CardTitle>
               <div>
                 <span className="text-5xl font-bold" data-testid="text-price">$0.02</span>
-                <span className="text-muted-foreground ml-1">/check</span>
+                <span className="text-muted-foreground ml-1">/ tool call</span>
               </div>
             </CardHeader>
             <CardContent className="pt-6">
               <ul className="space-y-4">
                 <li className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm">AI-powered email safety analysis</span>
+                  <span className="text-sm">6 email security tools included</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
@@ -320,7 +324,7 @@ export default function Landing() {
                 </li>
                 <li className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm">Detailed threat reports with actionable verdicts</span>
+                  <span className="text-sm">Live DNS/RDAP enrichment included</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />

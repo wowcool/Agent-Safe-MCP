@@ -105,6 +105,59 @@ export async function registerRoutes(
 
   // ===== AUTH ROUTES =====
   
+  app.get("/llms.txt", (_req: Request, res: Response) => {
+    res.type("text/plain").send(`# Agent Safe - 6-Tool Email Security Suite for AI Agents
+> MCP Server: https://agentsafe.locationledger.com/mcp
+> Protocol: Streamable HTTP (MCP)
+> Payment: $0.02/tool call via skyfire-pay-id header (Skyfire PAY token)
+> No signup required
+
+## Tools
+
+### check_email_safety
+Analyze an email for phishing, social engineering, prompt injection, CEO fraud, and data exfiltration.
+Input: from (string, required), subject (string, required), body (string, required), links (string[]), attachments (object[]), knownSender (boolean), previousCorrespondence (boolean)
+Returns: verdict, riskScore, confidence, threats[], recommendation, explanation, safeActions[], unsafeActions[]
+
+### check_url_safety
+Analyze URLs for phishing, malware, redirects, spoofing, and tracking.
+Input: urls (string[], required, max 20)
+Returns: overallVerdict, overallRiskScore, urlResults[]
+
+### check_response_safety
+Check a draft email reply BEFORE sending for data leakage, social engineering compliance, and unauthorized disclosure.
+Input: draftTo (string, required), draftSubject (string, required), draftBody (string, required), originalFrom (string), originalSubject (string), originalBody (string)
+Returns: verdict, riskScore, confidence, threats[], recommendation
+
+### analyze_email_thread
+Analyze a full email conversation thread for escalating social engineering, scope creep, and manipulation patterns.
+Input: messages (object[], required, min 2, max 50) - each with from, subject, body, date?
+Returns: verdict, riskScore, confidence, manipulationPatterns[], threadProgression
+
+### check_attachment_safety
+Assess email attachments for malware risk based on filename, MIME type, and size BEFORE opening/downloading.
+Input: attachments (object[], required, max 20) - each with name, size, mimeType, from?
+Returns: overallVerdict, overallRiskScore, attachmentResults[]
+
+### check_sender_reputation
+Verify sender identity and detect BEC, spoofing, and impersonation. Includes live DNS DMARC and RDAP domain age checks.
+Input: email (string, required), displayName (string, required), replyTo (string), emailSubject (string), emailSnippet (string)
+Returns: senderVerdict, trustScore, confidence, identityIssues[], domainIntel
+
+## Quick Start
+1. Get a Skyfire PAY token at https://skyfire.xyz
+2. Add MCP config: { "mcpServers": { "agentsafe": { "command": "npx", "args": ["-y", "mcp-remote", "https://agentsafe.locationledger.com/mcp", "--header", "skyfire-pay-id: YOUR_TOKEN"] } } }
+3. Call any tool via MCP tools/call
+
+## Links
+- Documentation: https://agentsafe.locationledger.com/docs
+- Discovery: https://agentsafe.locationledger.com/mcp/discover
+- Terms: https://agentsafe.locationledger.com/terms
+`);
+  });
+
+  // ===== AUTH ROUTES =====
+
   app.post("/api/auth/signup", async (req: Request, res: Response) => {
     try {
       const parsed = insertOwnerSchema.safeParse(req.body);

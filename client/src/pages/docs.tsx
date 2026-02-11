@@ -14,8 +14,8 @@ const BASE_URL = "https://agentsafe.locationledger.com";
 
 export default function Docs() {
   useSEO({
-    title: "Documentation - Agent Safe MCP Server | API Reference & Integration Guide",
-    description: "Complete documentation for integrating Agent Safe into your AI agent. MCP configuration, REST API reference, Skyfire payment setup, and response format details.",
+    title: "Documentation - Agent Safe 6-Tool Email Security Suite | API Reference & Integration Guide",
+    description: "Complete documentation for Agent Safe's 6-tool email security suite. MCP configuration, REST API reference for check_email_safety, check_url_safety, check_response_safety, analyze_email_thread, check_attachment_safety, and check_sender_reputation.",
     path: "/docs",
   });
   const { toast } = useToast();
@@ -126,6 +126,7 @@ async def check_email():
         async with ClientSession(read, write) as session:
             await session.initialize()
             
+            # All 6 tools are called the same way — just change the tool name and arguments
             result = await session.call_tool(
                 "check_email_safety",
                 arguments={
@@ -139,6 +140,7 @@ async def check_email():
 
   const pythonRestExample = `import requests
 
+# All 6 tools use the same pattern — swap the endpoint and payload
 def check_email_safety(email_data, skyfire_token):
     response = requests.post(
         "${BASE_URL}/mcp/tools/check_email_safety",
@@ -169,6 +171,7 @@ else:
     print("Email appears safe")`;
 
   const jsExample = `// Using MCP client (recommended)
+// All 6 tools are called the same way — just change the tool name and arguments
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
@@ -190,6 +193,7 @@ const result = await client.callTool("check_email_safety", {
 console.log(result);`;
 
   const jsRestExample = `// Using REST API (alternative)
+// All 6 tools follow the same pattern — swap the endpoint and payload
 async function checkEmailSafety(email, skyfireToken) {
   const response = await fetch(
     "${BASE_URL}/mcp/tools/check_email_safety",
@@ -227,6 +231,10 @@ switch (result.recommendation) {
     break;
 }`;
 
+  const codeStyle = { background: "rgba(16, 106, 243, 0.15)", color: "hsl(200, 70%, 60%)" };
+  const cardStyle = { background: "#161820", border: "1px solid rgba(255,255,255,0.06)" };
+  const inlineCodeStyle = { background: "rgba(255,255,255,0.06)" };
+
   function CodeBlock({ code, id, label }: { code: string; id: string; label?: string }) {
     return (
       <div className="relative">
@@ -247,6 +255,108 @@ switch (result.recommendation) {
     );
   }
 
+  function ParamTable({ rows }: { rows: { name: string; type: string; required: boolean; description: string }[] }) {
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm" style={{ borderCollapse: "separate", borderSpacing: 0 }}>
+          <thead>
+            <tr className="text-left text-white/40 text-xs uppercase tracking-wider">
+              <th className="pb-2 pr-4">Parameter</th>
+              <th className="pb-2 pr-4">Type</th>
+              <th className="pb-2 pr-4">Required</th>
+              <th className="pb-2">Description</th>
+            </tr>
+          </thead>
+          <tbody className="text-white/70">
+            {rows.map((row) => (
+              <tr key={row.name}>
+                <td className="py-1.5 pr-4"><code className="text-xs">{row.name}</code></td>
+                <td className="pr-4">{row.type}</td>
+                <td className="pr-4">{row.required ? "Yes" : "No"}</td>
+                <td>{row.description}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  const toolDefinitions = [
+    {
+      name: "check_email_safety",
+      description: "Analyze an email for phishing, social engineering, malware, and other threats. Returns a verdict with risk score, detected threats, and recommended actions.",
+      params: [
+        { name: "from", type: "string", required: true, description: "Sender email address" },
+        { name: "subject", type: "string", required: true, description: "Email subject line" },
+        { name: "body", type: "string", required: true, description: "Email body content" },
+        { name: "links", type: "string[]", required: false, description: "URLs found in the email" },
+        { name: "attachments", type: "object[]", required: false, description: "Attachment metadata (name, size, type)" },
+        { name: "knownSender", type: "boolean", required: false, description: "Whether the sender is known/trusted" },
+        { name: "previousCorrespondence", type: "boolean", required: false, description: "Whether there has been prior email exchange" },
+      ],
+      responseNote: null,
+    },
+    {
+      name: "check_url_safety",
+      description: "Analyze one or more URLs for phishing, malware distribution, suspicious redirects, and domain reputation issues.",
+      params: [
+        { name: "urls", type: "string[]", required: true, description: "Array of URLs to analyze (max 20)" },
+      ],
+      responseNote: "Returns { overallVerdict, overallRiskScore, urlResults: [...] } with per-URL analysis.",
+    },
+    {
+      name: "check_response_safety",
+      description: "Check a draft email reply before sending to ensure it doesn't leak sensitive information or fall for social engineering traps.",
+      params: [
+        { name: "draftTo", type: "string", required: true, description: "Recipient of the draft reply" },
+        { name: "draftSubject", type: "string", required: true, description: "Subject of the draft reply" },
+        { name: "draftBody", type: "string", required: true, description: "Body content of the draft reply" },
+        { name: "originalFrom", type: "string", required: false, description: "Sender of the original email being replied to" },
+        { name: "originalSubject", type: "string", required: false, description: "Subject of the original email" },
+        { name: "originalBody", type: "string", required: false, description: "Body of the original email" },
+      ],
+      responseNote: "Returns { verdict, riskScore, confidence, threats, recommendation }.",
+    },
+    {
+      name: "analyze_email_thread",
+      description: "Analyze an email thread for manipulation patterns, escalating social engineering, and suspicious behavior across multiple messages.",
+      params: [
+        { name: "messages", type: "object[]", required: true, description: "Array of thread messages (min 2, max 50). Each: { from, subject, body, date? }" },
+      ],
+      responseNote: "Returns { verdict, riskScore, confidence, manipulationPatterns, threadProgression }.",
+    },
+    {
+      name: "check_attachment_safety",
+      description: "Assess email attachments for potential malware, suspicious file types, and risky metadata without needing the actual file content.",
+      params: [
+        { name: "attachments", type: "object[]", required: true, description: "Array of attachments (max 20). Each: { name, size, mimeType, from? }" },
+      ],
+      responseNote: "Returns { overallVerdict, overallRiskScore, attachmentResults: [...] } with per-attachment analysis.",
+    },
+    {
+      name: "check_sender_reputation",
+      description: "Verify a sender's identity and domain reputation using live DNS DMARC lookups and RDAP domain registration data.",
+      params: [
+        { name: "email", type: "string", required: true, description: "Sender email address to verify" },
+        { name: "displayName", type: "string", required: true, description: "Display name shown in the email" },
+        { name: "replyTo", type: "string", required: false, description: "Reply-To address if different from sender" },
+        { name: "emailSubject", type: "string", required: false, description: "Subject line for context" },
+        { name: "emailSnippet", type: "string", required: false, description: "Brief snippet of email body for context" },
+      ],
+      responseNote: "Returns { senderVerdict, trustScore, confidence, identityIssues, domainIntel }.",
+    },
+  ];
+
+  const restEndpoints = [
+    { path: "/mcp/tools/check_email_safety", description: "Analyze a single email for threats" },
+    { path: "/mcp/tools/check_url_safety", description: "Check one or more URLs for safety" },
+    { path: "/mcp/tools/check_response_safety", description: "Verify a draft reply before sending" },
+    { path: "/mcp/tools/analyze_email_thread", description: "Analyze an email thread for manipulation" },
+    { path: "/mcp/tools/check_attachment_safety", description: "Assess attachment safety by metadata" },
+    { path: "/mcp/tools/check_sender_reputation", description: "Verify sender identity and domain reputation" },
+  ];
+
   return (
     <div className="min-h-screen" style={{ background: "#0f1012", color: "#e5e5e5", fontFamily: "'Inter', system-ui, sans-serif" }}>
       <SiteHeader />
@@ -256,11 +366,11 @@ switch (result.recommendation) {
           MCP Server Documentation
         </h1>
         <p className="text-white/60 mb-10">
-          Connect your AI agent to Agent Safe for email safety verification. No signup required — just a Skyfire PAY token.
+          Connect your AI agent to Agent Safe's 6-tool email security suite. No signup required — just a Skyfire PAY token.
         </p>
 
         <div className="space-y-8">
-          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <Card className="border-0" style={cardStyle}>
             <CardHeader>
               <CardTitle className="text-white">Quick Start</CardTitle>
               <CardDescription className="text-white/50">Get connected in 3 steps</CardDescription>
@@ -269,7 +379,7 @@ switch (result.recommendation) {
               <ol className="list-decimal list-inside space-y-3 text-white/80 text-sm">
                 <li>Get a <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-[hsl(200,70%,50%)] underline underline-offset-2">Skyfire PAY token</a> from the Skyfire Network</li>
                 <li>Add the MCP server config to your agent's MCP settings file</li>
-                <li>Your agent can now call <code className="px-1.5 py-0.5 rounded text-xs" style={{ background: "rgba(16, 106, 243, 0.15)", color: "hsl(200, 70%, 60%)" }}>check_email_safety</code> before acting on any email</li>
+                <li>Your agent can now use all <strong className="text-white">6 email security tools</strong> — including <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_email_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_url_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_response_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>analyze_email_thread</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_attachment_safety</code>, and <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_sender_reputation</code></li>
               </ol>
 
               <div className="mt-4">
@@ -279,14 +389,14 @@ switch (result.recommendation) {
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <Card className="border-0" style={cardStyle}>
             <CardHeader>
               <CardTitle className="text-white">Authentication</CardTitle>
               <CardDescription className="text-white/50">How payment and auth work</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-white/80">
               <p>
-                Agent Safe uses <strong className="text-white">pay-per-use</strong> pricing at <strong className="text-white">$0.02 per check</strong>. No signup, no API keys, no subscriptions.
+                Agent Safe uses <strong className="text-white">pay-per-use</strong> pricing at <strong className="text-white">$0.02 per tool call</strong>. No signup, no API keys, no subscriptions.
               </p>
 
               <div className="space-y-3">
@@ -300,12 +410,12 @@ switch (result.recommendation) {
               </div>
 
               <p className="text-white/50 text-xs">
-                The Skyfire token must be valid and have sufficient balance. Each call is charged $0.02 automatically via the Skyfire Network.
+                The Skyfire token must be valid and have sufficient balance. Each tool call is charged $0.02 automatically via the Skyfire Network.
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <Card className="border-0" style={cardStyle}>
             <CardHeader>
               <CardTitle className="text-white">MCP Protocol</CardTitle>
               <CardDescription className="text-white/50">Connect via Model Context Protocol (recommended)</CardDescription>
@@ -336,18 +446,28 @@ switch (result.recommendation) {
               <div>
                 <h4 className="font-semibold text-white text-sm mb-2">Available MCP Methods</h4>
                 <ul className="text-sm text-white/70 space-y-1.5">
-                  <li><code className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)" }}>initialize</code> — Handshake and capability negotiation</li>
-                  <li><code className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)" }}>tools/list</code> — Discover available tools</li>
-                  <li><code className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)" }}>tools/call</code> — Execute check_email_safety (requires payment)</li>
+                  <li><code className="text-xs px-1.5 py-0.5 rounded" style={inlineCodeStyle}>initialize</code> — Handshake and capability negotiation</li>
+                  <li><code className="text-xs px-1.5 py-0.5 rounded" style={inlineCodeStyle}>tools/list</code> — Discover all 6 available tools</li>
+                  <li className="space-y-1">
+                    <span><code className="text-xs px-1.5 py-0.5 rounded" style={inlineCodeStyle}>tools/call</code> — Execute any of the 6 security tools (requires payment):</span>
+                    <ul className="ml-6 mt-1 space-y-0.5 text-white/50 text-xs">
+                      <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_email_safety</code> — Analyze emails for threats</li>
+                      <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_url_safety</code> — Check URL safety</li>
+                      <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_response_safety</code> — Verify draft replies</li>
+                      <li><code style={codeStyle} className="px-1 py-0.5 rounded">analyze_email_thread</code> — Analyze email threads</li>
+                      <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_attachment_safety</code> — Assess attachments</li>
+                      <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_sender_reputation</code> — Verify sender identity</li>
+                    </ul>
+                  </li>
                 </ul>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <Card className="border-0" style={cardStyle}>
             <CardHeader>
               <CardTitle className="text-white">REST API</CardTitle>
-              <CardDescription className="text-white/50">Alternative REST endpoints</CardDescription>
+              <CardDescription className="text-white/50">Alternative REST endpoints for all 6 tools</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
@@ -361,51 +481,81 @@ switch (result.recommendation) {
                 <CodeBlock code={discoverExample} id="discover" />
               </div>
 
-              <div>
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <Badge variant="secondary" data-testid="badge-check-post">POST</Badge>
-                  <code className="text-sm text-white/80">/mcp/tools/check_email_safety</code>
+              {restEndpoints.map((endpoint, idx) => (
+                <div key={endpoint.path}>
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <Badge variant="secondary" data-testid={`badge-rest-post-${idx}`}>POST</Badge>
+                    <code className="text-sm text-white/80">{endpoint.path}</code>
+                  </div>
+                  <p className="text-sm text-white/50 mb-1">
+                    {endpoint.description}. Requires <code className="text-xs" style={codeStyle}>skyfire-pay-id</code> header.
+                  </p>
                 </div>
-                <p className="text-sm text-white/50 mb-3">
-                  REST wrapper for the email safety check. Requires <code>skyfire-pay-id</code> header.
-                </p>
+              ))}
+
+              <div className="mt-2">
+                <p className="text-xs text-white/40 mb-2 font-semibold uppercase tracking-wider">Example: check_email_safety</p>
                 <CodeBlock code={restCheckExample} id="rest-check" />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <Card className="border-0" style={cardStyle}>
             <CardHeader>
-              <CardTitle className="text-white">Tool: check_email_safety</CardTitle>
-              <CardDescription className="text-white/50">Input parameters and response format</CardDescription>
+              <CardTitle className="text-white">Tool Reference</CardTitle>
+              <CardDescription className="text-white/50">Input parameters for all 6 security tools</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              {toolDefinitions.map((tool) => (
+                <div key={tool.name} data-testid={`section-tool-${tool.name}`}>
+                  <h4 className="font-semibold text-white text-sm mb-1">
+                    <code className="px-1.5 py-0.5 rounded text-sm" style={codeStyle}>{tool.name}</code>
+                  </h4>
+                  <p className="text-sm text-white/60 mb-3">{tool.description}</p>
+                  <ParamTable rows={tool.params} />
+                  {tool.responseNote && (
+                    <p className="text-xs text-white/40 mt-2 italic">{tool.responseNote}</p>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card className="border-0" style={cardStyle}>
+            <CardHeader>
+              <CardTitle className="text-white">Response Format</CardTitle>
+              <CardDescription className="text-white/50">Response structure and verdict values</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <h4 className="font-semibold text-white text-sm mb-3">Input Parameters</h4>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm" style={{ borderCollapse: "separate", borderSpacing: 0 }}>
-                    <thead>
-                      <tr className="text-left text-white/40 text-xs uppercase tracking-wider">
-                        <th className="pb-2 pr-4">Parameter</th>
-                        <th className="pb-2 pr-4">Type</th>
-                        <th className="pb-2 pr-4">Required</th>
-                        <th className="pb-2">Description</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-white/70">
-                      <tr><td className="py-1.5 pr-4"><code className="text-xs">from</code></td><td className="pr-4">string</td><td className="pr-4">Yes</td><td>Sender email address</td></tr>
-                      <tr><td className="py-1.5 pr-4"><code className="text-xs">subject</code></td><td className="pr-4">string</td><td className="pr-4">Yes</td><td>Email subject line</td></tr>
-                      <tr><td className="py-1.5 pr-4"><code className="text-xs">body</code></td><td className="pr-4">string</td><td className="pr-4">Yes</td><td>Email body content</td></tr>
-                      <tr><td className="py-1.5 pr-4"><code className="text-xs">links</code></td><td className="pr-4">string[]</td><td className="pr-4">No</td><td>URLs found in the email</td></tr>
-                      <tr><td className="py-1.5 pr-4"><code className="text-xs">attachments</code></td><td className="pr-4">object[]</td><td className="pr-4">No</td><td>Attachment metadata (name, size, type)</td></tr>
-                    </tbody>
-                  </table>
-                </div>
+                <h4 className="font-semibold text-white text-sm mb-3">Example Response (check_email_safety)</h4>
+                <CodeBlock code={responseExample} id="response" />
               </div>
 
               <div>
-                <h4 className="font-semibold text-white text-sm mb-3">Response</h4>
-                <CodeBlock code={responseExample} id="response" />
+                <h4 className="font-semibold text-white text-sm mb-3">Response Differences by Tool</h4>
+                <div className="space-y-2 text-sm text-white/70">
+                  <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <code className="text-xs" style={codeStyle}>check_url_safety</code>
+                    <span className="ml-2">returns <code className="text-xs text-white/50">{"{ overallVerdict, overallRiskScore, urlResults: [...] }"}</code></span>
+                  </div>
+                  <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <code className="text-xs" style={codeStyle}>check_response_safety</code>
+                    <span className="ml-2">returns <code className="text-xs text-white/50">{"{ verdict, riskScore, confidence, threats, recommendation }"}</code></span>
+                  </div>
+                  <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <code className="text-xs" style={codeStyle}>analyze_email_thread</code>
+                    <span className="ml-2">returns <code className="text-xs text-white/50">{"{ verdict, riskScore, confidence, manipulationPatterns, threadProgression }"}</code></span>
+                  </div>
+                  <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <code className="text-xs" style={codeStyle}>check_attachment_safety</code>
+                    <span className="ml-2">returns <code className="text-xs text-white/50">{"{ overallVerdict, overallRiskScore, attachmentResults: [...] }"}</code></span>
+                  </div>
+                  <div className="p-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <code className="text-xs" style={codeStyle}>check_sender_reputation</code>
+                    <span className="ml-2">returns <code className="text-xs text-white/50">{"{ senderVerdict, trustScore, confidence, identityIssues, domainIntel }"}</code></span>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -434,9 +584,10 @@ switch (result.recommendation) {
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <Card className="border-0" style={cardStyle}>
             <CardHeader>
               <CardTitle className="text-white">Code Examples</CardTitle>
+              <CardDescription className="text-white/50">Examples use check_email_safety — all 6 tools are called the same way</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="python-mcp">
@@ -462,12 +613,12 @@ switch (result.recommendation) {
             </CardContent>
           </Card>
 
-          <Card className="border-0" style={{ background: "#161820", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <Card className="border-0" style={cardStyle}>
             <CardHeader>
               <CardTitle className="text-white">Pricing</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-white/80 space-y-2">
-              <p><strong className="text-white">$0.02 per email check</strong> — charged at time of request via Skyfire PAY token.</p>
+              <p><strong className="text-white">$0.02 per tool call</strong> — charged at time of request via Skyfire PAY token. Applies to all 6 tools.</p>
               <p className="text-white/50">Failed requests (invalid token, insufficient balance) are not charged. Only successful analysis incurs a charge.</p>
             </CardContent>
           </Card>

@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import {
   Bot, Shield, Zap, Lock, Terminal, CheckCircle2, AlertTriangle,
   XCircle, Search, ArrowRight, Mail, FileWarning,
-  Eye, Brain, ShieldAlert, Skull, Fingerprint, MessageSquareWarning
+  Eye, Brain, ShieldAlert, Skull, Fingerprint, MessageSquareWarning,
+  Link as LinkIcon, MessageSquare, Wrench
 } from "lucide-react";
 import { GlobalFooter } from "@/components/global-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -71,8 +72,8 @@ function StepCard({ number, title, description, icon: Icon }: {
 
 export default function HowItWorks() {
   useSEO({
-    title: "How Agent Safe Works - Email Threat Detection for AI Agents | MCP Server",
-    description: "Learn how Agent Safe analyzes emails for phishing, prompt injection, CEO fraud, and social engineering. See real testing results and example responses from our MCP server.",
+    title: "How Agent Safe Works - 6-Tool Email Security Suite for AI Agents | MCP Server",
+    description: "Learn how Agent Safe's 6-tool email security suite analyzes emails, URLs, replies, attachments, sender reputation, and threads for phishing, prompt injection, CEO fraud, and social engineering. See real testing results and example responses.",
     path: "/how-it-works",
   });
   return (
@@ -89,7 +90,7 @@ export default function HowItWorks() {
               How Agent Safe Protects<br />Your AI Agent
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              A deep look at how the MCP works, what threats it detects, and real examples from our production testing.
+              A deep look at how our 6-tool suite — covering email safety, URL analysis, response checking, attachment scanning, sender reputation, and thread analysis — detects phishing, prompt injection, social engineering, and more.
             </p>
           </div>
 
@@ -112,21 +113,21 @@ export default function HowItWorks() {
               />
               <StepCard
                 number={3}
-                icon={Mail}
-                title="Agent Sends the Email"
-                description="When the agent receives an email it needs to act on, it calls the check_email_safety tool with the sender address, subject line, and email body. The agent can do this automatically before taking any action on any email."
+                icon={Wrench}
+                title="Agent Calls the Right Tool"
+                description="The agent picks the appropriate tool from the 6-tool suite based on what it needs to analyze: check_email_safety for incoming emails, check_url_safety for suspicious links, check_response_safety for draft replies, check_attachment_safety for file attachments, check_sender_reputation for sender verification, or check_thread_safety for multi-message thread analysis."
               />
               <StepCard
                 number={4}
                 icon={Brain}
                 title="AI Analyzes for Threats"
-                description="Agent Safe uses Claude AI with a specialized prompt engineered for agent-targeted threats. It analyzes the email across multiple threat categories simultaneously: phishing signals, social engineering tactics, prompt injection patterns, financial fraud indicators, and more. The PAY token is charged $0.02 via Skyfire."
+                description="Agent Safe uses Claude AI with specialized prompts engineered for each tool's analysis type. It analyzes across all threat categories simultaneously: phishing signals, social engineering tactics, prompt injection patterns, financial fraud indicators, URL threats, and more. The sender-reputation tool includes free DNS and RDAP enrichment for domain intelligence at no extra cost. The PAY token is charged $0.02 via Skyfire."
               />
               <StepCard
                 number={5}
                 icon={Shield}
                 title="Structured Verdict Returned"
-                description="The agent receives a structured response with: a verdict (safe/suspicious/dangerous), a risk score (0.0–1.0), specific threats detected with descriptions, a recommendation (proceed/proceed_with_caution/do_not_act), and lists of safe vs. unsafe actions. The agent uses this to decide what to do next."
+                description="Each tool returns structured results optimized for its analysis type: a verdict (safe/suspicious/dangerous), a risk score (0.0–1.0), specific threats detected with descriptions, a recommendation (proceed/proceed_with_caution/do_not_act), and lists of safe vs. unsafe actions. URL checks include domain analysis, thread checks include escalation patterns, and sender checks include DNS/RDAP data. The agent uses this to decide what to do next."
               />
             </CardContent>
           </Card>
@@ -192,6 +193,22 @@ export default function HowItWorks() {
               description="Catches attempts to trick agents into forwarding sensitive documents, sharing API keys, revealing internal system information, or sending data to unauthorized external addresses."
               example="A 'vendor onboarding' email asking the agent to reply with the company's banking details, employee list, and internal system credentials for 'verification purposes'. Caught with risk score 0.85 — flagged excessive data requests and social engineering."
             />
+
+            <ThreatCard
+              icon={LinkIcon}
+              title="URL Threats"
+              riskLevel="high"
+              description="Detects phishing URLs, malware download links, suspicious redirects, and typosquatting domains designed to steal credentials or deliver malicious payloads to your agent."
+              example="A URL that appears to be 'google.com' but uses a look-alike domain with a subtle character swap, redirecting through multiple hops to a credential harvesting site. Caught with risk score 0.90 — flagged typosquatting, suspicious redirect chain, and credential harvesting destination."
+            />
+
+            <ThreatCard
+              icon={MessageSquare}
+              title="Thread Manipulation"
+              riskLevel="high"
+              description="Identifies escalating social engineering across email threads, where attackers use gradual scope creep to move from legitimate-sounding requests to sensitive data extraction over multiple messages."
+              example="A multi-email thread that starts with a reasonable vendor question about invoice formatting, then gradually escalates across replies to requesting bank account details and wire transfer authorization. Caught with risk score 0.85 — flagged escalation pattern, scope creep from benign to sensitive requests, and social engineering across thread context."
+            />
           </div>
         </div>
       </section>
@@ -230,11 +247,12 @@ export default function HowItWorks() {
 
           <Card className="mb-12">
             <CardHeader>
-              <CardTitle className="text-lg" data-testid="text-response-heading">Example Response Structure</CardTitle>
+              <CardTitle className="text-lg" data-testid="text-response-heading">Example Response Structure (check_email_safety)</CardTitle>
             </CardHeader>
             <CardContent>
               <pre className="text-sm text-muted-foreground overflow-x-auto leading-relaxed bg-muted/30 p-4 rounded-md" data-testid="code-response-example">
-                <code>{`{
+                <code>{`// Response from check_email_safety
+{
   "verdict": "dangerous",
   "riskScore": 0.95,
   "confidence": 0.95,
@@ -259,6 +277,9 @@ export default function HowItWorks() {
   "termsOfService": "https://agentsafe.locationledger.com/terms"
 }`}</code>
               </pre>
+              <p className="text-sm text-muted-foreground mt-4 italic">
+                Each of the 6 tools returns optimized response structures. See documentation for full details.
+              </p>
             </CardContent>
           </Card>
 
@@ -323,7 +344,7 @@ export default function HowItWorks() {
             Protect Your Agent Now
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Add Agent Safe to your MCP client in 30 seconds. No signup required.
+            Add Agent Safe's 6 email security tools to your MCP client in 30 seconds. No signup required.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/#connect">
