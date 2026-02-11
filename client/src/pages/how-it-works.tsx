@@ -115,7 +115,7 @@ export default function HowItWorks() {
                 number={3}
                 icon={Wrench}
                 title="Agent Calls the Right Tool"
-                description="The agent picks the appropriate tool from the 6-tool suite based on what it needs to analyze: check_email_safety for incoming emails, check_url_safety for suspicious links, check_response_safety for draft replies, check_attachment_safety for file attachments, check_sender_reputation for sender verification, or check_thread_safety for multi-message thread analysis."
+                description="The agent picks the appropriate tool from the 6-tool suite based on what it needs to analyze: check_email_safety for incoming emails, check_url_safety for suspicious links, check_response_safety for draft replies, check_attachment_safety for file attachments, check_sender_reputation for sender verification, or analyze_email_thread for multi-message thread analysis."
               />
               <StepCard
                 number={4}
