@@ -180,10 +180,59 @@ const TOOL_DEFS = {
   },
 };
 
+const ANNOTATIONS = {
+  readOnly: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+};
+
 function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey?: string | undefined): McpServer {
   const server = new McpServer({ name: "AgentSafe", version: "2.0.0" });
 
-  server.tool("check_email_safety", TOOL_DEFS.check_email_safety.description, TOOL_DEFS.check_email_safety.schema, async (args) => {
+  server.resource(
+    "tool-catalog",
+    "agentsafe://catalog",
+    { description: "Agent Safe tool catalog with descriptions, parameters, and pricing for all 7 security tools", mimeType: "application/json" },
+    async () => ({
+      contents: [{
+        uri: "agentsafe://catalog",
+        mimeType: "application/json",
+        text: JSON.stringify({
+          service: "Agent Safe",
+          version: "2.0.0",
+          pricing: { perCall: "$0.02 USD", paymentMethod: "Skyfire Buyer API Key via skyfire-api-key header" },
+          tools: Object.entries(TOOL_DEFS).map(([name, def]) => ({ name, description: def.description, parameters: Object.keys(def.schema) })),
+          endpoint: "https://agentsafe.locationledger.com/mcp",
+          documentation: "https://agentsafe.locationledger.com/docs",
+        }, null, 2),
+      }],
+    }),
+  );
+
+  server.prompt(
+    "security-scan-guide",
+    "Guides an AI agent to choose the right Agent Safe security tool for a given message, URL, attachment, or sender. Returns a recommended tool name and example parameters.",
+    { messageType: z.enum(["email", "sms", "chat_message", "url", "attachment", "draft_reply", "thread", "sender_check"]).describe("The type of content to scan") },
+    async ({ messageType }) => {
+      const guides: Record<string, { tool: string; description: string; example: string }> = {
+        email: { tool: "check_email_safety", description: "Analyze an email for phishing, social engineering, and threats", example: '{"from":"ceo@company.com","subject":"Urgent","body":"Please wire $50k..."}' },
+        sms: { tool: "check_message_safety", description: "Analyze SMS/text messages for smishing and scams", example: '{"platform":"sms","sender":"+1555123456","messages":[{"body":"Your package is delayed, click here...","direction":"inbound"}]}' },
+        chat_message: { tool: "check_message_safety", description: "Analyze chat messages from WhatsApp, Slack, Discord, Telegram, etc.", example: '{"platform":"whatsapp","sender":"Unknown","messages":[{"body":"Hey, check out this opportunity...","direction":"inbound"}]}' },
+        url: { tool: "check_url_safety", description: "Analyze URLs for phishing, malware, and spoofing", example: '{"urls":["https://suspicious-site.com/login"]}' },
+        attachment: { tool: "check_attachment_safety", description: "Assess attachment risk before opening/downloading", example: '{"attachments":[{"name":"invoice.pdf.exe","mimeType":"application/x-msdownload","size":500000}]}' },
+        draft_reply: { tool: "check_response_safety", description: "Check a draft reply for data leakage before sending", example: '{"draftTo":"vendor@example.com","draftSubject":"Re: Invoice","draftBody":"Here are our bank details..."}' },
+        thread: { tool: "analyze_email_thread", description: "Analyze a message thread for escalating manipulation", example: '{"messages":[{"from":"vendor@example.com","subject":"Invoice","body":"Please pay..."},{"from":"you@company.com","subject":"Re: Invoice","body":"Which account?"}]}' },
+        sender_check: { tool: "check_sender_reputation", description: "Verify sender identity with DNS/RDAP lookups", example: '{"email":"ceo@company-update.com","displayName":"John Smith CEO"}' },
+      };
+      const guide = guides[messageType];
+      return {
+        messages: [{
+          role: "assistant",
+          content: { type: "text", text: `For "${messageType}", use the **${guide.tool}** tool.\n\n${guide.description}.\n\nExample parameters:\n\`\`\`json\n${guide.example}\n\`\`\`\n\nCost: $0.02 per call. Include your Skyfire Buyer API Key via the skyfire-api-key header.` },
+        }],
+      };
+    },
+  );
+
+  server.tool("check_email_safety", TOOL_DEFS.check_email_safety.description, TOOL_DEFS.check_email_safety.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
@@ -202,7 +251,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
     return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
   });
 
-  server.tool("check_url_safety", TOOL_DEFS.check_url_safety.description, TOOL_DEFS.check_url_safety.schema, async (args) => {
+  server.tool("check_url_safety", TOOL_DEFS.check_url_safety.description, TOOL_DEFS.check_url_safety.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
@@ -217,7 +266,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
     return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
   });
 
-  server.tool("check_response_safety", TOOL_DEFS.check_response_safety.description, TOOL_DEFS.check_response_safety.schema, async (args) => {
+  server.tool("check_response_safety", TOOL_DEFS.check_response_safety.description, TOOL_DEFS.check_response_safety.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
@@ -232,7 +281,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
     return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
   });
 
-  server.tool("analyze_email_thread", TOOL_DEFS.analyze_email_thread.description, TOOL_DEFS.analyze_email_thread.schema, async (args) => {
+  server.tool("analyze_email_thread", TOOL_DEFS.analyze_email_thread.description, TOOL_DEFS.analyze_email_thread.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
@@ -247,7 +296,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
     return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
   });
 
-  server.tool("check_attachment_safety", TOOL_DEFS.check_attachment_safety.description, TOOL_DEFS.check_attachment_safety.schema, async (args) => {
+  server.tool("check_attachment_safety", TOOL_DEFS.check_attachment_safety.description, TOOL_DEFS.check_attachment_safety.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
@@ -262,7 +311,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
     return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
   });
 
-  server.tool("check_sender_reputation", TOOL_DEFS.check_sender_reputation.description, TOOL_DEFS.check_sender_reputation.schema, async (args) => {
+  server.tool("check_sender_reputation", TOOL_DEFS.check_sender_reputation.description, TOOL_DEFS.check_sender_reputation.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
@@ -277,7 +326,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
     return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
   });
 
-  server.tool("check_message_safety", TOOL_DEFS.check_message_safety.description, TOOL_DEFS.check_message_safety.schema, async (args) => {
+  server.tool("check_message_safety", TOOL_DEFS.check_message_safety.description, TOOL_DEFS.check_message_safety.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
