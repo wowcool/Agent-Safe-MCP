@@ -391,47 +391,104 @@ export default function Landing() {
 
       <section className="py-20 px-4 bg-card/50">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center tracking-tight mb-16" data-testid="text-pricing-heading">
+          <h2 className="text-3xl md:text-4xl font-bold text-center tracking-tight mb-4" data-testid="text-pricing-heading">
             Simple, Transparent Pricing
           </h2>
-          <Card className="max-w-md mx-auto">
-            <CardHeader className="text-center pb-2">
-              <CardTitle className="text-2xl mb-4">Pay Per Tool Call</CardTitle>
-              <div>
-                <span className="text-5xl font-bold" data-testid="text-price">$0.02</span>
-                <span className="text-muted-foreground ml-1">/ tool call</span>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <ul className="space-y-4">
-                <li className="flex items-center gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm"><strong>6 email security tools</strong> included</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm">No signup or API keys required</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm">Pay via Skyfire PAY tokens</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm">Live DNS/RDAP enrichment included</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm">Standard MCP protocol - works with any agent</span>
-                </li>
-              </ul>
-              <a href="https://skyfire.xyz" target="_blank" rel="noopener">
-                <Button className="w-full mt-8" size="lg" data-testid="button-get-skyfire">
-                  Get Skyfire Tokens
-                </Button>
-              </a>
-            </CardContent>
-          </Card>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-center mb-16">
+            One price. No surprises. Every tool call costs the same.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            <Card>
+              <CardHeader className="text-center pb-2">
+                <CardTitle className="text-2xl mb-4">Pay Per Unit</CardTitle>
+                <div>
+                  <span className="text-5xl font-bold" data-testid="text-price">$0.02</span>
+                  <span className="text-muted-foreground ml-1">/ unit</span>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <ul className="space-y-4">
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
+                    <span className="text-sm"><strong>6 email security tools</strong> included</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
+                    <span className="text-sm">No signup or API keys required</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
+                    <span className="text-sm">Pay via Skyfire PAY tokens</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
+                    <span className="text-sm">Live DNS/RDAP enrichment included</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
+                    <span className="text-sm">Standard MCP protocol - works with any agent</span>
+                  </li>
+                </ul>
+                <a href="https://skyfire.xyz" target="_blank" rel="noopener">
+                  <Button className="w-full mt-8" size="lg" data-testid="button-get-skyfire">
+                    Get Skyfire Tokens
+                  </Button>
+                </a>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg mb-2" data-testid="text-unit-heading">What Is a Unit?</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  1 unit = up to <strong>4,000 tokens</strong> of input, which is roughly <strong>3,000 words</strong>. Each unit costs $0.02.
+                </p>
+                <div className="bg-muted/50 rounded-md p-4 space-y-3">
+                  <p className="text-sm font-semibold" data-testid="text-why-heading">Why 4,000 tokens covers most emails</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    The average business email is <strong>75-100 words</strong>. Even a long, detailed email with signatures, disclaimers, and forwarded content rarely exceeds 500 words. At 3,000 words per unit, a single $0.02 unit can analyze an email that is <strong>30-40x longer than a typical one</strong>.
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    In practice, almost every tool call costs exactly <strong>one unit ($0.02)</strong>. The only exception is unusually long email threads submitted to <strong>analyze_email_thread</strong>, where a conversation with many messages might require 2-3 units.
+                  </p>
+                </div>
+                <div className="space-y-2 pt-2">
+                  <p className="text-xs font-semibold text-muted-foreground">Typical costs:</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">Single email check</span>
+                    <Badge variant="secondary" className="text-xs" data-testid="badge-cost-email">1 unit - $0.02</Badge>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">URL scan (up to 20 URLs)</span>
+                    <Badge variant="secondary" className="text-xs" data-testid="badge-cost-url">1 unit - $0.02</Badge>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">Draft reply check</span>
+                    <Badge variant="secondary" className="text-xs" data-testid="badge-cost-response">1 unit - $0.02</Badge>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">Attachment scan</span>
+                    <Badge variant="secondary" className="text-xs" data-testid="badge-cost-attachment">1 unit - $0.02</Badge>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">Sender reputation</span>
+                    <Badge variant="secondary" className="text-xs" data-testid="badge-cost-sender">1 unit - $0.02</Badge>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">Short thread (3-5 emails)</span>
+                    <Badge variant="secondary" className="text-xs" data-testid="badge-cost-thread-short">1 unit - $0.02</Badge>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">Long thread (20+ emails)</span>
+                    <Badge variant="secondary" className="text-xs" data-testid="badge-cost-thread-long">2-3 units - $0.04-0.06</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
