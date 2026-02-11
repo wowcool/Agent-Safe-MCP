@@ -14,6 +14,7 @@ import toolThreadImg from "@/assets/images/tool-thread-analysis.png";
 import toolAttachmentImg from "@/assets/images/tool-attachment-safety.png";
 import toolSenderImg from "@/assets/images/tool-sender-reputation.png";
 import toolMessageImg from "@/assets/images/tool-message-safety.png";
+import whatItTestsForImg from "@/assets/images/what-it-tests-for.png";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -444,6 +445,52 @@ export default function Landing() {
       </section>
 
       <section className="py-20 px-4 bg-card/50">
+        <div className="container mx-auto max-w-5xl">
+          <div className="grid md:grid-cols-2 gap-10 items-center">
+            <div>
+              <img src={whatItTestsForImg} alt="Agent Safe threat protection visualization" className="w-full rounded-md" data-testid="img-what-it-tests-for" />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight mb-4" data-testid="text-tests-for-heading">
+                What It Tests For
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                All 7 tools run every security check automatically on every call. No flags, no configuration. Here is what they catch across your messages.
+              </p>
+              <div className="space-y-3">
+                {[
+                  { tool: "check_email_safety", desc: "Phishing, prompt injection, CEO fraud, social engineering, financial fraud, data exfiltration", count: "8 categories" },
+                  { tool: "check_message_safety", desc: "Platform-aware threats for SMS, WhatsApp, Slack, Discord, Telegram, and more", count: "8 categories", isNew: true },
+                  { tool: "check_url_safety", desc: "Phishing URLs, typosquatting, malware links, redirect abuse, tracking", count: "7 categories" },
+                  { tool: "check_response_safety", desc: "Data leakage, PII exposure, compliance violations in draft replies", count: "5 categories" },
+                  { tool: "analyze_email_thread", desc: "Escalating manipulation, scope creep, deadline manufacturing across threads", count: "5 categories" },
+                  { tool: "check_attachment_safety", desc: "Executable masquerades, double extensions, macro risks, MIME mismatches", count: "6 categories" },
+                  { tool: "check_sender_reputation", desc: "Domain spoofing, BEC indicators, DMARC + domain age via live DNS", count: "6 categories" },
+                ].map((item) => (
+                  <div key={item.tool} className="flex items-start gap-3">
+                    <CheckCircle2 className="h-4 w-4 text-chart-4 shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold">{item.tool}</span>
+                        <Badge variant="secondary" className="text-[10px]">{item.count}</Badge>
+                        {item.isNew && <Badge className="text-[10px]">NEW</Badge>}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Link href="/how-it-works#what-it-tests-for">
+                <Button variant="outline" className="mt-6" data-testid="button-see-full-threats">
+                  See full threat breakdown <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 px-4">
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center tracking-tight mb-4" data-testid="text-pricing-heading">
             Simple, Transparent Pricing
