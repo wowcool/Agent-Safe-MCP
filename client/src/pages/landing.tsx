@@ -504,20 +504,24 @@ export default function Landing() {
                 </div>
               </Card>
             </a>
-            <Card className="p-6 min-w-[200px] opacity-60" data-testid="card-listing-mcp-registry">
-              <div className="flex flex-col items-center gap-3">
-                <Bot className="h-8 w-8 text-muted-foreground" />
-                <span className="font-semibold text-muted-foreground">MCP Registry</span>
-                <span className="text-xs text-muted-foreground">Coming soon</span>
-              </div>
-            </Card>
-            <Card className="p-6 min-w-[200px] opacity-60" data-testid="card-listing-pulsemcp">
-              <div className="flex flex-col items-center gap-3">
-                <Terminal className="h-8 w-8 text-muted-foreground" />
-                <span className="font-semibold text-muted-foreground">PulseMCP</span>
-                <span className="text-xs text-muted-foreground">Coming soon</span>
-              </div>
-            </Card>
+            <a href="https://smithery.ai/server/agent-safe-email/agentsafeemail" target="_blank" rel="noopener" data-testid="link-listing-smithery">
+              <Card className="hover-elevate p-6 min-w-[200px]" data-testid="card-listing-smithery">
+                <div className="flex flex-col items-center gap-3">
+                  <Terminal className="h-8 w-8 text-primary" />
+                  <span className="font-semibold">Smithery</span>
+                  <span className="text-xs text-muted-foreground">MCP server registry</span>
+                </div>
+              </Card>
+            </a>
+            <a href="https://registry.modelcontextprotocol.io/v0.1/servers/io.github.wowcool%2Fagentsafe/versions/1.0.0" target="_blank" rel="noopener" data-testid="link-listing-mcp-registry">
+              <Card className="hover-elevate p-6 min-w-[200px]" data-testid="card-listing-mcp-registry">
+                <div className="flex flex-col items-center gap-3">
+                  <Bot className="h-8 w-8 text-primary" />
+                  <span className="font-semibold">Official MCP Registry</span>
+                  <span className="text-xs text-muted-foreground">Model Context Protocol</span>
+                </div>
+              </Card>
+            </a>
           </div>
         </div>
       </section>
