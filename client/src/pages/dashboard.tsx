@@ -212,7 +212,7 @@ export default function Dashboard() {
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">Monitor your agents and email safety checks</p>
+          <p className="text-muted-foreground">Monitor your agents and message security checks</p>
         </div>
 
         {!user.hasPaymentMethod && (
@@ -223,7 +223,7 @@ export default function Dashboard() {
                 Set Up Payment
               </CardTitle>
               <CardDescription>
-                Add a payment method to enable your agents to use the email safety API. You can create tokens now, but they won't work until payment is configured.
+                Add a payment method to enable your agents to use the Agent Safe API. You can create tokens now, but they won't work until payment is configured.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -471,7 +471,7 @@ export default function Dashboard() {
                 <CheckCircle2 className="h-5 w-5" />
                 Recent Checks
               </CardTitle>
-              <CardDescription>Latest email safety verifications</CardDescription>
+              <CardDescription>Latest message security verifications</CardDescription>
             </CardHeader>
             <CardContent>
               {(recentChecks?.checks?.length || 0) === 0 ? (

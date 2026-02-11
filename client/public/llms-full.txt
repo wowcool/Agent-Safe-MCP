@@ -39,18 +39,23 @@ To connect from any MCP-compatible client (Claude Desktop, Cursor, Windsurf, etc
 
 Get your Skyfire PAY token at https://skyfire.xyz
 
-## Tool: check_email_safety
+## The 7 Tools
 
-The core tool in the 7-tool suite. Analyzes any message (email, chat, DM, or any text) for threats.
+### Tool 1: check_email_safety
 
-### Input Parameters
+Analyzes incoming emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, data exfiltration, malware indicators, and impersonation. The core email security tool — 8 threat categories. For non-email messages, use check_message_safety.
+
+#### Input Parameters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| sender | string | Yes | The sender's address or identifier (e.g., "ceo@company.com") |
-| subject | string | Yes | The message subject line |
-| body | string | Yes | The full message body content (plain text or HTML) |
-| recipientContext | string | No | Context about the recipient agent's role or permissions |
+| from | string | Yes | Sender email address |
+| subject | string | Yes | Email subject line |
+| body | string | Yes | Email body content |
+| links | string[] | No | URLs found in the email |
+| attachments | object[] | No | Attachment metadata (name, size, type) |
+| knownSender | boolean | No | Whether the sender is known/trusted |
+| previousCorrespondence | boolean | No | Whether there has been previous email exchange |
 
 ### Output Fields
 
@@ -107,25 +112,83 @@ The core tool in the 7-tool suite. Analyzes any message (email, chat, DM, or any
 }
 ```
 
-## Threat Detection Categories
+### Tool 2: check_message_safety
 
-### 1. Phishing
-Spoofed domains, lookalike URLs, fake login pages, credential harvesting attempts, homoglyph attacks, URL shortener abuse.
+Platform-aware security analysis for non-email messages — SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, Facebook Messenger, LinkedIn, iMessage, Signal, Microsoft Teams, and more. 8 threat categories with platform-specific context.
 
-### 2. Social Engineering
-Authority impersonation, urgency manipulation, emotional pressure, trust exploitation, pretexting, reciprocity exploitation.
+#### Input Parameters
 
-### 3. Prompt Injection
-Hidden instructions in HTML comments, invisible Unicode text, base64-encoded commands, system prompt override attempts, instruction injection targeting the receiving agent.
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| platform | string | Yes | Platform name (e.g., "whatsapp", "slack", "sms", "discord") |
+| from | string | Yes | Sender identifier |
+| body | string | Yes | Message content |
+| subject | string | No | Subject or topic if applicable |
+| links | string[] | No | URLs found in the message |
+| attachments | object[] | No | Attachment metadata |
+| knownSender | boolean | No | Whether the sender is known |
+| previousCorrespondence | boolean | No | Whether prior conversation exists |
+| groupChat | boolean | No | Whether from a group chat |
+| channelName | string | No | Channel or group name |
 
-### 4. CEO Fraud / Business Email Compromise (BEC)
-Executive impersonation, wire transfer requests, vendor payment changes, secrecy demands, unusual authorization patterns.
+### Tool 3: check_url_safety
 
-### 5. Financial Fraud
-Cryptocurrency scams, fake invoices, advance-fee fraud, money laundering attempts, fraudulent payment requests.
+Analyzes up to 20 URLs per call for phishing, malware, typosquatting, redirect abuse, command injection, suspicious tracking, and domain spoofing. 7 threat categories.
 
-### 6. Data Exfiltration
-Attempts to trick agents into forwarding sensitive data, exporting databases, sharing credentials, or transmitting confidential information to external addresses.
+#### Input Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| urls | string[] | Yes | Array of URLs to analyze (max 20) |
+| context | string | No | Where the URLs were found |
+
+### Tool 4: check_response_safety
+
+Scans draft replies BEFORE sending for data leakage, PII exposure, credential disclosure, compliance violations, and social engineering compliance. 5 threat categories.
+
+#### Input Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| draftResponse | string | Yes | The draft reply to analyze |
+| originalMessage | string | Yes | The original message being replied to |
+| context | string | No | Additional context |
+
+### Tool 5: analyze_email_thread
+
+Analyzes full message threads for escalating social engineering, scope creep, trust exploitation, authority escalation, and deadline manufacturing. 5 threat categories.
+
+#### Input Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| thread | object[] | Yes | Array of messages with from, subject, body, timestamp |
+| currentAction | string | No | What the agent is about to do |
+
+### Tool 6: check_attachment_safety
+
+Assesses attachment risk before opening/downloading. Detects executable masquerades, double extensions, macro risks, MIME mismatches. 6 threat categories.
+
+#### Input Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| attachments | object[] | Yes | Array with filename, mimeType, size |
+| context | string | No | Context about where attachments came from |
+
+### Tool 7: check_sender_reputation
+
+Verifies sender identity with live DNS DMARC lookups, RDAP domain age checks, and AI analysis. 6 threat categories + live DNS enrichment.
+
+#### Input Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| emailAddress | string | Yes | Sender email address to verify |
+| displayName | string | No | Display name shown in client |
+| replyTo | string | No | Reply-to address if different |
+| claimedRole | string | No | Role the sender claims |
+| claimedOrganization | string | No | Organization claimed |
 
 ## REST API (Alternative to MCP)
 
@@ -136,41 +199,21 @@ For agents that don't support MCP, a REST API is also available:
 GET https://agentsafe.locationledger.com/mcp/discover
 ```
 
-Returns service capabilities, pricing, and connection instructions.
+Returns all 7 tools, capabilities, pricing, and connection instructions.
 
-### Message Safety Check (REST)
-```
-POST https://agentsafe.locationledger.com/mcp/tools/check_email_safety
-Content-Type: application/json
-skyfire-pay-id: <YOUR_SKYFIRE_PAY_TOKEN>
+### REST Endpoints
 
-{
-  "sender": "example@domain.com",
-  "subject": "Message subject",
-  "body": "Message body content"
-}
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /mcp/tools/check_email_safety | Email safety check |
+| POST | /mcp/tools/check_message_safety | Message safety (any platform) |
+| POST | /mcp/tools/check_url_safety | URL safety check |
+| POST | /mcp/tools/check_response_safety | Response/reply safety check |
+| POST | /mcp/tools/analyze_email_thread | Thread analysis |
+| POST | /mcp/tools/check_attachment_safety | Attachment safety check |
+| POST | /mcp/tools/check_sender_reputation | Sender reputation check |
 
-Returns the same structured response as the MCP tool.
-
-### Non-Email Message Check (REST)
-```
-POST https://agentsafe.locationledger.com/mcp/tools/check_message_safety
-Content-Type: application/json
-skyfire-pay-id: <YOUR_SKYFIRE_PAY_TOKEN>
-
-{
-  "platform": "whatsapp",
-  "sender": "+1-555-0123",
-  "messages": [
-    { "body": "Hey! I think I have the wrong number, but nice to meet you anyway!", "direction": "inbound" },
-    { "body": "I work in crypto investment and could help you earn great returns", "direction": "inbound" }
-  ],
-  "contactKnown": false
-}
-```
-
-Returns verdict, riskScore, threats with messageIndices, and platform-specific safety tips.
+All REST endpoints accept JSON and require a skyfire-pay-id header.
 
 ## Payment
 

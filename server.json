@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.wowcool/agentsafe",
   "title": "Agent Safe",
-  "description": "Email safety MCP server. Detects phishing, prompt injection, CEO fraud for AI agents.",
-  "version": "1.0.0",
+  "description": "7-tool message security suite for AI agents. Protects against phishing, BEC, prompt injection, social engineering, and manipulation across email, SMS, WhatsApp, Slack, Discord, Telegram, and every messaging platform.",
+  "version": "2.1.0",
   "remotes": [
     {
       "type": "streamable-http",
@@ -11,7 +11,7 @@
       "headers": [
         {
           "name": "skyfire-pay-id",
-          "description": "Your Skyfire PAY token for payment authentication. Get one at skyfire.xyz. Charged $0.02 per email check.",
+          "description": "Your Skyfire PAY token for payment authentication. Get one at skyfire.xyz. Charged $0.02 per tool call.",
           "isRequired": true,
           "isSecret": true
         }

@@ -94,7 +94,7 @@ export async function registerRoutes(
     res.json({
       schema_version: "v1",
       name_for_human: "Agent Safe",
-      name_for_model: "agent_safe_email_security",
+      name_for_model: "agent_safe_message_security",
       description_for_human: "7-tool message security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation across any message format.",
       description_for_model: "Agent Safe is a Remote MCP Server with 7 message security tools for AI agents. Tools: check_email_safety (analyze emails), check_url_safety (analyze URLs), check_response_safety (check draft replies), analyze_email_thread (detect thread manipulation), check_attachment_safety (assess attachment risk), check_sender_reputation (verify sender with DNS/RDAP), check_message_safety (analyze SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal messages for platform-specific threats). Each costs $0.02 via Skyfire PAY token (skyfire-pay-id header). MCP endpoint: https://agentsafe.locationledger.com/mcp",
       auth: { type: "none" },
@@ -442,7 +442,7 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
           "sender_reputation_check",
           "message_safety_check",
         ],
-        domainFocus: "email_security",
+        domainFocus: "message_security",
         pricing: {
           perCheck: 0.02,
           currency: "USD",
@@ -459,6 +459,7 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
             analyze_email_thread: "/mcp/tools/analyze_email_thread",
             check_attachment_safety: "/mcp/tools/check_attachment_safety",
             check_sender_reputation: "/mcp/tools/check_sender_reputation",
+            check_message_safety: "/mcp/tools/check_message_safety",
           },
         },
         documentation: "/docs",

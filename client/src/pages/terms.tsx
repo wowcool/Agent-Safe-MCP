@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 export default function Terms() {
   useSEO({
     title: "Terms of Service - Agent Safe | Liability & Usage Terms",
-    description: "Terms of Service for Agent Safe email safety MCP server. Includes liability disclaimers, warranty information, agent responsibility, and indemnification provisions.",
+    description: "Terms of Service for Agent Safe 7-tool message security suite. Covers all tools including email, URL, attachment, sender, thread, response, and cross-platform message analysis. Includes liability disclaimers and usage terms.",
     path: "/terms",
   });
   return (
@@ -104,7 +104,7 @@ export default function Terms() {
               <li>The Service may incorrectly flag legitimate emails as threats (false positives). Alibi Ledger, LLC is not responsible for any consequences arising from such misidentification.</li>
               <li>The Service provides informational analysis only. Any actions taken by you, your AI agent, or any automated system based on the Service's output are your sole responsibility.</li>
               <li>If your AI agent acts on, ignores, or misinterprets the Service's analysis in a way that causes harm, loss, or damage, Alibi Ledger, LLC bears no liability for those actions or their consequences.</li>
-              <li>The Service does not guarantee protection against any specific type of threat, and its analysis should be considered one factor among many in an email security strategy.</li>
+              <li>The Service does not guarantee protection against any specific type of threat, and its analysis should be considered one factor among many in a message security strategy.</li>
               <li>Each tool in the suite (check_email_safety, check_url_safety, check_response_safety, analyze_email_thread, check_attachment_safety, check_sender_reputation, check_message_safety) provides advisory analysis that may contain errors, omissions, or inaccuracies.</li>
               <li>The check_sender_reputation tool includes live DNS DMARC and RDAP domain age data. While this data comes from authoritative sources, it may be incomplete, outdated, or unavailable for some domains. The presence or absence of DMARC records or domain registration data does not constitute a definitive judgment of sender legitimacy.</li>
             </ul>
@@ -118,7 +118,7 @@ export default function Terms() {
             <ul className="list-disc pl-6 space-y-1.5 mb-3">
               <li>Loss of data, revenue, or profits arising from undetected email threats.</li>
               <li>Damages resulting from actions taken by AI agents or automated systems based on the Service's analysis.</li>
-              <li>Harm caused by phishing, social engineering, or other email-based attacks that the Service failed to identify.</li>
+              <li>Harm caused by phishing, social engineering, or other message-based attacks that the Service failed to identify.</li>
               <li>Any consequences arising from reliance on the Service's safety verdicts, risk scores, or recommendations.</li>
               <li>Consequences arising from reliance on any of the 7 tools' analysis, including but not limited to email safety verdicts, URL risk scores, attachment safety assessments, sender reputation evaluations, thread manipulation detection, or draft reply recommendations.</li>
             </ul>

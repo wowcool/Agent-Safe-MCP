@@ -221,7 +221,7 @@ export default function Billing() {
               </CardTitle>
               <CardDescription>
                 Add a credit card to enable API access for your agents. 
-                You'll be charged $0.05 per email check.
+                You'll be charged $0.02 per tool call across all 7 security tools.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -253,7 +253,7 @@ export default function Billing() {
           <CardContent>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Email Safety Check</span>
+                <span className="text-muted-foreground">Message Security Check (any tool)</span>
                 <span className="font-medium">$0.05 / check</span>
               </div>
               <div className="flex justify-between">
