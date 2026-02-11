@@ -98,7 +98,7 @@ async function validateAndCharge(skyfireToken: string | undefined, buyerApiKey?:
 
 const TOOL_DEFS = {
   check_email_safety: {
-    description: `Analyze an email for phishing, social engineering, prompt injection, and other threats targeting AI agents. Returns verdict, risk score, threats, and recommended actions. $${PRICE}/call via skyfire-pay-id header. ${TERMS_NOTICE}`,
+    description: `Analyze an email for phishing, social engineering, prompt injection, and other threats targeting AI agents. Returns verdict, risk score, threats, and recommended actions. $${PRICE}/call via skyfire-api-key header (Skyfire Buyer API Key). ${TERMS_NOTICE}`,
     schema: {
       from: z.string().describe("Sender email address"),
       subject: z.string().describe("Email subject line"),
@@ -110,13 +110,13 @@ const TOOL_DEFS = {
     },
   },
   check_url_safety: {
-    description: `Analyze one or more URLs for phishing, malware, redirects, and spoofing. Returns per-URL and overall verdicts. $${PRICE}/call via skyfire-pay-id header. ${TERMS_NOTICE}`,
+    description: `Analyze one or more URLs for phishing, malware, redirects, and spoofing. Returns per-URL and overall verdicts. $${PRICE}/call via skyfire-api-key header (Skyfire Buyer API Key). ${TERMS_NOTICE}`,
     schema: {
       urls: z.array(z.string()).min(1).max(20).describe("List of URLs to analyze (max 20)"),
     },
   },
   check_response_safety: {
-    description: `Check a draft email reply BEFORE sending for data leakage, social engineering compliance, and unauthorized disclosure. $${PRICE}/call via skyfire-pay-id header. ${TERMS_NOTICE}`,
+    description: `Check a draft email reply BEFORE sending for data leakage, social engineering compliance, and unauthorized disclosure. $${PRICE}/call via skyfire-api-key header (Skyfire Buyer API Key). ${TERMS_NOTICE}`,
     schema: {
       draftTo: z.string().describe("Recipient email address"),
       draftSubject: z.string().describe("Draft reply subject"),
@@ -127,7 +127,7 @@ const TOOL_DEFS = {
     },
   },
   analyze_email_thread: {
-    description: `Analyze a full email conversation thread for escalating social engineering, scope creep, and manipulation patterns. $${PRICE}/call for <=5 units (4000 tokens each); quote-first for larger threads. Via skyfire-pay-id header. ${TERMS_NOTICE}`,
+    description: `Analyze a full email conversation thread for escalating social engineering, scope creep, and manipulation patterns. $${PRICE}/call for <=5 units (4000 tokens each); quote-first for larger threads. Via skyfire-api-key header (Skyfire Buyer API Key). ${TERMS_NOTICE}`,
     schema: {
       messages: z.array(z.object({
         from: z.string().describe("Sender of this message"),
@@ -138,7 +138,7 @@ const TOOL_DEFS = {
     },
   },
   check_attachment_safety: {
-    description: `Assess email attachments for malware risk based on filename, MIME type, and size BEFORE opening/downloading. $${PRICE}/call via skyfire-pay-id header. ${TERMS_NOTICE}`,
+    description: `Assess email attachments for malware risk based on filename, MIME type, and size BEFORE opening/downloading. $${PRICE}/call via skyfire-api-key header (Skyfire Buyer API Key). ${TERMS_NOTICE}`,
     schema: {
       attachments: z.array(z.object({
         name: z.string().describe("Filename including extension"),
@@ -149,7 +149,7 @@ const TOOL_DEFS = {
     },
   },
   check_sender_reputation: {
-    description: `Verify sender identity and detect Business Email Compromise (BEC), spoofing, and impersonation. Includes live DNS DMARC and RDAP domain age checks at no extra cost. $${PRICE}/call via skyfire-pay-id header. ${TERMS_NOTICE}`,
+    description: `Verify sender identity and detect Business Email Compromise (BEC), spoofing, and impersonation. Includes live DNS DMARC and RDAP domain age checks at no extra cost. $${PRICE}/call via skyfire-api-key header (Skyfire Buyer API Key). ${TERMS_NOTICE}`,
     schema: {
       email: z.string().describe("Sender email address"),
       displayName: z.string().describe("Sender display name"),
@@ -159,7 +159,7 @@ const TOOL_DEFS = {
     },
   },
   check_message_safety: {
-    description: `Analyze non-email messages (SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal) for platform-specific threats including smishing, wrong-number scams, OTP interception, impersonation, and crypto fraud. $${PRICE}/call via skyfire-pay-id header. ${TERMS_NOTICE}`,
+    description: `Analyze non-email messages (SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal) for platform-specific threats including smishing, wrong-number scams, OTP interception, impersonation, and crypto fraud. $${PRICE}/call via skyfire-api-key header (Skyfire Buyer API Key). ${TERMS_NOTICE}`,
     schema: {
       platform: z.enum(["sms", "imessage", "whatsapp", "facebook_messenger", "instagram_dm", "telegram", "slack", "discord", "linkedin", "signal", "other"]).describe("Message platform"),
       sender: z.string().describe("Sender identifier — phone number, username, handle, or display name"),
