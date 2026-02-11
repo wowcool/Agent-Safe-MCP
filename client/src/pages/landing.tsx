@@ -50,8 +50,8 @@ const MCP_CONFIG = `{
 
 export default function Landing() {
   useSEO({
-    title: "Agent Safe - Protect Your AI from Email Scams | 6-Tool Security Suite",
-    description: "Your AI reads emails — but should it trust them? Agent Safe is a 6-tool MCP security suite that protects AI agents from phishing, BEC, malware, and manipulation. $0.02 per tool call via Skyfire.",
+    title: "Agent Safe - Protect Your Agents from Scam Messages | 6-Tool Security Suite",
+    description: "Your AI agent processes messages — but should it trust them? Agent Safe is a 6-tool MCP security suite that protects AI agents from phishing, BEC, malware, and manipulation across any message, URL, or attachment. $0.02 per tool call via Skyfire.",
     path: "/",
   });
   return (
@@ -67,13 +67,13 @@ export default function Landing() {
             Remote MCP Server
           </Badge>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1]" data-testid="text-hero-headline">
-            Protect Your AI<br />from Email Scams
+            Protect Your Agents<br />from Scam Messages
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-            Your AI reads emails. But should it trust them?
+            Your AI agent processes messages. But should it trust them?
           </p>
           <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-            <a href="#tools" className="text-primary font-bold hover:underline"><strong>6 tools</strong></a> that protect your AI agent from phishing, BEC, malware, and manipulation across emails, URLs, replies, threads, attachments, and sender identities. Connect via MCP, pay per use with Skyfire.
+            <a href="#tools" className="text-primary font-bold hover:underline"><strong>6 tools</strong></a> that protect your AI agent from phishing, BEC, malware, and manipulation across any message, URL, reply, thread, attachment, or sender identity. Works with emails and any other message your agent receives. Connect via MCP, pay per use with Skyfire.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap mb-16">
@@ -118,7 +118,7 @@ export default function Landing() {
           <div className="flex justify-center mb-10">
             <img
               src={heroImage}
-              alt="AI robot with shield protecting against malicious emails"
+              alt="AI robot with shield protecting against malicious messages"
               className="w-64 h-64 md:w-80 md:h-80 object-contain"
               data-testid="img-hero-robot"
             />
@@ -126,23 +126,23 @@ export default function Landing() {
 
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6" data-testid="text-problem-heading">
-              Your AI Agent Is One Email Away From Being Compromised
+              Your AI Agent Is One Message Away From Being Compromised
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Every day, AI agents process thousands of emails, URLs, attachments, and threads autonomously. A single malicious message, link, or file can compromise your entire operation.
+              Every day, AI agents process thousands of messages, URLs, attachments, and threads autonomously. A single malicious message, link, or file can compromise your entire operation.
             </p>
           </div>
 
           <p className="text-muted-foreground leading-relaxed mb-10 max-w-3xl mx-auto text-center">
-            Attackers craft emails, embed malicious URLs, poison reply threads, and disguise dangerous attachments to exploit an agent's tendency to follow instructions,
+            Attackers craft deceptive messages, embed malicious URLs, poison reply threads, and disguise dangerous attachments to exploit an agent's tendency to follow instructions,
             tricking it into leaking data, making unauthorized payments, or executing harmful actions.
-            Agent Safe is a suite of <a href="#tools" className="text-primary font-bold hover:underline">6 tools</a> that any MCP-compatible agent can call to verify emails, URLs, replies, threads, attachments, and sender identities before acting.
+            Agent Safe is a suite of <a href="#tools" className="text-primary font-bold hover:underline">6 tools</a> that any MCP-compatible agent can call to verify any message, URL, reply, thread, attachment, or sender identity before acting. It works with emails and any other message format your agent encounters.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground">Detects phishing, BEC, and social engineering across emails and threads</p>
+              <p className="text-sm text-muted-foreground">Detects phishing, BEC, and social engineering across any message or thread</p>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -259,7 +259,7 @@ export default function Landing() {
               </div>
               <h3 className="font-semibold mb-1">Secure Everything</h3>
               <p className="text-sm text-muted-foreground">
-                Your agent can now call any of <strong>6 email security tools</strong> to protect against threats
+                Your agent can now call any of <strong>6 message security tools</strong> to protect against threats
               </p>
             </div>
           </div>
@@ -270,7 +270,7 @@ export default function Landing() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-features-heading">
-              <strong>6 Tools.</strong> Complete Email Security.
+              <strong>6 Tools.</strong> Complete Message Security.
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               A purpose-built MCP tool suite that agents discover, connect to, and pay for autonomously
@@ -286,7 +286,7 @@ export default function Landing() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Analyze emails for phishing, social engineering, prompt injection, CEO fraud, and data exfiltration
+                    Analyze any message for phishing, social engineering, prompt injection, CEO fraud, and data exfiltration
                   </p>
                   <span className="text-xs text-primary flex items-center gap-1">
                     Learn more <ArrowRight className="h-3 w-3" />
@@ -337,7 +337,7 @@ export default function Landing() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Analyze full email threads for escalating social engineering and manipulation
+                    Analyze full message threads for escalating social engineering and manipulation
                   </p>
                   <span className="text-xs text-primary flex items-center gap-1">
                     Learn more <ArrowRight className="h-3 w-3" />
@@ -405,7 +405,7 @@ export default function Landing() {
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                    <span className="text-sm"><strong>6 email security tools</strong> included</span>
+                    <span className="text-sm"><strong>6 message security tools</strong> included</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
@@ -441,18 +441,18 @@ export default function Landing() {
                   1 unit = up to <strong>4,000 tokens</strong> of input, which is roughly <strong>3,000 words</strong>. Each unit costs $0.02.
                 </p>
                 <div className="bg-muted/50 rounded-md p-4 space-y-3">
-                  <p className="text-sm font-semibold" data-testid="text-why-heading">Why 4,000 tokens covers most emails</p>
+                  <p className="text-sm font-semibold" data-testid="text-why-heading">Why 4,000 tokens covers most messages</p>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    The average business email is <strong>75-100 words</strong>. Even a long, detailed email with signatures, disclaimers, and forwarded content rarely exceeds 500 words. At 3,000 words per unit, a single $0.02 unit can analyze an email that is <strong>30-40x longer than a typical one</strong>.
+                    The average business message is <strong>75-100 words</strong>. Even a long, detailed message with signatures, disclaimers, and forwarded content rarely exceeds 500 words. At 3,000 words per unit, a single $0.02 unit can analyze a message that is <strong>30-40x longer than a typical one</strong>.
                   </p>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    In practice, almost every tool call costs exactly <strong>one unit ($0.02)</strong>. The only exception is unusually long email threads submitted to <strong>analyze_email_thread</strong>, where a conversation with many messages might require 2-3 units.
+                    In practice, almost every tool call costs exactly <strong>one unit ($0.02)</strong>. The only exception is unusually long threads submitted to <strong>analyze_email_thread</strong>, where a conversation with many messages might require 2-3 units.
                   </p>
                 </div>
                 <div className="space-y-2 pt-2">
                   <p className="text-xs font-semibold text-muted-foreground">Typical costs:</p>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-muted-foreground">Single email check</span>
+                    <span className="text-xs text-muted-foreground">Single message check</span>
                     <Badge variant="secondary" className="text-xs" data-testid="badge-cost-email">1 unit - $0.02</Badge>
                   </div>
                   <div className="flex items-center justify-between gap-2">
@@ -472,11 +472,11 @@ export default function Landing() {
                     <Badge variant="secondary" className="text-xs" data-testid="badge-cost-sender">1 unit - $0.02</Badge>
                   </div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-muted-foreground">Short thread (3-5 emails)</span>
+                    <span className="text-xs text-muted-foreground">Short thread (3-5 messages)</span>
                     <Badge variant="secondary" className="text-xs" data-testid="badge-cost-thread-short">1 unit - $0.02</Badge>
                   </div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-muted-foreground">Long thread (20+ emails)</span>
+                    <span className="text-xs text-muted-foreground">Long thread (20+ messages)</span>
                     <Badge variant="secondary" className="text-xs" data-testid="badge-cost-thread-long">2-3 units - $0.04-0.06</Badge>
                   </div>
                 </div>

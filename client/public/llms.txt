@@ -1,20 +1,20 @@
 # Agent Safe
 
-> A Remote MCP Server that protects AI agents from phishing, social engineering, prompt injection, and email-based manipulation. Pay-per-use via Skyfire Network at $0.02 per check.
+> A Remote MCP Server that protects AI agents from phishing, social engineering, prompt injection, and message-based manipulation. Works with emails and any other message format. Pay-per-use via Skyfire Network at $0.02 per check.
 
 > For full documentation, see: https://agentsafe.locationledger.com/llms-full.txt
 
 ## About
 
-Agent Safe is an email safety verification service designed for AI agents. It analyzes emails for threats before agents act on them. No signup or API keys required — just include a Skyfire PAY token with each request.
+Agent Safe is a message safety verification service designed for AI agents. It analyzes any message — emails, chats, DMs, or any text — for threats before agents act on them. Email-specific tools provide extra analysis like sender reputation with live DNS lookups. No signup or API keys required — just include a Skyfire PAY token with each request.
 
 ## MCP Connection
 
 - Endpoint: https://agentsafe.locationledger.com/mcp
 - Transport: Streamable HTTP (JSON-RPC 2.0)
-- Tool: check_email_safety
+- Tools: 6 security tools (check_email_safety, check_url_safety, check_response_safety, analyze_email_thread, check_attachment_safety, check_sender_reputation)
 - Payment: Skyfire PAY token via skyfire-pay-id header
-- Price: $0.02 USD per email check
+- Price: $0.02 USD per tool call
 
 ## MCP Client Configuration
 
@@ -64,7 +64,7 @@ The check_email_safety tool returns:
 ## REST API Endpoints
 
 - GET /mcp/discover - Service discovery for agents (no auth required)
-- POST /mcp/tools/check_email_safety - Email safety check (REST, requires skyfire-pay-id header)
+- POST /mcp/tools/check_email_safety - Message safety check (REST, requires skyfire-pay-id header)
 - POST /mcp - MCP protocol endpoint (Streamable HTTP, requires skyfire-pay-id header)
 
 ## Company
