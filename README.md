@@ -1,8 +1,8 @@
 # Agent Safe
 
-**Email Safety MCP Server for AI Agents**
+**7-Tool Message Security Suite for AI Agents**
 
-Agent Safe is a Remote MCP Server that analyzes emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration before your AI agent acts on them. Pay-per-use via Skyfire Network at **$0.02 per check**.
+Agent Safe is a Remote MCP Server providing 7 security tools that protect AI agents from phishing, social engineering, BEC, malware, and manipulation across any message format — emails, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, LinkedIn, iMessage, Signal, and more. Pay-per-use via Skyfire Network at **$0.02 per check**.
 
 ## NO LICENSE
 
@@ -40,16 +40,16 @@ Get a Skyfire PAY token at [skyfire.xyz](https://skyfire.xyz). No signup, no API
 |----------|-------|
 | **Endpoint** | `https://agentsafe.locationledger.com/mcp` |
 | **Transport** | Streamable HTTP (JSON-RPC 2.0) |
-| **Tool** | `check_email_safety` |
+| **Tools** | 7 security tools (see below) |
 | **Payment** | Skyfire PAY token via `skyfire-pay-id` header |
-| **Price** | $0.02 USD per email check |
+| **Price** | $0.02 USD per tool call |
 | **Protocol** | Model Context Protocol (MCP) |
 
-## Tool: `check_email_safety`
+## The 7 Tools
 
-Analyze an email for threats targeting AI agents. Returns a safety verdict, risk score, detected threats, and recommended actions.
+### 1. `check_email_safety`
 
-### Input Parameters
+Analyzes incoming emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, data exfiltration, malware indicators, and impersonation. The core email security tool — 8 threat categories checked automatically on every call.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -61,36 +61,99 @@ Analyze an email for threats targeting AI agents. Returns a safety verdict, risk
 | `knownSender` | boolean | No | Whether the sender is known/trusted |
 | `previousCorrespondence` | boolean | No | Whether there has been previous email exchange |
 
-### Output
+### 2. `check_message_safety`
+
+Platform-aware security analysis for non-email messages — SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, Facebook Messenger, LinkedIn, iMessage, Signal, Microsoft Teams, and more. Detects platform-specific threats with context-aware analysis. 8 threat categories checked automatically.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `platform` | string | Yes | Platform name (e.g., "whatsapp", "slack", "sms", "discord", "telegram", "instagram", "linkedin", "signal", "imessage", "teams", "other") |
+| `from` | string | Yes | Sender identifier (username, phone number, handle) |
+| `body` | string | Yes | Message content |
+| `subject` | string | No | Subject or topic if applicable |
+| `links` | string[] | No | URLs found in the message |
+| `attachments` | object[] | No | Attachment metadata (name, size, type) |
+| `knownSender` | boolean | No | Whether the sender is known/trusted |
+| `previousCorrespondence` | boolean | No | Whether there has been prior conversation |
+| `groupChat` | boolean | No | Whether the message is from a group chat |
+| `channelName` | string | No | Channel or group name if applicable |
+
+### 3. `check_url_safety`
+
+Analyzes up to 20 URLs per call for phishing, malware, typosquatting, redirect abuse, command injection, suspicious tracking, and domain spoofing. Each URL gets its own verdict plus an overall assessment. 7 threat categories.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `urls` | string[] | Yes | Array of URLs to analyze (max 20) |
+| `context` | string | No | Where the URLs were found |
+
+### 4. `check_response_safety`
+
+Scans your agent's draft replies BEFORE sending to catch data leakage, PII exposure, credential disclosure, compliance violations, and social engineering compliance. 5 threat categories.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `draftResponse` | string | Yes | The draft reply to analyze |
+| `originalMessage` | string | Yes | The original message being replied to |
+| `context` | string | No | Additional context about the conversation |
+
+### 5. `analyze_email_thread`
+
+Analyzes full message threads for escalating social engineering, scope creep, trust-building exploitation, authority escalation, deadline manufacturing, and systematic information harvesting. 5 threat categories.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `thread` | object[] | Yes | Array of messages with `from`, `subject`, `body`, `timestamp` |
+| `currentAction` | string | No | What the agent is about to do based on this thread |
+
+### 6. `check_attachment_safety`
+
+Assesses attachment risk based on metadata before your agent opens or downloads files. Detects executable masquerades, double extensions, macro-enabled documents, archive risks, size anomalies, and MIME type mismatches. 6 threat categories.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `attachments` | object[] | Yes | Array of attachment metadata with `filename`, `mimeType`, `size` |
+| `context` | string | No | Context about where the attachments came from |
+
+### 7. `check_sender_reputation`
+
+Verifies sender identity using live DNS DMARC lookups, RDAP domain age checks, and AI analysis. Catches domain spoofing, display name fraud, reply-to mismatches, BEC indicators, newly registered domains, and missing authentication. 6 threat categories + live DNS enrichment at no extra cost.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `emailAddress` | string | Yes | Sender email address to verify |
+| `displayName` | string | No | Display name shown in the email client |
+| `replyTo` | string | No | Reply-to address if different from sender |
+| `claimedRole` | string | No | Role the sender claims (e.g., "CEO", "IT Admin") |
+| `claimedOrganization` | string | No | Organization the sender claims to represent |
+
+## Output Format
+
+All 7 tools return structured JSON with:
 
 ```json
 {
   "verdict": "safe | suspicious | dangerous",
   "riskScore": 0.0,
+  "confidence": 0.95,
   "threats": [
     {
       "type": "phishing",
       "description": "Spoofed sender domain",
-      "severity": "high"
+      "severity": "critical"
     }
   ],
   "recommendation": "proceed | proceed_with_caution | do_not_act",
-  "safeActions": ["Reply to sender", "Archive email"],
+  "explanation": "Detailed analysis...",
+  "safeActions": ["Reply to sender", "Archive message"],
   "unsafeActions": ["Click links", "Download attachments"],
-  "analysis": "Detailed analysis text..."
+  "checkId": "abc123",
+  "charged": 0.02,
+  "termsOfService": "https://agentsafe.locationledger.com/terms"
 }
 ```
 
-## Threat Detection
-
-Agent Safe detects six categories of email threats:
-
-- **Phishing** - Spoofed domains, fake login pages, credential harvesting
-- **Social Engineering** - Authority impersonation, urgency manipulation, emotional pressure
-- **Prompt Injection** - Hidden instructions in HTML comments, invisible text, system override attempts
-- **CEO Fraud / BEC** - Wire transfer scams, executive impersonation, secrecy demands
-- **Financial Fraud** - Cryptocurrency scams, fake invoices, advance-fee fraud
-- **Data Exfiltration** - Attempts to trick agents into forwarding sensitive data
+`check_sender_reputation` returns additional fields: `senderAnalysis`, `becProbability`, `dmarcStatus`, and `domainAge`.
 
 ## REST API
 
@@ -99,7 +162,13 @@ For non-MCP integrations, Agent Safe also exposes REST endpoints:
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/mcp/discover` | Service discovery for agents |
-| `POST` | `/mcp/tools/check_email_safety` | Email safety check (REST) |
+| `POST` | `/mcp/tools/check_email_safety` | Email safety check |
+| `POST` | `/mcp/tools/check_message_safety` | Message safety check (any platform) |
+| `POST` | `/mcp/tools/check_url_safety` | URL safety check |
+| `POST` | `/mcp/tools/check_response_safety` | Response/reply safety check |
+| `POST` | `/mcp/tools/analyze_email_thread` | Thread analysis |
+| `POST` | `/mcp/tools/check_attachment_safety` | Attachment safety check |
+| `POST` | `/mcp/tools/check_sender_reputation` | Sender reputation check |
 | `POST` | `/mcp` | MCP protocol endpoint (Streamable HTTP) |
 
 ### REST Example
@@ -121,7 +190,7 @@ Agent Safe uses [Skyfire Network](https://skyfire.xyz) for frictionless agent pa
 
 - **No signup required** with Agent Safe
 - **No API keys** to manage
-- **Pay-per-use** at $0.02 per check
+- **Pay-per-use** at $0.02 per tool call (all 7 tools same price)
 - Agents pay autonomously using Skyfire PAY tokens
 - Get your PAY token from the [Skyfire Dashboard](https://skyfire.xyz)
 
@@ -133,7 +202,13 @@ Agents can discover Agent Safe programmatically:
 curl https://agentsafe.locationledger.com/mcp/discover
 ```
 
-Returns service metadata including capabilities, pricing, and connection instructions.
+Returns service metadata including all 7 tools, capabilities, pricing, and connection instructions.
+
+Additional discovery endpoints:
+
+- `/.well-known/mcp.json` — MCP server discovery
+- `/.well-known/ai-plugin.json` — AI plugin discovery
+- `/llms.txt` — Documentation for AI systems
 
 ## Resources
 
