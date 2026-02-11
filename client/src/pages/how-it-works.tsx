@@ -11,8 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Bot, Shield, Zap, Lock, Terminal, CheckCircle2, AlertTriangle,
-  XCircle, Search, ArrowRight, Mail, FileWarning,
+  Bot, Shield, Zap, Lock, Terminal, AlertTriangle,
+  Search, ArrowRight, Mail, FileWarning,
   Eye, Brain, ShieldAlert, Skull, Fingerprint, MessageSquareWarning,
   Link as LinkIcon, MessageSquare, Wrench, Reply, Paperclip, UserCheck, Smartphone
 } from "lucide-react";
@@ -603,109 +603,6 @@ export default function HowItWorks() {
               description="Identifies potential compliance violations including PII exposure, financial data regulation issues, unauthorized disclosures, and excessive information sharing that could violate privacy or regulatory requirements."
               example="Agent about to share customer personal data and financial records in a reply to an unverified external party. Caught with risk score 0.80 — flagged PII exposure, unauthorized disclosure to external recipient, and compliance risk with data protection regulations."
             />
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 px-4 bg-card/50">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-results-heading">
-              Production Testing Results
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              We tested Agent Safe against a diverse set of real-world attack scenarios. Here is what we found.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-3 gap-6 mb-12">
-            <Card className="text-center">
-              <CardContent className="pt-6">
-                <div className="text-4xl font-bold text-primary mb-2" data-testid="text-stat-tested">11</div>
-                <p className="text-sm text-muted-foreground">End-to-end tests run</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="pt-6">
-                <div className="text-4xl font-bold text-chart-4 mb-2" data-testid="text-stat-caught">9</div>
-                <p className="text-sm text-muted-foreground">Malicious messages caught</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="pt-6">
-                <div className="text-4xl font-bold mb-2" data-testid="text-stat-safe">2</div>
-                <p className="text-sm text-muted-foreground">Safe messages verified</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card className="mb-12">
-            <CardHeader>
-              <CardTitle className="text-lg" data-testid="text-response-heading">Example Response Structure (check_email_safety)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <pre className="text-sm text-muted-foreground overflow-x-auto leading-relaxed bg-muted/30 p-4 rounded-md" data-testid="code-response-example">
-                <code>{`// Response from check_email_safety
-{
-  "verdict": "dangerous",
-  "riskScore": 0.95,
-  "confidence": 0.95,
-  "threats": [
-    {
-      "type": "phishing",
-      "description": "Spoofed Microsoft domain with zero substitution",
-      "severity": "critical"
-    },
-    {
-      "type": "social_engineering",
-      "description": "Urgency manipulation with account suspension threat",
-      "severity": "high"
-    }
-  ],
-  "recommendation": "do_not_act",
-  "explanation": "This message is a phishing attempt impersonating Microsoft...",
-  "safeActions": ["Delete the message", "Report as phishing"],
-  "unsafeActions": ["Click any links", "Enter credentials", "Forward to others"],
-  "checkId": "abc123",
-  "charged": 0.02,
-  "termsOfService": "https://agentsafe.locationledger.com/terms"
-}`}</code>
-              </pre>
-              <p className="text-sm text-muted-foreground mt-4 italic">
-                Each of the 7 tools returns optimized response structures. See documentation for full details.
-              </p>
-            </CardContent>
-          </Card>
-
-          <div className="space-y-4 mb-12">
-            <h3 className="text-xl font-semibold mb-4" data-testid="text-verdicts-heading">How Verdicts Work</h3>
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full bg-chart-4/10 flex items-center justify-center shrink-0 mt-0.5">
-                <CheckCircle2 className="h-4 w-4 text-chart-4" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Safe (Risk 0.0–0.3)</p>
-                <p className="text-sm text-muted-foreground">Message appears legitimate. Agent is recommended to proceed normally. Legitimate business messages, project updates, and meeting requests typically receive this verdict.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full bg-chart-5/10 flex items-center justify-center shrink-0 mt-0.5">
-                <AlertTriangle className="h-4 w-4 text-chart-5" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Suspicious (Risk 0.4–0.7)</p>
-                <p className="text-sm text-muted-foreground">Message has concerning elements. Agent should proceed with caution — verify sender through other channels before acting. Messages with unusual requests or missing context may receive this verdict.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center shrink-0 mt-0.5">
-                <XCircle className="h-4 w-4 text-destructive" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Dangerous (Risk 0.8–1.0)</p>
-                <p className="text-sm text-muted-foreground">Message is almost certainly malicious. Agent should not act on it. Phishing, prompt injection, and financial fraud attempts typically receive this verdict with specific threats identified.</p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
