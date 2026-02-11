@@ -8,6 +8,12 @@ import { useSEO } from "@/lib/seo";
 import { GlobalFooter } from "@/components/global-footer";
 import { SiteHeader } from "@/components/site-header";
 import heroImage from "@assets/Screenshot_2026-02-11_at_11.44.30_1770828281471.png";
+import toolEmailImg from "@/assets/images/tool-email-safety.png";
+import toolUrlImg from "@/assets/images/tool-url-safety.png";
+import toolResponseImg from "@/assets/images/tool-response-safety.png";
+import toolThreadImg from "@/assets/images/tool-thread-analysis.png";
+import toolAttachmentImg from "@/assets/images/tool-attachment-safety.png";
+import toolSenderImg from "@/assets/images/tool-sender-reputation.png";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -272,12 +278,10 @@ export default function Landing() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Link href="/how-it-works#tool-check_email_safety">
+            <a href="/how-it-works#tool-check_email_safety" data-testid="link-tool-check-email">
               <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-email">
                 <CardHeader>
-                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                    <Mail className="h-6 w-6 text-primary" />
-                  </div>
+                  <img src={toolEmailImg} alt="Email safety analysis" className="w-16 h-16 object-contain rounded-md mb-3" data-testid="img-card-check-email" />
                   <CardTitle className="font-semibold text-lg">check_email_safety</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -289,14 +293,12 @@ export default function Landing() {
                   </span>
                 </CardContent>
               </Card>
-            </Link>
+            </a>
 
-            <Link href="/how-it-works#tool-check_url_safety">
+            <a href="/how-it-works#tool-check_url_safety" data-testid="link-tool-check-url">
               <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-url">
                 <CardHeader>
-                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                    <LinkIcon className="h-6 w-6 text-primary" />
-                  </div>
+                  <img src={toolUrlImg} alt="URL safety scanning" className="w-16 h-16 object-contain rounded-md mb-3" data-testid="img-card-check-url" />
                   <CardTitle className="font-semibold text-lg">check_url_safety</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -308,14 +310,12 @@ export default function Landing() {
                   </span>
                 </CardContent>
               </Card>
-            </Link>
+            </a>
 
-            <Link href="/how-it-works#tool-check_response_safety">
+            <a href="/how-it-works#tool-check_response_safety" data-testid="link-tool-check-response">
               <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-response">
                 <CardHeader>
-                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                    <Reply className="h-6 w-6 text-primary" />
-                  </div>
+                  <img src={toolResponseImg} alt="Response safety checking" className="w-16 h-16 object-contain rounded-md mb-3" data-testid="img-card-check-response" />
                   <CardTitle className="font-semibold text-lg">check_response_safety</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -327,14 +327,12 @@ export default function Landing() {
                   </span>
                 </CardContent>
               </Card>
-            </Link>
+            </a>
 
-            <Link href="/how-it-works#tool-analyze_email_thread">
+            <a href="/how-it-works#tool-analyze_email_thread" data-testid="link-tool-analyze-thread">
               <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-analyze-thread">
                 <CardHeader>
-                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                    <MessageSquare className="h-6 w-6 text-primary" />
-                  </div>
+                  <img src={toolThreadImg} alt="Thread analysis visualization" className="w-16 h-16 object-contain rounded-md mb-3" data-testid="img-card-analyze-thread" />
                   <CardTitle className="font-semibold text-lg">analyze_email_thread</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -346,14 +344,12 @@ export default function Landing() {
                   </span>
                 </CardContent>
               </Card>
-            </Link>
+            </a>
 
-            <Link href="/how-it-works#tool-check_attachment_safety">
+            <a href="/how-it-works#tool-check_attachment_safety" data-testid="link-tool-check-attachment">
               <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-attachment">
                 <CardHeader>
-                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                    <Paperclip className="h-6 w-6 text-primary" />
-                  </div>
+                  <img src={toolAttachmentImg} alt="Attachment safety scanning" className="w-16 h-16 object-contain rounded-md mb-3" data-testid="img-card-check-attachment" />
                   <CardTitle className="font-semibold text-lg">check_attachment_safety</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -365,14 +361,12 @@ export default function Landing() {
                   </span>
                 </CardContent>
               </Card>
-            </Link>
+            </a>
 
-            <Link href="/how-it-works#tool-check_sender_reputation">
+            <a href="/how-it-works#tool-check_sender_reputation" data-testid="link-tool-check-sender">
               <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-sender">
                 <CardHeader>
-                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                    <UserCheck className="h-6 w-6 text-primary" />
-                  </div>
+                  <img src={toolSenderImg} alt="Sender reputation verification" className="w-16 h-16 object-contain rounded-md mb-3" data-testid="img-card-check-sender" />
                   <CardTitle className="font-semibold text-lg">check_sender_reputation</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -384,7 +378,7 @@ export default function Landing() {
                   </span>
                 </CardContent>
               </Card>
-            </Link>
+            </a>
           </div>
         </div>
       </section>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,12 @@ import {
 import { GlobalFooter } from "@/components/global-footer";
 import { SiteHeader } from "@/components/site-header";
 import { useSEO } from "@/lib/seo";
+import toolEmailImg from "@/assets/images/tool-email-safety.png";
+import toolUrlImg from "@/assets/images/tool-url-safety.png";
+import toolResponseImg from "@/assets/images/tool-response-safety.png";
+import toolThreadImg from "@/assets/images/tool-thread-analysis.png";
+import toolAttachmentImg from "@/assets/images/tool-attachment-safety.png";
+import toolSenderImg from "@/assets/images/tool-sender-reputation.png";
 
 function ThreatCard({ icon: Icon, title, description, example, riskLevel }: {
   icon: any;
@@ -77,6 +83,7 @@ const toolsData = [
     id: "check_email_safety",
     name: "check_email_safety",
     icon: Mail,
+    image: toolEmailImg,
     label: "Email Safety",
     purpose: "Analyzes incoming emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration. This is the core tool in the suite, designed to be the first line of defense when an AI agent receives any email.",
     purposeExtra: "All threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. The tool uses Claude AI with a specialized prompt engineered specifically for email threat detection, covering 8 distinct threat categories simultaneously.",
@@ -107,6 +114,7 @@ const toolsData = [
     id: "check_url_safety",
     name: "check_url_safety",
     icon: LinkIcon,
+    image: toolUrlImg,
     label: "URL Safety",
     purpose: "Analyzes URLs for phishing, malware, typosquatting, redirect abuse, and injection patterns before an AI agent visits or clicks them. Accepts up to 20 URLs per call for batch analysis.",
     purposeExtra: "All threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. Each URL is analyzed individually and receives its own verdict, plus an overall verdict is calculated across all submitted URLs.",
@@ -129,6 +137,7 @@ const toolsData = [
     id: "check_response_safety",
     name: "check_response_safety",
     icon: Reply,
+    image: toolResponseImg,
     label: "Response Safety",
     purpose: "Reviews an AI agent's draft email reply BEFORE it sends it. Catches data leaks, over-sharing of sensitive information, compliance violations, and social engineering compliance where the agent unknowingly follows manipulation instructions.",
     purposeExtra: "All threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. Optionally accepts the original email for context, but runs full analysis even without it. Returns specific suggested revisions to make the draft safer.",
@@ -156,6 +165,7 @@ const toolsData = [
     id: "analyze_email_thread",
     name: "analyze_email_thread",
     icon: MessageSquare,
+    image: toolThreadImg,
     label: "Thread Analysis",
     purpose: "Analyzes full multi-message email conversations for escalating manipulation patterns. Detects social engineering that builds trust gradually across multiple messages then exploits it -- patterns that single-email analysis would miss entirely.",
     purposeExtra: "All manipulation pattern categories are checked on every call automatically. No optional flags needed -- full analysis always runs. Uses unit-based billing: 1 unit = 4,000 tokens (~3,000 words). Threads under 5 units ($0.10) auto-charge; larger threads receive a cost quote first so the agent can confirm before proceeding.",
@@ -178,6 +188,7 @@ const toolsData = [
     id: "check_attachment_safety",
     name: "check_attachment_safety",
     icon: Paperclip,
+    image: toolAttachmentImg,
     label: "Attachment Safety",
     purpose: "Assesses email attachment risk based on metadata (filename, MIME type, file size, sender) BEFORE an AI agent opens or downloads them. Analyzes up to 20 attachments per call. Does not require the actual file content -- metadata analysis is sufficient to catch most threats.",
     purposeExtra: "All threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. Each attachment is analyzed individually and receives its own verdict. The response includes explicit safeToProcess[] and doNotProcess[] lists for easy agent decision-making.",
@@ -200,6 +211,7 @@ const toolsData = [
     id: "check_sender_reputation",
     name: "check_sender_reputation",
     icon: UserCheck,
+    image: toolSenderImg,
     label: "Sender Reputation",
     purpose: "Evaluates whether an email sender is who they claim to be. This is the only tool in the suite that combines real infrastructure verification with AI analysis. It performs live DNS DMARC lookups and RDAP domain age checks alongside Claude-powered pattern analysis and BEC (Business Email Compromise) detection.",
     purposeExtra: "All checks run on every call automatically: DMARC lookup, RDAP domain age, and Claude AI analysis across all 9 issue categories. No optional flags needed -- the agent just sends the email address and display name, and the tool does everything else. The 3-step pipeline runs in sequence: (1) DNS DMARC Lookup (free, ~50-200ms), (2) RDAP Domain Age Lookup (free, ~100-500ms), (3) Claude AI Analysis with infrastructure data injected into the prompt.",
@@ -242,10 +254,18 @@ function ToolDetailCard({ tool }: { tool: typeof toolsData[0] }) {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div>
-            <h4 className="text-sm font-semibold mb-2">What It Does</h4>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-2">{tool.purpose}</p>
-            <p className="text-sm text-muted-foreground leading-relaxed">{tool.purposeExtra}</p>
+          <div className="flex flex-col sm:flex-row gap-6">
+            <img
+              src={tool.image}
+              alt={`${tool.name} illustration`}
+              className="w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-md shrink-0 mx-auto sm:mx-0"
+              data-testid={`img-tool-${tool.id}`}
+            />
+            <div>
+              <h4 className="text-sm font-semibold mb-2">What It Does</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-2">{tool.purpose}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{tool.purposeExtra}</p>
+            </div>
           </div>
 
           <div className="bg-muted/50 rounded-md p-4">
@@ -311,7 +331,27 @@ function ToolDetailCard({ tool }: { tool: typeof toolsData[0] }) {
 }
 
 export default function HowItWorks() {
-  const [selectedTool, setSelectedTool] = useState("check_email_safety");
+  const getToolFromHash = () => {
+    const hash = window.location.hash.replace("#tool-", "");
+    const validTools = ["check_email_safety", "check_url_safety", "check_response_safety", "analyze_email_thread", "check_attachment_safety", "check_sender_reputation"];
+    return validTools.includes(hash) ? hash : "check_email_safety";
+  };
+
+  const [selectedTool, setSelectedTool] = useState(getToolFromHash);
+
+  useEffect(() => {
+    const handleHash = () => {
+      const tool = getToolFromHash();
+      setSelectedTool(tool);
+      setTimeout(() => {
+        const el = document.getElementById(`tool-${tool}`);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    };
+    handleHash();
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, []);
 
   useSEO({
     title: "How Agent Safe Works - 6-Tool Email Security Suite for AI Agents | MCP Server",
