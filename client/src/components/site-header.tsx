@@ -23,6 +23,9 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-3" data-testid="nav-desktop">
+          <Link href="/">
+            <Button variant="ghost" className={location === "/" ? "text-white" : "text-white/80"} data-testid="link-home-header">Home</Button>
+          </Link>
           <Link href="/how-it-works">
             <Button variant="ghost" className={location === "/how-it-works" ? "text-white" : "text-white/80"} data-testid="link-how-header">How It Works</Button>
           </Link>
@@ -51,6 +54,9 @@ export function SiteHeader() {
       {menuOpen && (
         <div className="md:hidden border-t border-white/10" style={{ background: "rgba(0,0,0,0.9)" }} data-testid="nav-mobile">
           <div className="container mx-auto px-6 py-4 flex flex-col gap-2">
+            <Link href="/">
+              <Button variant="ghost" className={`w-full justify-start ${location === "/" ? "text-white" : "text-white/70"}`} data-testid="link-home-mobile">Home</Button>
+            </Link>
             <Link href="/how-it-works">
               <Button variant="ghost" className={`w-full justify-start ${location === "/how-it-works" ? "text-white" : "text-white/70"}`} data-testid="link-how-mobile">How It Works</Button>
             </Link>
