@@ -169,6 +169,48 @@ export async function introspectSkyfireToken(token: string): Promise<{
   }
 }
 
+export async function generatePayTokenFromBuyerKey(buyerApiKey: string, sellerServiceId: string): Promise<{
+  success: boolean;
+  token?: string;
+  error?: string;
+}> {
+  try {
+    const response = await fetch(`${SKYFIRE_API_URL}/api/v1/tokens`, {
+      method: "POST",
+      headers: {
+        "skyfire-api-key": buyerApiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: "pay",
+        tokenAmount: String(PRICE_PER_CHECK),
+        sellerServiceId,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error("Skyfire token generation error:", response.status, errorBody);
+      return {
+        success: false,
+        error: `Token generation failed: ${response.status} - ${errorBody}`,
+      };
+    }
+
+    const result = await response.json();
+    return {
+      success: true,
+      token: result.token,
+    };
+  } catch (error: any) {
+    console.error("Skyfire token generation error:", error.message);
+    return {
+      success: false,
+      error: error.message || "Token generation request failed",
+    };
+  }
+}
+
 export function isSkyfireConfigured(): boolean {
   return !!process.env.SKYFIRE_API;
 }

@@ -430,7 +430,7 @@ export default function HowItWorks() {
                 number={2}
                 icon={Lock}
                 title="Payment is Authorized"
-                description="The agent (or the Skyfire network on its behalf) creates a PAY token — a signed JWT containing $0.02 worth of USDC. This token is included in the skyfire-pay-id header with every request. No signup, no API keys, no subscriptions."
+                description="Your agent includes its Skyfire Buyer API Key in the skyfire-api-key header. Agent Safe automatically generates a PAY token on each request and charges $0.02. Alternatively, your agent can generate its own PAY tokens and send them via the skyfire-pay-id header. Either way — no signup with Agent Safe, no subscriptions."
               />
               <StepCard
                 number={3}
@@ -442,7 +442,7 @@ export default function HowItWorks() {
                 number={4}
                 icon={Brain}
                 title="AI Analyzes for Threats"
-                description="Agent Safe uses Claude AI with specialized prompts engineered for each tool's analysis type. It analyzes across all threat categories simultaneously: phishing signals, social engineering tactics, prompt injection patterns, financial fraud indicators, URL threats, and more. The sender-reputation tool includes free DNS and RDAP enrichment for domain intelligence at no extra cost. The PAY token is charged $0.02 via Skyfire."
+                description="Agent Safe uses Claude AI with specialized prompts engineered for each tool's analysis type. It analyzes across all threat categories simultaneously: phishing signals, social engineering tactics, prompt injection patterns, financial fraud indicators, URL threats, and more. The sender-reputation tool includes free DNS and RDAP enrichment for domain intelligence at no extra cost. Your Skyfire wallet is charged $0.02 per call."
               />
               <StepCard
                 number={5}

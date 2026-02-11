@@ -43,11 +43,14 @@ const MCP_CONFIG = `{
         "-y", "mcp-remote",
         "https://agentsafe.locationledger.com/mcp",
         "--header",
-        "skyfire-pay-id: <YOUR_SKYFIRE_PAY_TOKEN>"
+        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
       ]
     }
   }
-}`;
+}
+
+// Your agent uses the Buyer API Key to auto-generate
+// PAY tokens for each request. Get your key at skyfire.xyz`;
 
 export default function Landing() {
   useSEO({
@@ -156,7 +159,7 @@ export default function Landing() {
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-sm text-muted-foreground"><strong>No signup:</strong> Connect via MCP, pay $0.02 per check with Skyfire tokens</p>
+              <p className="text-sm text-muted-foreground"><strong>No signup:</strong> Connect via MCP, pay $0.02 per check with your Skyfire Buyer API Key</p>
             </div>
           </div>
         </div>
@@ -239,11 +242,11 @@ export default function Landing() {
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                 <span className="text-primary font-bold text-sm">1</span>
               </div>
-              <h3 className="font-semibold mb-1">Get a Skyfire Token</h3>
+              <h3 className="font-semibold mb-1">Get a Skyfire Buyer API Key</h3>
               <p className="text-sm text-muted-foreground">
                 Create a buyer account at{" "}
                 <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-primary underline">skyfire.xyz</a>
-                {" "}and fund your wallet
+                {" "}and get your API key
               </p>
             </div>
             <div className="text-center">
@@ -516,11 +519,11 @@ export default function Landing() {
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                    <span className="text-sm">No signup or API keys required</span>
+                    <span className="text-sm">No signup with Agent Safe required</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                    <span className="text-sm">Pay via Skyfire PAY tokens</span>
+                    <span className="text-sm">Pay via Skyfire Buyer API Key</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
@@ -533,7 +536,7 @@ export default function Landing() {
                 </ul>
                 <a href="https://skyfire.xyz" target="_blank" rel="noopener">
                   <Button className="w-full mt-8" size="lg" data-testid="button-get-skyfire">
-                    Get Skyfire Tokens
+                    Get a Skyfire Buyer API Key
                   </Button>
                 </a>
               </CardContent>

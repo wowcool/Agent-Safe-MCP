@@ -25,14 +25,14 @@ Connect any MCP-compatible client (Claude Desktop, Cursor, Windsurf, etc.) to Ag
         "-y", "mcp-remote",
         "https://agentsafe.locationledger.com/mcp",
         "--header",
-        "skyfire-pay-id: <YOUR_SKYFIRE_PAY_TOKEN>"
+        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
       ]
     }
   }
 }
 ```
 
-Get a Skyfire PAY token at [skyfire.xyz](https://skyfire.xyz). No signup, no API keys, no registration required with Agent Safe itself.
+Get a Skyfire Buyer API Key at [skyfire.xyz](https://skyfire.xyz). No signup or registration required with Agent Safe itself — just your Skyfire Buyer API Key. Agent Safe handles PAY token generation automatically.
 
 ## MCP Server Details
 
@@ -41,7 +41,7 @@ Get a Skyfire PAY token at [skyfire.xyz](https://skyfire.xyz). No signup, no API
 | **Endpoint** | `https://agentsafe.locationledger.com/mcp` |
 | **Transport** | Streamable HTTP (JSON-RPC 2.0) |
 | **Tools** | 7 security tools (see below) |
-| **Payment** | Skyfire PAY token via `skyfire-pay-id` header |
+| **Payment** | Skyfire Buyer API Key via `skyfire-api-key` header (recommended), or PAY token via `skyfire-pay-id` header |
 | **Price** | $0.02 USD per tool call |
 | **Protocol** | Model Context Protocol (MCP) |
 

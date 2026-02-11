@@ -36,7 +36,7 @@ export default function Docs() {
         "-y", "mcp-remote",
         "${BASE_URL}/mcp",
         "--header",
-        "skyfire-pay-id: \${SKYFIRE_PAY_TOKEN}"
+        "skyfire-api-key: \${SKYFIRE_BUYER_API_KEY}"
       ]
     }
   }
@@ -46,7 +46,7 @@ export default function Docs() {
 
   const mcpInitExample = `curl -X POST ${BASE_URL}/mcp \\
   -H "Content-Type: application/json" \\
-  -H "skyfire-pay-id: YOUR_SKYFIRE_PAY_TOKEN" \\
+  -H "skyfire-api-key: YOUR_SKYFIRE_BUYER_API_KEY" \\
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -60,7 +60,7 @@ export default function Docs() {
 
   const mcpToolCallExample = `curl -X POST ${BASE_URL}/mcp \\
   -H "Content-Type: application/json" \\
-  -H "skyfire-pay-id: YOUR_SKYFIRE_PAY_TOKEN" \\
+  -H "skyfire-api-key: YOUR_SKYFIRE_BUYER_API_KEY" \\
   -d '{
     "jsonrpc": "2.0",
     "id": 2,
@@ -78,7 +78,7 @@ export default function Docs() {
 
   const restCheckExample = `curl -X POST ${BASE_URL}/mcp/tools/check_email_safety \\
   -H "Content-Type: application/json" \\
-  -H "skyfire-pay-id: YOUR_SKYFIRE_PAY_TOKEN" \\
+  -H "skyfire-api-key: YOUR_SKYFIRE_BUYER_API_KEY" \\
   -d '{
     "email": {
       "from": "sender@example.com",
@@ -117,7 +117,7 @@ from mcp import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
 
 async def check_email():
-    headers = {"skyfire-pay-id": "YOUR_SKYFIRE_PAY_TOKEN"}
+    headers = {"skyfire-api-key": "YOUR_SKYFIRE_BUYER_API_KEY"}
     
     async with streamablehttp_client(
         "${BASE_URL}/mcp",
@@ -141,11 +141,11 @@ async def check_email():
   const pythonRestExample = `import requests
 
 # All 7 tools use the same pattern — swap the endpoint and payload
-def check_email_safety(email_data, skyfire_token):
+def check_email_safety(email_data, buyer_api_key):
     response = requests.post(
         "${BASE_URL}/mcp/tools/check_email_safety",
         headers={
-            "skyfire-pay-id": skyfire_token,
+            "skyfire-api-key": buyer_api_key,
             "Content-Type": "application/json"
         },
         json={"email": email_data}
@@ -160,7 +160,7 @@ result = check_email_safety(
         "links": ["https://example.com/doc"],
         "attachments": [{"name": "document.pdf", "size": 1024}]
     },
-    skyfire_token="YOUR_SKYFIRE_PAY_TOKEN"
+    buyer_api_key="YOUR_SKYFIRE_BUYER_API_KEY"
 )
 
 if result["verdict"] == "dangerous":
@@ -177,7 +177,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 
 const transport = new StreamableHTTPClientTransport(
   new URL("${BASE_URL}/mcp"),
-  { requestInit: { headers: { "skyfire-pay-id": "YOUR_SKYFIRE_PAY_TOKEN" } } }
+  { requestInit: { headers: { "skyfire-api-key": "YOUR_SKYFIRE_BUYER_API_KEY" } } }
 );
 
 const client = new Client({ name: "my-agent", version: "1.0" });
@@ -194,13 +194,13 @@ console.log(result);`;
 
   const jsRestExample = `// Using REST API (alternative)
 // All 7 tools follow the same pattern — swap the endpoint and payload
-async function checkEmailSafety(email, skyfireToken) {
+async function checkEmailSafety(email, buyerApiKey) {
   const response = await fetch(
     "${BASE_URL}/mcp/tools/check_email_safety",
     {
       method: "POST",
       headers: {
-        "skyfire-pay-id": skyfireToken,
+        "skyfire-api-key": buyerApiKey,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ email })
@@ -216,7 +216,7 @@ const result = await checkEmailSafety(
     body: "Can we schedule a call this week?",
     links: []
   },
-  "YOUR_SKYFIRE_PAY_TOKEN"
+  "YOUR_SKYFIRE_BUYER_API_KEY"
 );
 
 switch (result.recommendation) {
@@ -380,7 +380,7 @@ switch (result.recommendation) {
           MCP Server Documentation
         </h1>
         <p className="text-white/60 mb-10">
-          Connect your AI agent to Agent Safe's 7-tool message security suite. Protect against threats across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. No signup required — just a Skyfire PAY token.
+          Connect your AI agent to Agent Safe's 7-tool message security suite. Protect against threats across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. No signup required — just a Skyfire Buyer API Key.
         </p>
 
         <div className="space-y-8">
@@ -391,7 +391,7 @@ switch (result.recommendation) {
             </CardHeader>
             <CardContent className="space-y-4">
               <ol className="list-decimal list-inside space-y-3 text-white/80 text-sm">
-                <li>Get a <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-[hsl(200,70%,50%)] underline underline-offset-2">Skyfire PAY token</a> from the Skyfire Network</li>
+                <li>Get a <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-[hsl(200,70%,50%)] underline underline-offset-2">Skyfire Buyer API Key</a> from the Skyfire Network</li>
                 <li>Add the MCP server config to your agent's MCP settings file</li>
                 <li>Your agent can now use all <strong className="text-white">7 message security tools</strong> — including <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_email_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_url_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_response_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>analyze_email_thread</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_attachment_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_sender_reputation</code>, and <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_message_safety</code></li>
               </ol>
@@ -410,21 +410,21 @@ switch (result.recommendation) {
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-white/80">
               <p>
-                Agent Safe uses <strong className="text-white">pay-per-use</strong> pricing at <strong className="text-white">$0.02 per tool call</strong>. No signup, no API keys, no subscriptions.
+                Agent Safe uses <strong className="text-white">pay-per-use</strong> pricing at <strong className="text-white">$0.02 per tool call</strong>. No signup with Agent Safe — just your Skyfire Buyer API Key.
               </p>
 
               <div className="space-y-3">
                 <div className="p-3 rounded-lg" style={{ background: "rgba(16, 106, 243, 0.08)", border: "1px solid rgba(16, 106, 243, 0.15)" }}>
-                  <p className="font-semibold text-white text-xs uppercase tracking-wider mb-1">Primary: Skyfire PAY Token</p>
+                  <p className="font-semibold text-white text-xs uppercase tracking-wider mb-1">Skyfire Buyer API Key (Recommended)</p>
                   <p className="text-white/70 text-xs">
-                    Include a <code className="px-1 py-0.5 rounded text-[hsl(200,70%,60%)]" style={{ background: "rgba(16, 106, 243, 0.15)" }}>skyfire-pay-id</code> header with your Skyfire PAY token. The token is validated and charged automatically via the Skyfire Network.
+                    Include a <code className="px-1 py-0.5 rounded text-[hsl(200,70%,60%)]" style={{ background: "rgba(16, 106, 243, 0.15)" }}>skyfire-api-key</code> header with your Skyfire Buyer API Key. Agent Safe automatically generates a PAY token and charges $0.02 per call. Alternatively, your agent can generate its own PAY tokens and send them via the <code className="px-1 py-0.5 rounded text-[hsl(200,70%,60%)]" style={{ background: "rgba(16, 106, 243, 0.15)" }}>skyfire-pay-id</code> header.
                   </p>
                 </div>
 
               </div>
 
               <p className="text-white/50 text-xs">
-                The Skyfire token must be valid and have sufficient balance. Each tool call is charged $0.02 automatically via the Skyfire Network.
+                Your Skyfire Buyer API Key must be valid and have sufficient wallet balance. Each tool call is charged $0.02 automatically via the Skyfire Network.
               </p>
             </CardContent>
           </Card>
@@ -503,7 +503,7 @@ switch (result.recommendation) {
                     <code className="text-sm text-white/80">{endpoint.path}</code>
                   </div>
                   <p className="text-sm text-white/50 mb-1">
-                    {endpoint.description}. Requires <code className="text-xs" style={codeStyle}>skyfire-pay-id</code> header.
+                    {endpoint.description}. Requires <code className="text-xs" style={codeStyle}>skyfire-api-key</code> or <code className="text-xs" style={codeStyle}>skyfire-pay-id</code> header.
                   </p>
                 </div>
               ))}
@@ -637,7 +637,7 @@ switch (result.recommendation) {
               <CardTitle className="text-white">Pricing</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-white/80 space-y-2">
-              <p><strong className="text-white">$0.02 per tool call</strong> — charged at time of request via Skyfire PAY token. Applies to all 7 tools.</p>
+              <p><strong className="text-white">$0.02 per tool call</strong> — charged at time of request via your Skyfire Buyer API Key. Applies to all 7 tools.</p>
               <p className="text-white/50">Failed requests (invalid token, insufficient balance) are not charged. Only successful analysis incurs a charge.</p>
             </CardContent>
           </Card>
@@ -650,7 +650,7 @@ switch (result.recommendation) {
             </Link>
             <a href="https://skyfire.xyz" target="_blank" rel="noopener">
               <Button variant="outline" className="text-white/70 border-white/10" data-testid="button-get-skyfire">
-                Get a Skyfire Token
+                Get a Skyfire Buyer API Key
               </Button>
             </a>
           </div>

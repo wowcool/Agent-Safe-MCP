@@ -36,6 +36,7 @@ import {
   validateSkyfireToken,
   chargeSkyfireToken,
   isSkyfireConfigured,
+  generatePayTokenFromBuyerKey,
 } from "./services/skyfire";
 import { z } from "zod";
 import { mountMcpServer, TOOL_DEFS } from "./mcp-server";
@@ -65,8 +66,8 @@ export async function registerRoutes(
       },
       authentication: {
         type: "header",
-        header_name: "skyfire-pay-id",
-        description: "Skyfire PAY token for payment. Get one at skyfire.xyz. $0.02 per tool call.",
+        header_name: "skyfire-api-key",
+        description: "Skyfire Buyer API Key for payment. Get one at skyfire.xyz. $0.02 per tool call. Alternatively, send a PAY token via skyfire-pay-id header.",
       },
       tools: [
         { name: "check_email_safety", description: "Analyze an email for phishing, social engineering, prompt injection, CEO fraud, and data exfiltration. Returns verdict, risk score, threats, and actions." },
@@ -96,7 +97,7 @@ export async function registerRoutes(
       name_for_human: "Agent Safe",
       name_for_model: "agent_safe_message_security",
       description_for_human: "7-tool message security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation across any message format.",
-      description_for_model: "Agent Safe is a Remote MCP Server with 7 message security tools for AI agents. Tools: check_email_safety (analyze emails), check_url_safety (analyze URLs), check_response_safety (check draft replies), analyze_email_thread (detect thread manipulation), check_attachment_safety (assess attachment risk), check_sender_reputation (verify sender with DNS/RDAP), check_message_safety (analyze SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal messages for platform-specific threats). Each costs $0.02 via Skyfire PAY token (skyfire-pay-id header). MCP endpoint: https://agentsafe.locationledger.com/mcp",
+      description_for_model: "Agent Safe is a Remote MCP Server with 7 message security tools for AI agents. Tools: check_email_safety (analyze emails), check_url_safety (analyze URLs), check_response_safety (check draft replies), analyze_email_thread (detect thread manipulation), check_attachment_safety (assess attachment risk), check_sender_reputation (verify sender with DNS/RDAP), check_message_safety (analyze SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal messages for platform-specific threats). Each costs $0.02. Auth: include skyfire-api-key header with your Skyfire Buyer API Key (recommended), or skyfire-pay-id header with a PAY token. MCP endpoint: https://agentsafe.locationledger.com/mcp",
       auth: { type: "none" },
       api: { type: "mcp", url: "https://agentsafe.locationledger.com/mcp", transport: "streamable-http" },
       logo_url: "https://agentsafe.locationledger.com/favicon.png",
@@ -111,8 +112,8 @@ export async function registerRoutes(
     res.type("text/plain").send(`# Agent Safe - 7-Tool Message Security Suite for AI Agents
 > MCP Server: https://agentsafe.locationledger.com/mcp
 > Protocol: Streamable HTTP (MCP)
-> Payment: $0.02/tool call via skyfire-pay-id header (Skyfire PAY token)
-> No signup required
+> Payment: $0.02/tool call via skyfire-api-key header (Skyfire Buyer API Key) or skyfire-pay-id header (PAY token)
+> No signup required — just a Skyfire Buyer API Key
 
 ## Tools
 
@@ -152,8 +153,8 @@ Input: platform (string, required), sender (string, required), messages (object[
 Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices, recommendation, explanation, safeActions[], unsafeActions[], platformTips
 
 ## Quick Start
-1. Get a Skyfire PAY token at https://skyfire.xyz
-2. Add MCP config: { "mcpServers": { "agentsafe": { "command": "npx", "args": ["-y", "mcp-remote", "https://agentsafe.locationledger.com/mcp", "--header", "skyfire-pay-id: YOUR_TOKEN"] } } }
+1. Get a Skyfire Buyer API Key at https://skyfire.xyz
+2. Add MCP config: { "mcpServers": { "agentsafe": { "command": "npx", "args": ["-y", "mcp-remote", "https://agentsafe.locationledger.com/mcp", "--header", "skyfire-api-key: YOUR_BUYER_API_KEY"] } } }
 3. Call any tool via MCP tools/call
 
 ## Links
@@ -631,9 +632,20 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
   }
 
   async function validateAndChargeRest(req: Request, res: Response): Promise<{ valid: false } | { valid: true; transactionId: string | null; buyerId: string }> {
-    const skyfireToken = req.headers["skyfire-pay-id"] as string;
+    let skyfireToken = req.headers["skyfire-pay-id"] as string | undefined;
+    const buyerApiKey = req.headers["skyfire-api-key"] as string | undefined;
+
+    if (!skyfireToken && buyerApiKey) {
+      const tokenResult = await generatePayTokenFromBuyerKey(buyerApiKey, "5958164f-62ea-4058-9a8c-50222482dbd2");
+      if (!tokenResult.success || !tokenResult.token) {
+        res.status(401).json({ error: "Failed to generate PAY token from Buyer API Key", details: tokenResult.error || "Verify your Skyfire Buyer API Key is valid and funded." });
+        return { valid: false };
+      }
+      skyfireToken = tokenResult.token;
+    }
+
     if (!skyfireToken || !isSkyfireConfigured()) {
-      res.status(401).json({ error: "Missing skyfire-pay-id header. Get a Skyfire PAY token at skyfire.xyz." });
+      res.status(401).json({ error: "Missing payment. Include a skyfire-api-key header with your Skyfire Buyer API Key, or a skyfire-pay-id header with a PAY token. Get your Buyer API Key at skyfire.xyz." });
       return { valid: false };
     }
     const validation = await validateSkyfireToken(skyfireToken);

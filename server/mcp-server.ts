@@ -13,6 +13,7 @@ import {
   validateSkyfireToken,
   chargeSkyfireToken,
   isSkyfireConfigured,
+  generatePayTokenFromBuyerKey,
 } from "./services/skyfire";
 import { createAutonomousToken } from "./services/token";
 import { storage } from "./storage";
@@ -76,8 +77,17 @@ async function recordToolCheck(
   return emailCheck.id;
 }
 
-async function validateAndCharge(skyfireToken: string | undefined): Promise<{ error?: any; transactionId?: string; buyerId?: string }> {
-  if (!skyfireToken) return { error: mcpError("Payment required", "Include a skyfire-pay-id header with your Skyfire PAY token. Get one at skyfire.xyz.") };
+const SELLER_SERVICE_ID = "5958164f-62ea-4058-9a8c-50222482dbd2";
+
+async function validateAndCharge(skyfireToken: string | undefined, buyerApiKey?: string | undefined): Promise<{ error?: any; transactionId?: string; buyerId?: string }> {
+  if (!skyfireToken && buyerApiKey) {
+    const tokenResult = await generatePayTokenFromBuyerKey(buyerApiKey, SELLER_SERVICE_ID);
+    if (!tokenResult.success || !tokenResult.token) {
+      return { error: mcpError("Failed to generate PAY token from Buyer API Key", tokenResult.error || "Could not create payment token. Verify your Skyfire Buyer API Key is valid and funded.") };
+    }
+    skyfireToken = tokenResult.token;
+  }
+  if (!skyfireToken) return { error: mcpError("Payment required", "Include a skyfire-api-key header with your Skyfire Buyer API Key, or a skyfire-pay-id header with a PAY token. Get your Buyer API Key at skyfire.xyz.") };
   if (!isSkyfireConfigured()) return { error: mcpError("Skyfire payments not available", "Server Skyfire integration is not configured.") };
   const validation = await validateSkyfireToken(skyfireToken);
   if (!validation.valid) return { error: mcpError("Invalid Skyfire token", validation.error) };
@@ -170,11 +180,11 @@ const TOOL_DEFS = {
   },
 };
 
-function createPerRequestMcpServer(skyfireToken: string | undefined): McpServer {
+function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey?: string | undefined): McpServer {
   const server = new McpServer({ name: "AgentSafe", version: "2.0.0" });
 
   server.tool("check_email_safety", TOOL_DEFS.check_email_safety.description, TOOL_DEFS.check_email_safety.schema, async (args) => {
-    const payment = await validateAndCharge(skyfireToken);
+    const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
     const emailRequest: CheckEmailRequest = {
@@ -193,7 +203,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined): McpServer 
   });
 
   server.tool("check_url_safety", TOOL_DEFS.check_url_safety.description, TOOL_DEFS.check_url_safety.schema, async (args) => {
-    const payment = await validateAndCharge(skyfireToken);
+    const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
     const { result, durationMs } = await analyzeUrls(args.urls);
@@ -208,7 +218,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined): McpServer 
   });
 
   server.tool("check_response_safety", TOOL_DEFS.check_response_safety.description, TOOL_DEFS.check_response_safety.schema, async (args) => {
-    const payment = await validateAndCharge(skyfireToken);
+    const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
     const { result, durationMs } = await analyzeResponse(args);
@@ -223,7 +233,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined): McpServer 
   });
 
   server.tool("analyze_email_thread", TOOL_DEFS.analyze_email_thread.description, TOOL_DEFS.analyze_email_thread.schema, async (args) => {
-    const payment = await validateAndCharge(skyfireToken);
+    const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
     const { result, durationMs } = await analyzeThread(args.messages);
@@ -238,7 +248,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined): McpServer 
   });
 
   server.tool("check_attachment_safety", TOOL_DEFS.check_attachment_safety.description, TOOL_DEFS.check_attachment_safety.schema, async (args) => {
-    const payment = await validateAndCharge(skyfireToken);
+    const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
     const { result, durationMs } = await analyzeAttachments(args.attachments);
@@ -253,7 +263,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined): McpServer 
   });
 
   server.tool("check_sender_reputation", TOOL_DEFS.check_sender_reputation.description, TOOL_DEFS.check_sender_reputation.schema, async (args) => {
-    const payment = await validateAndCharge(skyfireToken);
+    const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
     const { result, durationMs } = await analyzeSender(args);
@@ -268,7 +278,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined): McpServer 
   });
 
   server.tool("check_message_safety", TOOL_DEFS.check_message_safety.description, TOOL_DEFS.check_message_safety.schema, async (args) => {
-    const payment = await validateAndCharge(skyfireToken);
+    const payment = await validateAndCharge(skyfireToken, buyerApiKey);
     if (payment.error) return payment.error;
 
     const { result, durationMs } = await analyzeMessage({
@@ -297,7 +307,9 @@ export function mountMcpServer(app: Express): void {
     try {
       const skyfireToken = (req.headers["skyfire-pay-id"] as string | undefined)
         || (req.query.SKYFIRE_PAY_TOKEN as string | undefined);
-      const server = createPerRequestMcpServer(skyfireToken);
+      const buyerApiKey = (req.headers["skyfire-api-key"] as string | undefined)
+        || (req.query.SKYFIRE_API_KEY as string | undefined);
+      const server = createPerRequestMcpServer(skyfireToken, buyerApiKey);
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
       res.on("close", () => { transport.close(); });
       await server.connect(transport);
