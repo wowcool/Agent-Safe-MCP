@@ -295,7 +295,8 @@ function createPerRequestMcpServer(skyfireToken: string | undefined): McpServer 
 export function mountMcpServer(app: Express): void {
   app.post("/mcp", async (req: Request, res: Response) => {
     try {
-      const skyfireToken = req.headers["skyfire-pay-id"] as string | undefined;
+      const skyfireToken = (req.headers["skyfire-pay-id"] as string | undefined)
+        || (req.query.SKYFIRE_PAY_TOKEN as string | undefined);
       const server = createPerRequestMcpServer(skyfireToken);
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
       res.on("close", () => { transport.close(); });
