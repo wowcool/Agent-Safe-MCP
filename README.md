@@ -41,7 +41,7 @@ Get a Skyfire Buyer API Key at [skyfire.xyz](https://skyfire.xyz). No signup or 
 | **Endpoint** | `https://agentsafe.locationledger.com/mcp` |
 | **Transport** | Streamable HTTP (JSON-RPC 2.0) |
 | **Tools** | 7 security tools (see below) |
-| **Payment** | Skyfire Buyer API Key via `skyfire-api-key` header (recommended), or PAY token via `skyfire-pay-id` header |
+| **Payment** | Skyfire Buyer API Key via `skyfire-api-key` header |
 | **Price** | $0.02 USD per tool call |
 | **Protocol** | Model Context Protocol (MCP) |
 
