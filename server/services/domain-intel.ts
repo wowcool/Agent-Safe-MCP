@@ -1,0 +1,129 @@
+import dns from "dns";
+import { promisify } from "util";
+
+const resolveTxt = promisify(dns.resolveTxt);
+
+export interface DMARCResult {
+  exists: boolean;
+  policy: string | null;
+  record: string | null;
+}
+
+export interface DomainAgeResult {
+  registrationDate: string | null;
+  ageInDays: number | null;
+  registrar: string | null;
+}
+
+export interface DomainIntelligence {
+  dmarc: DMARCResult;
+  domainAge: DomainAgeResult;
+}
+
+const cache = new Map<string, { data: DomainIntelligence; cachedAt: number }>();
+const CACHE_TTL_MS = 60 * 60 * 1000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
+
+export async function lookupDMARC(domain: string): Promise<DMARCResult> {
+  try {
+    const records = await withTimeout(
+      resolveTxt(`_dmarc.${domain}`),
+      3000,
+      null
+    );
+    if (!records) {
+      return { exists: false, policy: null, record: null };
+    }
+    const dmarcRecord = records
+      .map((r) => r.join(""))
+      .find((r) => r.startsWith("v=DMARC1"));
+    if (!dmarcRecord) {
+      return { exists: false, policy: null, record: null };
+    }
+    const policyMatch = dmarcRecord.match(/p=(reject|quarantine|none)/i);
+    return {
+      exists: true,
+      policy: policyMatch ? policyMatch[1].toLowerCase() : null,
+      record: dmarcRecord,
+    };
+  } catch {
+    return { exists: false, policy: null, record: null };
+  }
+}
+
+export async function lookupDomainAge(domain: string): Promise<DomainAgeResult> {
+  const fallback: DomainAgeResult = { registrationDate: null, ageInDays: null, registrar: null };
+  try {
+    const response = await withTimeout(
+      fetch(`https://rdap.org/domain/${domain}`, {
+        headers: { Accept: "application/rdap+json" },
+      }),
+      3000,
+      null
+    );
+    if (!response || !response.ok) return fallback;
+
+    const data = await response.json();
+
+    let registrationDate: string | null = null;
+    if (Array.isArray(data.events)) {
+      const regEvent = data.events.find(
+        (e: any) => e.eventAction === "registration"
+      );
+      if (regEvent?.eventDate) {
+        registrationDate = regEvent.eventDate.split("T")[0];
+      }
+    }
+
+    let registrar: string | null = null;
+    if (Array.isArray(data.entities)) {
+      const registrarEntity = data.entities.find(
+        (e: any) => Array.isArray(e.roles) && e.roles.includes("registrar")
+      );
+      if (registrarEntity) {
+        registrar =
+          registrarEntity.vcardArray?.[1]?.find(
+            (v: any) => v[0] === "fn"
+          )?.[3] ||
+          registrarEntity.handle ||
+          null;
+      }
+    }
+
+    let ageInDays: number | null = null;
+    if (registrationDate) {
+      const regDate = new Date(registrationDate);
+      ageInDays = Math.floor(
+        (Date.now() - regDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+    }
+
+    return { registrationDate, ageInDays, registrar };
+  } catch {
+    return fallback;
+  }
+}
+
+export async function getDomainIntelligence(
+  domain: string
+): Promise<DomainIntelligence> {
+  const cached = cache.get(domain);
+  if (cached && Date.now() - cached.cachedAt < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  const [dmarc, domainAge] = await Promise.all([
+    lookupDMARC(domain),
+    lookupDomainAge(domain),
+  ]);
+
+  const result = { dmarc, domainAge };
+  cache.set(domain, { data: result, cachedAt: Date.now() });
+  return result;
+}
