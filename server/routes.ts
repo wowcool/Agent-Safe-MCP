@@ -572,8 +572,8 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
       const skyfireToken = req.headers["skyfire-pay-id"] as string || req.body.skyfireToken;
       if (!skyfireToken) {
         return res.status(400).json({
-          error: "Missing Skyfire token",
-          hint: "Include skyfire-pay-id header or skyfireToken in request body",
+          error: "Missing Skyfire payment",
+          hint: "Include skyfire-api-key header with your Skyfire Buyer API Key, or skyfire-pay-id header with a PAY token",
         });
       }
 
@@ -603,7 +603,7 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
         apiToken: token,
         paymentMethod: "skyfire",
         pricePerCheck: 0.02,
-        message: "Registered via Skyfire. Include skyfire-pay-id header with your PAY token for all API calls.",
+        message: "Registered via Skyfire. Include skyfire-api-key header with your Skyfire Buyer API Key for all API calls. Agent Safe handles PAY token generation automatically.",
       });
     } catch (error: any) {
       console.error("Skyfire registration error:", error);

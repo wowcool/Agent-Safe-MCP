@@ -213,17 +213,16 @@ Returns all 7 tools, capabilities, pricing, and connection instructions.
 | POST | /mcp/tools/check_attachment_safety | Attachment safety check |
 | POST | /mcp/tools/check_sender_reputation | Sender reputation check |
 
-All REST endpoints accept JSON and require a skyfire-pay-id header.
+All REST endpoints accept JSON and require a `skyfire-api-key` header (Skyfire Buyer API Key). Legacy `skyfire-pay-id` header with PAY tokens is also supported.
 
 ## Payment
 
 Agent Safe uses the Skyfire Network for pay-per-use billing:
 
 - **Cost:** $0.02 USD per tool call
-- **Payment method:** Skyfire PAY token sent via `skyfire-pay-id` HTTP header
-- **No signup required:** Just get a Skyfire PAY token and start using the service
-- **No API keys:** The PAY token handles both authentication and payment
-- **Get started:** Visit https://skyfire.xyz to obtain a PAY token
+- **Payment method:** Skyfire Buyer API Key sent via `skyfire-api-key` HTTP header (recommended). Agent Safe auto-generates PAY tokens server-side.
+- **No signup required:** Just get a Skyfire Buyer API Key and start using the service
+- **Get started:** Visit https://skyfire.xyz to get your Buyer API Key
 
 ## Discovery Endpoints
 

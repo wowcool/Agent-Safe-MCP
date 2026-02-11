@@ -176,7 +176,7 @@ For non-MCP integrations, Agent Safe also exposes REST endpoints:
 ```bash
 curl -X POST https://agentsafe.locationledger.com/mcp/tools/check_email_safety \
   -H "Content-Type: application/json" \
-  -H "skyfire-pay-id: YOUR_SKYFIRE_PAY_TOKEN" \
+  -H "skyfire-api-key: YOUR_SKYFIRE_BUYER_API_KEY" \
   -d '{
     "from": "ceo@company-update.com",
     "subject": "Urgent Wire Transfer Required",
@@ -188,11 +188,11 @@ curl -X POST https://agentsafe.locationledger.com/mcp/tools/check_email_safety \
 
 Agent Safe uses [Skyfire Network](https://skyfire.xyz) for frictionless agent payments:
 
-- **No signup required** with Agent Safe
-- **No API keys** to manage
+- **No signup required** with Agent Safe — just your Skyfire Buyer API Key
 - **Pay-per-use** at $0.02 per tool call (all 7 tools same price)
-- Agents pay autonomously using Skyfire PAY tokens
-- Get your PAY token from the [Skyfire Dashboard](https://skyfire.xyz)
+- Your agent includes its Skyfire Buyer API Key via the `skyfire-api-key` header
+- Agent Safe automatically generates PAY tokens and charges per call
+- Get your Buyer API Key at [skyfire.xyz](https://skyfire.xyz)
 
 ## Service Discovery
 
