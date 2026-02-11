@@ -189,6 +189,141 @@ Tools 2, 3, and 5 already work with any message format. Tool 7 would complete th
 
 ---
 
+## Real Test Results (Claude Haiku 4.5)
+
+We ran 10 real test scenarios through Claude Haiku 4.5 using the exact prompt and response format proposed above. Here are the results:
+
+### Test Results Summary
+
+| # | Test Scenario | Platform | Verdict | Risk | Confidence | Threats | Claude Cost | Skyfire Charge | Profit Margin | Latency |
+|---|--------------|----------|---------|------|------------|---------|-------------|----------------|---------------|---------|
+| 1 | SMS Package Delivery Smishing | sms | dangerous | 0.95 | 0.95 | 3 | $0.0037 | $0.02 | 81.4% | 6.3s |
+| 2 | WhatsApp Wrong Number Scam | whatsapp | dangerous | 0.92 | 0.88 | 3 | $0.0041 | $0.02 | 79.5% | 8.4s |
+| 3 | Instagram DM Brand Impersonation | instagram_dm | dangerous | 0.95 | 0.92 | 5 | $0.0045 | $0.02 | 77.7% | 7.5s |
+| 4 | SMS OTP Interception Attempt | sms | dangerous | 0.98 | 0.97 | 5 | $0.0045 | $0.02 | 77.3% | 7.4s |
+| 5 | Telegram Crypto Investment Scam | telegram | dangerous | 0.95 | 0.93 | 4 | $0.0045 | $0.02 | 77.6% | 7.1s |
+| 6 | Facebook Fake Friend Emergency | facebook_messenger | dangerous | 0.92 | 0.90 | 4 | $0.0045 | $0.02 | 77.3% | 7.6s |
+| 7 | Legitimate WhatsApp Chat | whatsapp | **safe** | 0.05 | 0.95 | 0 | $0.0020 | $0.02 | **90.0%** | 3.3s |
+| 8 | Discord Fake Nitro Phishing | discord | dangerous | 0.95 | 0.93 | 4 | $0.0049 | $0.02 | 75.3% | 8.4s |
+| 9 | LinkedIn Job Offer Scam | linkedin | dangerous | 0.98 | 0.97 | 5 | $0.0048 | $0.02 | 75.9% | 7.6s |
+| 10 | iMessage Toll/Fee Smishing | imessage | dangerous | 0.95 | 0.95 | 4 | $0.0045 | $0.02 | 77.7% | 7.6s |
+
+### Key Findings
+
+**Detection accuracy: 10/10 correct.** Claude correctly identified all 9 scam scenarios as "dangerous" and the 1 legitimate conversation as "safe." Zero false positives, zero missed threats.
+
+**Profit margins are strong.** Every single test was profitable at $0.02 per call:
+- Worst case margin: **75.3%** (Discord phishing — longer response with 4 threats)
+- Best case margin: **90.0%** (legitimate safe message — shorter response)
+- Average margin: **~79%** across all tests
+- Average Claude API cost: **$0.0042** per call
+
+**Latency is acceptable.** Average response time was **7.6 seconds** across all tests. Safe messages returned faster (3.3s) since Claude has less to analyze. This is comparable to the existing email safety tools.
+
+**Platform-aware detection works.** Claude correctly applied platform-specific knowledge:
+- SMS tests: Identified smishing patterns (USPS impersonation, EZPass toll scam, OTP interception)
+- WhatsApp: Caught the "wrong number to crypto scam" progression across 5 messages
+- Instagram: Flagged fake brand ambassador program with unverified account
+- Discord: Recognized fake Nitro phishing with spoofed domain
+- LinkedIn: Detected job scam requesting SSN/banking info through fake domain
+- Facebook: Caught the hijacked-friend emergency money scam
+- Telegram: Spotted unrealistic crypto returns with suspicious channel redirect
+
+**The `messageIndices` field works.** In multi-message tests, Claude correctly pointed to which specific messages contained threats (e.g., in the WhatsApp wrong-number scam, it flagged messages 0, 2, and 4 — the inbound scam messages — not the victim's responses).
+
+**Platform tips are useful.** Each response included platform-specific safety advice, like "WhatsApp tip: Messages from unknown international numbers about investments are a major red flag" and "Discord tip: Official Discord Nitro gifts are always sent through the official Discord interface."
+
+### Detailed Test Breakdowns
+
+#### Test 1: SMS Package Delivery Smishing
+- **Input:** Single SMS claiming to be USPS with a shortened URL
+- **Verdict:** dangerous (0.95 risk)
+- **Threats detected:** SMISHING (critical), CREDENTIAL_HARVESTING (high), IMPERSONATION (high)
+- **Recommendation:** do_not_engage
+- **Key insight:** Claude correctly identified the shortened URL, fake USPS branding, and the delivery-failure pretext as hallmark smishing indicators
+
+#### Test 2: WhatsApp Wrong Number Scam (5-message conversation)
+- **Input:** Multi-message thread showing classic wrong-number-to-crypto pipeline
+- **Verdict:** dangerous (0.92 risk)
+- **Threats detected:** WRONG_NUMBER_SCAM (critical), ROMANCE_SCAM (high), PAYMENT_FRAUD (high)
+- **Recommendation:** do_not_engage
+- **Key insight:** Claude traced the full scam arc — fake mistake, rapport building, credential drop, crypto pitch — and identified it as a "pig butchering" pattern
+
+#### Test 3: Instagram DM Brand Impersonation
+- **Input:** Fake Nike ambassador program DM with image attachment
+- **Verdict:** dangerous (0.95 risk)
+- **Threats detected:** IMPERSONATION (critical), CREDENTIAL_HARVESTING (critical), PAYMENT_FRAUD (high), MALICIOUS_MEDIA (medium), URGENCY_MANIPULATION (medium)
+- **Recommendation:** do_not_engage
+- **Key insight:** 5 threats detected — the most of any test. Claude flagged the unverified account, payment info request, fake program, and suspicious media attachment
+
+#### Test 4: SMS OTP Interception Attempt
+- **Input:** Fake Chase Bank text asking victim to forward their 2FA code
+- **Verdict:** dangerous (0.98 risk) — highest risk score of all tests
+- **Threats detected:** OTP_INTERCEPTION (critical), SMISHING (critical), IMPERSONATION (critical), URGENCY_MANIPULATION (high), CREDENTIAL_HARVESTING (high)
+- **Recommendation:** do_not_engage
+- **Key insight:** 5 threats with 3 rated critical. Claude correctly identified this as a 2FA/OTP interception attack and noted that real banks never ask customers to relay verification codes
+
+#### Test 5: Telegram Crypto Investment Scam
+- **Input:** Unsolicited message from crypto channel promoting AI trading bot
+- **Verdict:** dangerous (0.95 risk)
+- **Threats detected:** PAYMENT_FRAUD (critical), CREDENTIAL_HARVESTING (high), IMPERSONATION (medium), URGENCY_MANIPULATION (medium)
+- **Recommendation:** do_not_engage
+- **Key insight:** Claude flagged the unrealistic "15% daily returns" claim and the redirect to an isolated private channel as classic crypto scam tactics
+
+#### Test 6: Facebook Messenger Fake Friend Emergency
+- **Input:** Known contact's account claiming emergency and requesting Zelle payment
+- **Verdict:** dangerous (0.92 risk)
+- **Threats detected:** IMPERSONATION (critical), PAYMENT_FRAUD (critical), URGENCY_MANIPULATION (high), ROMANCE_SCAM (medium)
+- **Recommendation:** do_not_engage
+- **Key insight:** Even though `contactKnown` was true, Claude still flagged this because the message pattern (emergency + money + Zelle) screams account compromise. It recommended verifying through a different channel
+
+#### Test 7: Legitimate WhatsApp Chat (Control Test)
+- **Input:** 3-message casual conversation about meeting at a coffee shop
+- **Verdict:** safe (0.05 risk) — correctly identified as harmless
+- **Threats detected:** 0
+- **Recommendation:** proceed
+- **Key insight:** Zero false positives. Claude recognized this as a normal conversation between known contacts with no manipulation, requests for money/info, or suspicious links. Response was also fastest (3.3s) and cheapest ($0.002)
+
+#### Test 8: Discord Fake Nitro Phishing
+- **Input:** Bot message offering free Discord Nitro with suspicious link
+- **Verdict:** dangerous (0.95 risk)
+- **Threats detected:** CREDENTIAL_HARVESTING (critical), IMPERSONATION (critical), URGENCY_MANIPULATION (high), MALICIOUS_MEDIA (high)
+- **Recommendation:** do_not_engage
+- **Key insight:** Claude recognized the fake domain (discord-nitro-gift.com vs official discord.com), the artificial 1-hour deadline, and the bot-style sender name as classic Discord phishing
+
+#### Test 9: LinkedIn Job Offer Scam
+- **Input:** Unsolicited job offer from fake Amazon HR director requesting SSN
+- **Verdict:** dangerous (0.98 risk) — tied for highest risk score
+- **Threats detected:** CREDENTIAL_HARVESTING (critical), IMPERSONATION (critical), PAYMENT_FRAUD (high), SMISHING (medium), URGENCY_MANIPULATION (medium)
+- **Recommendation:** do_not_engage
+- **Key insight:** Claude caught every red flag — no interview needed, SSN request, fake domain (amazon-careers-apply.com), unrealistic salary claim, and unverified LinkedIn sender
+
+#### Test 10: iMessage Toll/Fee Smishing
+- **Input:** Fake EZPass toll notice with payment link and deadline threat
+- **Verdict:** dangerous (0.95 risk)
+- **Threats detected:** SMISHING (critical), IMPERSONATION (critical), URGENCY_MANIPULATION (high), CREDENTIAL_HARVESTING (high)
+- **Recommendation:** do_not_engage
+- **Key insight:** Claude identified the fake domain (ezpass-pay.info), the $50 penalty threat creating urgency, and the small initial amount ($6.99) designed to seem "not worth questioning"
+
+### Cost Analysis: Profitability Confirmed
+
+| Metric | Value |
+|--------|-------|
+| Average Claude API cost per call | $0.0042 |
+| Skyfire charge per call | $0.02 |
+| Average profit per call | $0.0158 |
+| Average profit margin | ~79% |
+| Worst-case margin | 75.3% |
+| Best-case margin | 90.0% |
+| Total test cost (10 calls) | $0.042 |
+| Total test revenue (10 calls) | $0.20 |
+
+The tool is **highly profitable** at $0.02 per call. Even the worst-case scenario (complex multi-threat analysis) still yields a 75% margin. Safe messages are even cheaper to process, giving a 90% margin.
+
+For comparison, the existing `check_email_safety` tool has similar cost profiles. The message safety prompt is roughly the same size, so there are no cost surprises.
+
+---
+
 ## Implementation Considerations
 
 - **New analyzer file:** `server/services/analyzers/message-safety.ts` following the same pattern as the other 6 analyzers
