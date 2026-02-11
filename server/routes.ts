@@ -31,6 +31,7 @@ import { analyzeResponse } from "./services/analyzers/response-safety";
 import { analyzeThread } from "./services/analyzers/thread-analysis";
 import { analyzeAttachments } from "./services/analyzers/attachment-safety";
 import { analyzeSender } from "./services/analyzers/sender-reputation";
+import { analyzeMessage } from "./services/analyzers/message-safety";
 import {
   validateSkyfireToken,
   chargeSkyfireToken,
@@ -55,8 +56,8 @@ export async function registerRoutes(
   app.get("/.well-known/mcp.json", (_req: Request, res: Response) => {
     res.json({
       name: "Agent Safe",
-      description: "6-tool email security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation across emails, URLs, replies, threads, attachments, and sender identities.",
-      version: "2.0.0",
+      description: "7-tool message security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation across any message (emails, chats, DMs, SMS), URLs, replies, threads, attachments, and sender identities.",
+      version: "2.1.0",
       protocol: "mcp",
       transport: {
         type: "streamable-http",
@@ -74,6 +75,7 @@ export async function registerRoutes(
         { name: "analyze_email_thread", description: "Analyze a full email thread for escalating social engineering, scope creep, and manipulation patterns." },
         { name: "check_attachment_safety", description: "Assess attachments for malware risk based on filename, MIME type, and size BEFORE opening." },
         { name: "check_sender_reputation", description: "Verify sender identity with live DNS DMARC and RDAP domain age checks. Detects BEC and impersonation." },
+        { name: "check_message_safety", description: "Analyze non-email messages (SMS, WhatsApp, Instagram DMs, Discord, Slack, etc.) for platform-specific threats like smishing, wrong-number scams, and OTP interception." },
       ],
       pricing: {
         model: "per_request",
@@ -93,8 +95,8 @@ export async function registerRoutes(
       schema_version: "v1",
       name_for_human: "Agent Safe",
       name_for_model: "agent_safe_email_security",
-      description_for_human: "6-tool email security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation.",
-      description_for_model: "Agent Safe is a Remote MCP Server with 6 email security tools for AI agents. Tools: check_email_safety (analyze emails), check_url_safety (analyze URLs), check_response_safety (check draft replies), analyze_email_thread (detect thread manipulation), check_attachment_safety (assess attachment risk), check_sender_reputation (verify sender with DNS/RDAP). Each costs $0.02 via Skyfire PAY token (skyfire-pay-id header). MCP endpoint: https://agentsafe.locationledger.com/mcp",
+      description_for_human: "7-tool message security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation across any message format.",
+      description_for_model: "Agent Safe is a Remote MCP Server with 7 message security tools for AI agents. Tools: check_email_safety (analyze emails), check_url_safety (analyze URLs), check_response_safety (check draft replies), analyze_email_thread (detect thread manipulation), check_attachment_safety (assess attachment risk), check_sender_reputation (verify sender with DNS/RDAP), check_message_safety (analyze SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal messages for platform-specific threats). Each costs $0.02 via Skyfire PAY token (skyfire-pay-id header). MCP endpoint: https://agentsafe.locationledger.com/mcp",
       auth: { type: "none" },
       api: { type: "mcp", url: "https://agentsafe.locationledger.com/mcp", transport: "streamable-http" },
       logo_url: "https://agentsafe.locationledger.com/favicon.png",
@@ -106,7 +108,7 @@ export async function registerRoutes(
   // ===== AUTH ROUTES =====
   
   app.get("/llms.txt", (_req: Request, res: Response) => {
-    res.type("text/plain").send(`# Agent Safe - 6-Tool Email Security Suite for AI Agents
+    res.type("text/plain").send(`# Agent Safe - 7-Tool Message Security Suite for AI Agents
 > MCP Server: https://agentsafe.locationledger.com/mcp
 > Protocol: Streamable HTTP (MCP)
 > Payment: $0.02/tool call via skyfire-pay-id header (Skyfire PAY token)
@@ -143,6 +145,11 @@ Returns: overallVerdict, overallRiskScore, attachmentResults[]
 Verify sender identity and detect BEC, spoofing, and impersonation. Includes live DNS DMARC and RDAP domain age checks.
 Input: email (string, required), displayName (string, required), replyTo (string), emailSubject (string), emailSnippet (string)
 Returns: senderVerdict, trustScore, confidence, identityIssues[], domainIntel
+
+### check_message_safety
+Analyze non-email messages (SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal) for platform-specific threats.
+Input: platform (string, required), sender (string, required), messages (object[], required, min 1, max 50) - each with body, direction (inbound/outbound), timestamp?; media (object[]), senderVerified (boolean), contactKnown (boolean)
+Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices, recommendation, explanation, safeActions[], unsafeActions[], platformTips
 
 ## Quick Start
 1. Get a Skyfire PAY token at https://skyfire.xyz
@@ -424,8 +431,8 @@ Returns: senderVerdict, trustScore, confidence, identityIssues[], domainIntel
       
       const discovery: DiscoveryResponse = {
         service: "Agent Safe",
-        version: "2.0.0",
-        description: "6-tool email security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation across emails, URLs, replies, threads, attachments, and sender identities.",
+        version: "2.1.0",
+        description: "7-tool message security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation across any message (emails, chats, DMs, SMS), URLs, replies, threads, attachments, and sender identities.",
         capabilities: [
           "email_safety_check",
           "url_safety_check",
@@ -433,6 +440,7 @@ Returns: senderVerdict, trustScore, confidence, identityIssues[], domainIntel
           "thread_analysis",
           "attachment_safety_check",
           "sender_reputation_check",
+          "message_safety_check",
         ],
         domainFocus: "email_security",
         pricing: {
@@ -774,6 +782,26 @@ Returns: senderVerdict, trustScore, confidence, identityIssues[], domainIntel
       return res.json({ ...result, checkId, charged: PRICE, termsOfService: TERMS_URL, termsAccepted: TERMS_NOTICE });
     } catch (error: any) {
       console.error("Sender reputation check error:", error);
+      return res.status(500).json({ error: "Analysis failed" });
+    }
+  });
+
+  app.post("/mcp/tools/check_message_safety", async (req: Request, res: Response) => {
+    try {
+      const payment = await validateAndChargeRest(req, res);
+      if (!payment.valid) return;
+
+      const { platform, sender, messages, media, senderVerified, contactKnown } = req.body;
+      if (!platform || !sender || !messages || !Array.isArray(messages) || messages.length === 0) {
+        return res.status(400).json({ error: "Missing required fields: platform, sender, messages (non-empty array)" });
+      }
+
+      const { result, durationMs } = await analyzeMessage({ platform, sender, messages, media, senderVerified, contactKnown });
+      const checkId = await recordRestCheck("check_message_safety", result.verdict, result.riskScore, result.confidence, result.threats, durationMs, payment.transactionId, platform);
+
+      return res.json({ ...result, checkId, charged: PRICE, termsOfService: TERMS_URL, termsAccepted: TERMS_NOTICE });
+    } catch (error: any) {
+      console.error("Message safety check error:", error);
       return res.status(500).json({ error: "Analysis failed" });
     }
   });

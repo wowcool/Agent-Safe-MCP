@@ -237,7 +237,8 @@ export type ToolName =
   | "check_response_safety"
   | "analyze_email_thread"
   | "check_attachment_safety"
-  | "check_sender_reputation";
+  | "check_sender_reputation"
+  | "check_message_safety";
 
 export const ALL_TOOL_NAMES: ToolName[] = [
   "check_email_safety",
@@ -246,6 +247,7 @@ export const ALL_TOOL_NAMES: ToolName[] = [
   "analyze_email_thread",
   "check_attachment_safety",
   "check_sender_reputation",
+  "check_message_safety",
 ];
 
 export interface DiscoveryResponse {

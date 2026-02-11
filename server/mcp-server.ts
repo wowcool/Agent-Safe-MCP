@@ -8,6 +8,7 @@ import { analyzeResponse } from "./services/analyzers/response-safety";
 import { analyzeThread } from "./services/analyzers/thread-analysis";
 import { analyzeAttachments } from "./services/analyzers/attachment-safety";
 import { analyzeSender } from "./services/analyzers/sender-reputation";
+import { analyzeMessage } from "./services/analyzers/message-safety";
 import {
   validateSkyfireToken,
   chargeSkyfireToken,
@@ -147,6 +148,26 @@ const TOOL_DEFS = {
       emailSnippet: z.string().optional().describe("First ~500 chars of email body for context"),
     },
   },
+  check_message_safety: {
+    description: `Analyze non-email messages (SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal) for platform-specific threats including smishing, wrong-number scams, OTP interception, impersonation, and crypto fraud. $${PRICE}/call via skyfire-pay-id header. ${TERMS_NOTICE}`,
+    schema: {
+      platform: z.enum(["sms", "imessage", "whatsapp", "facebook_messenger", "instagram_dm", "telegram", "slack", "discord", "linkedin", "signal", "other"]).describe("Message platform"),
+      sender: z.string().describe("Sender identifier — phone number, username, handle, or display name"),
+      messages: z.array(z.object({
+        body: z.string().describe("Message text content"),
+        direction: z.enum(["inbound", "outbound"]).describe("Whether the message was received or sent"),
+        timestamp: z.string().optional().describe("Message timestamp"),
+      })).min(1).max(50).describe("Array of messages in chronological order (min 1, max 50)"),
+      media: z.array(z.object({
+        type: z.enum(["image", "video", "audio", "document", "link"]).describe("Media type"),
+        filename: z.string().optional().describe("Filename if available"),
+        url: z.string().optional().describe("URL if available"),
+        caption: z.string().optional().describe("Caption or description"),
+      })).optional().describe("Media attachments"),
+      senderVerified: z.boolean().optional().describe("Whether the platform has verified the sender (blue checkmark, business account)"),
+      contactKnown: z.boolean().optional().describe("Whether the sender is in the agent's/user's contacts"),
+    },
+  },
 };
 
 function createPerRequestMcpServer(skyfireToken: string | undefined): McpServer {
@@ -246,6 +267,28 @@ function createPerRequestMcpServer(skyfireToken: string | undefined): McpServer 
     return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
   });
 
+  server.tool("check_message_safety", TOOL_DEFS.check_message_safety.description, TOOL_DEFS.check_message_safety.schema, async (args) => {
+    const payment = await validateAndCharge(skyfireToken);
+    if (payment.error) return payment.error;
+
+    const { result, durationMs } = await analyzeMessage({
+      platform: args.platform,
+      sender: args.sender,
+      messages: args.messages,
+      media: args.media,
+      senderVerified: args.senderVerified,
+      contactKnown: args.contactKnown,
+    });
+
+    let checkId = "mcp-" + Date.now().toString(36);
+    try {
+      const systemTokenId = await getOrCreateSkyfireSystemToken();
+      checkId = await recordToolCheck(systemTokenId, "check_message_safety", result.verdict, result.riskScore, result.confidence, result.threats, durationMs, "skyfire", payment.transactionId || null);
+    } catch (e) { console.error("MCP: Failed to record check:", e); }
+
+    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
+  });
+
   return server;
 }
 
@@ -274,7 +317,7 @@ export function mountMcpServer(app: Express): void {
     res.status(405).json({ jsonrpc: "2.0", error: { code: -32000, message: "Stateless server - session termination not supported" }, id: null });
   });
 
-  console.log("MCP Remote Server mounted at /mcp (Streamable HTTP) - 6 tools registered");
+  console.log("MCP Remote Server mounted at /mcp (Streamable HTTP) - 7 tools registered");
 }
 
 export { TOOL_DEFS };

@@ -1,73 +1,52 @@
-# Agent Safe
+# Agent Safe - 7-Tool Message Security Suite for AI Agents
+> MCP Server: https://agentsafe.locationledger.com/mcp
+> Protocol: Streamable HTTP (MCP)
+> Payment: $0.02/tool call via skyfire-pay-id header (Skyfire PAY token)
+> No signup required
 
-> A Remote MCP Server that protects AI agents from phishing, social engineering, prompt injection, and message-based manipulation. Works with emails and any other message format. Pay-per-use via Skyfire Network at $0.02 per check.
+## Tools
 
-> For full documentation, see: https://agentsafe.locationledger.com/llms-full.txt
+### check_email_safety
+Analyze an email for phishing, social engineering, prompt injection, CEO fraud, and data exfiltration.
+Input: from (string, required), subject (string, required), body (string, required), links (string[]), attachments (object[]), knownSender (boolean), previousCorrespondence (boolean)
+Returns: verdict, riskScore, confidence, threats[], recommendation, explanation, safeActions[], unsafeActions[]
 
-## About
+### check_url_safety
+Analyze URLs for phishing, malware, redirects, spoofing, and tracking.
+Input: urls (string[], required, max 20)
+Returns: overallVerdict, overallRiskScore, urlResults[]
 
-Agent Safe is a message safety verification service designed for AI agents. It analyzes any message — emails, chats, DMs, or any text — for threats before agents act on them. Email-specific tools provide extra analysis like sender reputation with live DNS lookups. No signup or API keys required — just include a Skyfire PAY token with each request.
+### check_response_safety
+Check a draft email reply BEFORE sending for data leakage, social engineering compliance, and unauthorized disclosure.
+Input: draftTo (string, required), draftSubject (string, required), draftBody (string, required), originalFrom (string), originalSubject (string), originalBody (string)
+Returns: verdict, riskScore, confidence, threats[], recommendation
 
-## MCP Connection
+### analyze_email_thread
+Analyze a full email conversation thread for escalating social engineering, scope creep, and manipulation patterns.
+Input: messages (object[], required, min 2, max 50) - each with from, subject, body, date?
+Returns: verdict, riskScore, confidence, manipulationPatterns[], threadProgression
 
-- Endpoint: https://agentsafe.locationledger.com/mcp
-- Transport: Streamable HTTP (JSON-RPC 2.0)
-- Tools: 6 security tools (check_email_safety, check_url_safety, check_response_safety, analyze_email_thread, check_attachment_safety, check_sender_reputation)
-- Payment: Skyfire PAY token via skyfire-pay-id header
-- Price: $0.02 USD per tool call
+### check_attachment_safety
+Assess email attachments for malware risk based on filename, MIME type, and size BEFORE opening/downloading.
+Input: attachments (object[], required, max 20) - each with name, size, mimeType, from?
+Returns: overallVerdict, overallRiskScore, attachmentResults[]
 
-## MCP Client Configuration
+### check_sender_reputation
+Verify sender identity and detect BEC, spoofing, and impersonation. Includes live DNS DMARC and RDAP domain age checks.
+Input: email (string, required), displayName (string, required), replyTo (string), emailSubject (string), emailSnippet (string)
+Returns: senderVerdict, trustScore, confidence, identityIssues[], domainIntel
 
-```json
-{
-  "mcpServers": {
-    "agentsafe": {
-      "command": "npx",
-      "args": [
-        "-y", "mcp-remote",
-        "https://agentsafe.locationledger.com/mcp",
-        "--header",
-        "skyfire-pay-id: <YOUR_SKYFIRE_PAY_TOKEN>"
-      ]
-    }
-  }
-}
-```
+### check_message_safety
+Analyze non-email messages (SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal) for platform-specific threats.
+Input: platform (string, required), sender (string, required), messages (object[], required, min 1, max 50) - each with body, direction (inbound/outbound), timestamp?; media (object[]), senderVerified (boolean), contactKnown (boolean)
+Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices, recommendation, explanation, safeActions[], unsafeActions[], platformTips
 
-## Threat Detection Capabilities
+## Quick Start
+1. Get a Skyfire PAY token at https://skyfire.xyz
+2. Add MCP config: { "mcpServers": { "agentsafe": { "command": "npx", "args": ["-y", "mcp-remote", "https://agentsafe.locationledger.com/mcp", "--header", "skyfire-pay-id: YOUR_TOKEN"] } } }
+3. Call any tool via MCP tools/call
 
-- Phishing: Spoofed domains, fake login pages, credential harvesting
-- Social Engineering: Authority impersonation, urgency manipulation, emotional pressure
-- Prompt Injection: Hidden instructions in HTML comments, invisible text, system override attempts
-- CEO Fraud / BEC: Wire transfer scams, executive impersonation, secrecy demands
-- Financial Fraud: Cryptocurrency scams, fake invoices, advance-fee fraud
-- Data Exfiltration: Attempts to trick agents into forwarding sensitive data
-
-## API Response
-
-The check_email_safety tool returns:
-- verdict: "safe", "suspicious", or "dangerous"
-- riskScore: 0.0 (safe) to 1.0 (malicious)
-- threats: Array of detected threats with type, description, severity
-- recommendation: "proceed", "proceed_with_caution", or "do_not_act"
-- safeActions: List of safe actions the agent can take
-- unsafeActions: List of actions the agent should avoid
-
-## Key Resources
-
-- [Documentation](https://agentsafe.locationledger.com/docs)
-- [How It Works](https://agentsafe.locationledger.com/how-it-works)
-- [Terms of Service](https://agentsafe.locationledger.com/terms)
-- [Service Discovery API](https://agentsafe.locationledger.com/mcp/discover)
-- [Skyfire Network](https://skyfire.xyz)
-
-## REST API Endpoints
-
-- GET /mcp/discover - Service discovery for agents (no auth required)
-- POST /mcp/tools/check_email_safety - Message safety check (REST, requires skyfire-pay-id header)
-- POST /mcp - MCP protocol endpoint (Streamable HTTP, requires skyfire-pay-id header)
-
-## Company
-
-Built by Alibi Ledger, LLC. Part of the Anti-Deepfake/Agent Abuse protection suite.
-Website: https://locationledger.com
+## Links
+- Documentation: https://agentsafe.locationledger.com/docs
+- Discovery: https://agentsafe.locationledger.com/mcp/discover
+- Terms: https://agentsafe.locationledger.com/terms

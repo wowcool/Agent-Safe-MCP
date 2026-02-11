@@ -14,7 +14,7 @@ import {
   Bot, Shield, Zap, Lock, Terminal, CheckCircle2, AlertTriangle,
   XCircle, Search, ArrowRight, Mail, FileWarning,
   Eye, Brain, ShieldAlert, Skull, Fingerprint, MessageSquareWarning,
-  Link as LinkIcon, MessageSquare, Wrench, Reply, Paperclip, UserCheck
+  Link as LinkIcon, MessageSquare, Wrench, Reply, Paperclip, UserCheck, Smartphone
 } from "lucide-react";
 import { GlobalFooter } from "@/components/global-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -25,6 +25,7 @@ import toolResponseImg from "@/assets/images/tool-response-safety.png";
 import toolThreadImg from "@/assets/images/tool-thread-analysis.png";
 import toolAttachmentImg from "@/assets/images/tool-attachment-safety.png";
 import toolSenderImg from "@/assets/images/tool-sender-reputation.png";
+import toolMessageImg from "@/assets/images/tool-message-safety.png";
 
 function ThreatCard({ icon: Icon, title, description, example, riskLevel }: {
   icon: any;
@@ -243,6 +244,38 @@ const toolsData = [
     responseFormat: "senderVerdict (trusted/unverified/suspicious/likely_fraudulent), trustScore (0.0-1.0), confidence (0.0-1.0), identityIssues[] with type/description/severity, becProbability (0.0-1.0), recommendation (trust_sender/verify_identity/do_not_trust), verificationSteps[], domainIntelligence with dmarcExists, dmarcPolicy, domainAgeDays, registrationDate, registrar.",
     testResults: "Identified a fraudulent sender with 93% BEC probability, 6 identity issues detected, and a 'likely_fraudulent' verdict. Live DMARC lookup confirmed no DMARC policy on the spoofed domain. RDAP showed domain registered only 3 days prior. Claude cost: $0.005. Latency: 6,257ms.",
   },
+  {
+    id: "check_message_safety",
+    name: "check_message_safety",
+    icon: Smartphone,
+    image: toolMessageImg,
+    label: "Message Safety",
+    purpose: "Analyzes non-email messages (SMS, WhatsApp, Instagram DMs, Facebook Messenger, Telegram, Discord, Slack, LinkedIn, iMessage, Signal) for platform-specific threats. Detects smishing, wrong-number scams, OTP interception, impersonation, payment fraud, romance scams, tech support scams, and credential harvesting with platform-aware context.",
+    purposeExtra: "All 10 threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. The tool uses Claude AI with platform-specific threat intelligence to identify messaging-native attacks that differ from email threats. Returns messageIndices to pinpoint which messages in a conversation triggered each threat, plus platform-specific safety tips.",
+    useCase: "Agent receives a DM, text message, or chat message on a non-email platform. Before acting on it, it passes the message(s), platform, and sender info to this tool. The tool analyzes for platform-specific threats like smishing (SMS phishing), wrong-number crypto scams, OTP interception attempts, and impersonation attacks unique to each platform.",
+    categories: [
+      { name: "SMISHING", description: "SMS/text phishing: fake delivery notices, bank alerts, toll charges" },
+      { name: "WRONG_NUMBER_SCAM", description: "Accidental contact leading to romance, investment, or crypto fraud" },
+      { name: "IMPERSONATION", description: "Pretending to be a brand, celebrity, friend, or official account" },
+      { name: "OTP_INTERCEPTION", description: "Tricks to obtain one-time passwords or 2FA codes" },
+      { name: "PAYMENT_FRAUD", description: "Fake payment requests via Venmo, Zelle, Cash App, crypto, or gift cards" },
+      { name: "ROMANCE_SCAM", description: "Building fake emotional connection to extract money or personal info" },
+      { name: "TECH_SUPPORT_SCAM", description: "Fake tech support claiming device or account is compromised" },
+      { name: "MALICIOUS_MEDIA", description: "Suspicious images, documents, links, or files shared via attachments" },
+      { name: "URGENCY_MANIPULATION", description: "Creating false time pressure to force immediate action" },
+      { name: "CREDENTIAL_HARVESTING", description: "Directing to fake login pages or requesting passwords" },
+    ],
+    parameters: [
+      { name: "platform", type: "enum", required: true, description: "Message platform (sms, imessage, whatsapp, facebook_messenger, instagram_dm, telegram, slack, discord, linkedin, signal, other)" },
+      { name: "sender", type: "string", required: true, description: "Sender identifier (phone number, username, handle, or display name)" },
+      { name: "messages", type: "object[]", required: true, description: "Array of messages (min 1, max 50), each with body, direction (inbound/outbound), timestamp (optional)" },
+      { name: "media", type: "object[]", required: false, description: "Media attachments, each with type (image/video/audio/document/link), filename, url, caption" },
+      { name: "senderVerified", type: "boolean", required: false, description: "Whether the platform has verified the sender (blue checkmark, business account)" },
+      { name: "contactKnown", type: "boolean", required: false, description: "Whether the sender is in the agent's/user's contacts" },
+    ],
+    responseFormat: "verdict (safe/suspicious/dangerous), riskScore (0.0-1.0), confidence (0.0-1.0), platform, threats[] with type/description/severity/messageIndices, recommendation (proceed/proceed_with_caution/do_not_engage), explanation, safeActions[], unsafeActions[], platformTips (platform-specific safety advice).",
+    testResults: "Correctly detected a smishing attack via SMS (fake USPS delivery notice), a wrong-number crypto scam on WhatsApp, OTP interception on Telegram, and a fake brand impersonation on Instagram DMs. Platform-specific tips provided for each. Average Claude cost: $0.0042. Average latency: 5,200ms.",
+  },
 ];
 
 function ToolDetailCard({ tool }: { tool: typeof toolsData[0] }) {
@@ -339,7 +372,7 @@ function ToolDetailCard({ tool }: { tool: typeof toolsData[0] }) {
 export default function HowItWorks() {
   const getToolFromHash = () => {
     const hash = window.location.hash.replace("#tool-", "");
-    const validTools = ["check_email_safety", "check_url_safety", "check_response_safety", "analyze_email_thread", "check_attachment_safety", "check_sender_reputation"];
+    const validTools = ["check_email_safety", "check_url_safety", "check_response_safety", "analyze_email_thread", "check_attachment_safety", "check_sender_reputation", "check_message_safety"];
     return validTools.includes(hash) ? hash : "check_email_safety";
   };
 
@@ -360,8 +393,8 @@ export default function HowItWorks() {
   }, []);
 
   useSEO({
-    title: "How Agent Safe Works - 6-Tool Message Security Suite for AI Agents | MCP Server",
-    description: "Learn how Agent Safe's 6-tool message security suite analyzes any message, URL, reply, attachment, sender reputation, and thread for phishing, prompt injection, CEO fraud, and social engineering. Works with emails and any other message format. See real testing results and example responses.",
+    title: "How Agent Safe Works - 7-Tool Message Security Suite for AI Agents | MCP Server",
+    description: "Learn how Agent Safe's 7-tool message security suite analyzes any message, URL, reply, attachment, sender reputation, and thread for phishing, prompt injection, CEO fraud, and social engineering. Works with emails and any other message format. See real testing results and example responses.",
     path: "/how-it-works",
   });
   return (
@@ -378,7 +411,7 @@ export default function HowItWorks() {
               How Agent Safe Protects<br />Your AI Agent
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              A deep look at how our <a href="#tools-section" className="text-primary underline" data-testid="link-tools-section" onClick={(e) => { e.preventDefault(); document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>6-tool suite</a> — covering message safety, URL analysis, response checking, attachment scanning, sender reputation, and thread analysis — detects phishing, prompt injection, social engineering, and more. Works with emails and any other message your agent receives.
+              A deep look at how our <a href="#tools-section" className="text-primary underline" data-testid="link-tools-section" onClick={(e) => { e.preventDefault(); document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>7-tool suite</a> — covering message safety, URL analysis, response checking, attachment scanning, sender reputation, thread analysis, and non-email platform messages — detects phishing, prompt injection, social engineering, and more. Works with emails and any other message your agent receives.
             </p>
           </div>
 
@@ -403,7 +436,7 @@ export default function HowItWorks() {
                 number={3}
                 icon={Wrench}
                 title="Agent Calls the Right Tool"
-                description="The agent picks the appropriate tool from the 6-tool suite based on what it needs to analyze: check_email_safety for incoming messages, check_url_safety for suspicious links, check_response_safety for draft replies, check_attachment_safety for file attachments, check_sender_reputation for sender verification, or analyze_email_thread for multi-message thread analysis."
+                description="The agent picks the appropriate tool from the 7-tool suite based on what it needs to analyze: check_email_safety for incoming messages, check_url_safety for suspicious links, check_response_safety for draft replies, check_attachment_safety for file attachments, check_sender_reputation for sender verification, analyze_email_thread for multi-message thread analysis, or check_message_safety for non-email platform messages."
               />
               <StepCard
                 number={4}
@@ -429,7 +462,7 @@ export default function HowItWorks() {
               Tool Explorer
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-explore-heading">
-              Explore the 6 Tools
+              Explore the 7 Tools
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Select a tool below to see its full capabilities, parameters, threat categories, and real test results.
@@ -639,7 +672,7 @@ export default function HowItWorks() {
 }`}</code>
               </pre>
               <p className="text-sm text-muted-foreground mt-4 italic">
-                Each of the 6 tools returns optimized response structures. See documentation for full details.
+                Each of the 7 tools returns optimized response structures. See documentation for full details.
               </p>
             </CardContent>
           </Card>
@@ -705,7 +738,7 @@ export default function HowItWorks() {
             Protect Your Agent Now
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Add Agent Safe's 6 message security tools to your MCP client in 30 seconds. No signup required.
+            Add Agent Safe's 7 message security tools to your MCP client in 30 seconds. No signup required.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/#connect">

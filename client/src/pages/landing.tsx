@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, Copy, ExternalLink, Mail, Link as LinkIcon, Reply, MessageSquare, Paperclip, UserCheck, ArrowRight } from "lucide-react";
+import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, Copy, ExternalLink, Mail, Link as LinkIcon, Reply, MessageSquare, Paperclip, UserCheck, ArrowRight, Smartphone } from "lucide-react";
 import { useState } from "react";
 import { useSEO } from "@/lib/seo";
 import { GlobalFooter } from "@/components/global-footer";
@@ -13,6 +13,7 @@ import toolResponseImg from "@/assets/images/tool-response-safety.png";
 import toolThreadImg from "@/assets/images/tool-thread-analysis.png";
 import toolAttachmentImg from "@/assets/images/tool-attachment-safety.png";
 import toolSenderImg from "@/assets/images/tool-sender-reputation.png";
+import toolMessageImg from "@/assets/images/tool-message-safety.png";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -49,8 +50,8 @@ const MCP_CONFIG = `{
 
 export default function Landing() {
   useSEO({
-    title: "Agent Safe - Protect Your Agents from Scam Messages | 6-Tool Security Suite",
-    description: "Your AI agent processes messages — but should it trust them? Agent Safe is a 6-tool MCP security suite that protects AI agents from phishing, BEC, malware, and manipulation across any message, URL, or attachment. $0.02 per tool call via Skyfire.",
+    title: "Agent Safe - Protect Your Agents from Scam Messages | 7-Tool Security Suite",
+    description: "Your AI agent processes messages — but should it trust them? Agent Safe is a 7-tool MCP security suite that protects AI agents from phishing, BEC, malware, and manipulation across any message, URL, or attachment. $0.02 per tool call via Skyfire.",
     path: "/",
   });
   return (
@@ -72,7 +73,7 @@ export default function Landing() {
             Your AI agent processes messages. But should it trust them?
           </p>
           <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-            <a href="#tools" className="text-primary font-bold hover:underline"><strong>6 tools</strong></a> that protect your AI agent from phishing, BEC, malware, and manipulation across any message, URL, reply, thread, attachment, or sender identity. Works with emails and any other message your agent receives. Connect via MCP, pay per use with Skyfire.
+            <a href="#tools" className="text-primary font-bold hover:underline"><strong>7 tools</strong></a> that protect your AI agent from phishing, BEC, malware, and manipulation across any message (emails, chats, DMs, SMS), URL, reply, thread, attachment, or sender identity. Connect via MCP, pay per use with Skyfire.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap mb-16">
@@ -93,7 +94,7 @@ export default function Landing() {
             <a href="#tools">
               <Badge variant="outline" className="text-sm py-1.5 px-4 cursor-pointer" data-testid="badge-tools">
                 <Shield className="h-3.5 w-3.5 mr-1.5" />
-                <strong>6 Tools</strong>
+                <strong>7 Tools</strong>
               </Badge>
             </a>
             <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-skyfire">
@@ -126,7 +127,7 @@ export default function Landing() {
           <p className="text-muted-foreground leading-relaxed mb-10 max-w-3xl mx-auto text-center">
             Attackers craft deceptive messages, embed malicious URLs, poison reply threads, and disguise dangerous attachments to exploit an agent's tendency to follow instructions,
             tricking it into leaking data, making unauthorized payments, or executing harmful actions.
-            Agent Safe is a suite of <a href="#tools" className="text-primary font-bold hover:underline">6 tools</a> that any MCP-compatible agent can call to verify any message, URL, reply, thread, attachment, or sender identity before acting. It works with emails and any other message format your agent encounters.
+            Agent Safe is a suite of <a href="#tools" className="text-primary font-bold hover:underline">7 tools</a> that any MCP-compatible agent can call to verify any message, URL, reply, thread, attachment, or sender identity before acting. It works with emails and any other message format your agent encounters.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
@@ -168,7 +169,7 @@ export default function Landing() {
                   MCP (Model Context Protocol) is a standard connection method that lets your AI agent plug into external services. Think of it like a USB port for AI — a structured, agreed-upon way for AI systems to talk to tools.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  No custom code. No messy integration. Your agent discovers Agent Safe, connects using the MCP protocol, and can immediately start calling any of the <a href="#tools" className="text-primary font-bold hover:underline">6 security tools</a>. It works with Claude Desktop, Cursor, and any other MCP-compatible client.
+                  No custom code. No messy integration. Your agent discovers Agent Safe, connects using the MCP protocol, and can immediately start calling any of the <a href="#tools" className="text-primary font-bold hover:underline">7 security tools</a>. It works with Claude Desktop, Cursor, and any other MCP-compatible client.
                 </p>
                 <div className="grid sm:grid-cols-3 gap-4 pt-4">
                   <div className="flex items-start gap-3">
@@ -249,7 +250,7 @@ export default function Landing() {
               </div>
               <h3 className="font-semibold mb-1">Secure Everything</h3>
               <p className="text-sm text-muted-foreground">
-                Your agent can now call any of <strong>6 message security tools</strong> to protect against threats
+                Your agent can now call any of <strong>7 message security tools</strong> to protect against threats
               </p>
             </div>
           </div>
@@ -260,7 +261,7 @@ export default function Landing() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-features-heading">
-              <strong>6 Tools.</strong> Complete Message Security.
+              <strong>7 Tools.</strong> Complete Message Security.
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               A purpose-built MCP tool suite that agents discover, connect to, and pay for autonomously
@@ -369,6 +370,23 @@ export default function Landing() {
                 </CardContent>
               </Card>
             </a>
+
+            <a href="/how-it-works#tool-check_message_safety" data-testid="link-tool-check-message">
+              <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-message">
+                <CardHeader>
+                  <img src={toolMessageImg} alt="Message safety analysis" className="w-16 h-16 object-contain rounded-md mb-3" data-testid="img-card-check-message" />
+                  <CardTitle className="font-semibold text-lg">check_message_safety</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Analyze SMS, WhatsApp, Instagram DMs, Discord, Slack, and other messaging platform threats
+                  </p>
+                  <span className="text-xs text-primary flex items-center gap-1">
+                    Learn more <ArrowRight className="h-3 w-3" />
+                  </span>
+                </CardContent>
+              </Card>
+            </a>
           </div>
         </div>
       </section>
@@ -395,7 +413,7 @@ export default function Landing() {
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                    <span className="text-sm"><strong>6 message security tools</strong> included</span>
+                    <span className="text-sm"><strong>7 message security tools</strong> included</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />

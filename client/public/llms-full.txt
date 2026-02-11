@@ -4,7 +4,7 @@
 
 ## Overview
 
-Agent Safe is a message safety verification service designed specifically for AI agents. Before an agent processes, replies to, or acts on any message — whether it's an email, chat message, DM, or any other format — it can call Agent Safe to get a safety analysis. The service uses Claude AI to detect six categories of threats and returns structured, actionable results. Email-specific tools provide extra analysis like sender reputation verification with live DNS lookups.
+Agent Safe is a message safety verification service designed specifically for AI agents. Before an agent processes, replies to, or acts on any message — whether it's an email, chat message, DM, or any other format — it can call Agent Safe to get a safety analysis. The service uses Claude AI to detect multiple categories of threats across all platforms and returns structured, actionable results. Email-specific tools provide extra analysis like sender reputation verification with live DNS lookups.
 
 Agents are first-class customers. No human signup required. No API keys to manage. Just send a Skyfire PAY token with each request and get instant results.
 
@@ -41,7 +41,7 @@ Get your Skyfire PAY token at https://skyfire.xyz
 
 ## Tool: check_email_safety
 
-The core tool in the 6-tool suite. Analyzes any message (email, chat, DM, or any text) for threats.
+The core tool in the 7-tool suite. Analyzes any message (email, chat, DM, or any text) for threats.
 
 ### Input Parameters
 
@@ -152,6 +152,25 @@ skyfire-pay-id: <YOUR_SKYFIRE_PAY_TOKEN>
 ```
 
 Returns the same structured response as the MCP tool.
+
+### Non-Email Message Check (REST)
+```
+POST https://agentsafe.locationledger.com/mcp/tools/check_message_safety
+Content-Type: application/json
+skyfire-pay-id: <YOUR_SKYFIRE_PAY_TOKEN>
+
+{
+  "platform": "whatsapp",
+  "sender": "+1-555-0123",
+  "messages": [
+    { "body": "Hey! I think I have the wrong number, but nice to meet you anyway!", "direction": "inbound" },
+    { "body": "I work in crypto investment and could help you earn great returns", "direction": "inbound" }
+  ],
+  "contactKnown": false
+}
+```
+
+Returns verdict, riskScore, threats with messageIndices, and platform-specific safety tips.
 
 ## Payment
 
