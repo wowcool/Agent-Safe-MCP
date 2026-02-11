@@ -50,33 +50,31 @@ export const agentTokens = pgTable("agent_tokens", {
   index("idx_agent_tokens_status").on(table.status),
 ]);
 
-// Email Safety Checks (audit trail and analytics)
+// Tool Checks (audit trail and analytics for all 6 tools)
 export const emailChecks = pgTable("email_checks", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   tokenId: varchar("token_id").references(() => agentTokens.id).notNull(),
+  toolName: varchar("tool_name", { length: 100 }).default("check_email_safety").notNull(),
   
-  // Request data (anonymized - no full email content stored)
   senderDomain: varchar("sender_domain", { length: 255 }),
   hasLinks: boolean("has_links").default(false),
   hasAttachments: boolean("has_attachments").default(false),
   
-  // Results
-  verdict: varchar("verdict", { length: 50 }).notNull(), // 'safe', 'suspicious', 'dangerous'
+  verdict: varchar("verdict", { length: 50 }).notNull(),
   riskScore: decimal("risk_score", { precision: 3, scale: 2 }),
   confidence: decimal("confidence", { precision: 3, scale: 2 }),
-  threatsDetected: jsonb("threats_detected"), // Array of threat types
+  threatsDetected: jsonb("threats_detected"),
   
-  // Billing
   chargedAmount: decimal("charged_amount", { precision: 10, scale: 4 }),
-  paymentType: varchar("payment_type", { length: 50 }), // 'stripe', 'wallet'
+  paymentType: varchar("payment_type", { length: 50 }),
   paymentReference: varchar("payment_reference", { length: 255 }),
   
-  // Timing
   analysisDurationMs: integer("analysis_duration_ms"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [
   index("idx_email_checks_token").on(table.tokenId),
   index("idx_email_checks_created").on(table.createdAt),
+  index("idx_email_checks_tool").on(table.toolName),
 ]);
 
 // Pending Registrations (for agent-first flow)
@@ -233,6 +231,23 @@ export interface CheckEmailResponse {
   termsAccepted?: string;
 }
 
+export type ToolName =
+  | "check_email_safety"
+  | "check_url_safety"
+  | "check_response_safety"
+  | "analyze_email_thread"
+  | "check_attachment_safety"
+  | "check_sender_reputation";
+
+export const ALL_TOOL_NAMES: ToolName[] = [
+  "check_email_safety",
+  "check_url_safety",
+  "check_response_safety",
+  "analyze_email_thread",
+  "check_attachment_safety",
+  "check_sender_reputation",
+];
+
 export interface DiscoveryResponse {
   service: string;
   version: string;
@@ -250,9 +265,7 @@ export interface DiscoveryResponse {
       delegated?: string;
       autonomous?: string;
     };
-    tools: {
-      checkEmailSafety: string;
-    };
+    tools: Record<string, string>;
   };
   documentation: string;
   termsOfService?: string;
