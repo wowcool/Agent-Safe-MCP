@@ -32,6 +32,7 @@ import { analyzeThread } from "./services/analyzers/thread-analysis";
 import { analyzeAttachments } from "./services/analyzers/attachment-safety";
 import { analyzeSender } from "./services/analyzers/sender-reputation";
 import { analyzeMessage } from "./services/analyzers/message-safety";
+import { triageMessage } from "./services/analyzers/triage";
 import {
   validateSkyfireToken,
   chargeSkyfireToken,
@@ -57,8 +58,8 @@ export async function registerRoutes(
   app.get("/.well-known/mcp.json", (_req: Request, res: Response) => {
     res.json({
       name: "Agent Safe",
-      description: "7-tool message security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation across any message (emails, chats, DMs, SMS), URLs, replies, threads, attachments, and sender identities.",
-      version: "2.1.0",
+      description: "8-tool message security suite for AI agents (7 paid + 1 free triage). Protects against phishing, BEC, malware, social engineering, and manipulation across any message (emails, chats, DMs, SMS), URLs, replies, threads, attachments, and sender identities. Start with the free assess_message tool to get personalized recommendations.",
+      version: "2.2.0",
       protocol: "mcp",
       transport: {
         type: "streamable-http",
@@ -77,6 +78,7 @@ export async function registerRoutes(
         { name: "check_attachment_safety", description: "Assess attachments for malware risk based on filename, MIME type, and size BEFORE opening." },
         { name: "check_sender_reputation", description: "Verify sender identity with live DNS DMARC and RDAP domain age checks. Detects BEC and impersonation." },
         { name: "check_message_safety", description: "Analyze non-email messages (SMS, WhatsApp, Instagram DMs, Discord, Slack, etc.) for platform-specific threats like smishing, wrong-number scams, and OTP interception." },
+        { name: "assess_message", description: "FREE triage tool — send whatever context you have and get a prioritized list of which security tools to run. No charge, instant response. Call this first." },
       ],
       pricing: {
         model: "per_request",
@@ -96,8 +98,8 @@ export async function registerRoutes(
       schema_version: "v1",
       name_for_human: "Agent Safe",
       name_for_model: "agent_safe_message_security",
-      description_for_human: "7-tool message security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation across any message format.",
-      description_for_model: "Agent Safe is a Remote MCP Server with 7 message security tools for AI agents. Tools: check_email_safety (analyze emails), check_url_safety (analyze URLs), check_response_safety (check draft replies), analyze_email_thread (detect thread manipulation), check_attachment_safety (assess attachment risk), check_sender_reputation (verify sender with DNS/RDAP), check_message_safety (analyze SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal messages for platform-specific threats). Each costs $0.02. Auth: include skyfire-api-key header with your Skyfire Buyer API Key (recommended), or skyfire-pay-id header with a PAY token. MCP endpoint: https://agentsafe.locationledger.com/mcp",
+      description_for_human: "8-tool message security suite for AI agents (7 paid + 1 free triage). Protects against phishing, BEC, malware, social engineering, and manipulation across any message format.",
+      description_for_model: "Agent Safe is a Remote MCP Server with 8 message security tools for AI agents. ALWAYS START with assess_message (FREE, no charge) to get personalized tool recommendations. Then call the recommended paid tools ($0.02 each): check_email_safety (analyze emails), check_url_safety (analyze URLs), check_response_safety (check draft replies), analyze_email_thread (detect thread manipulation), check_attachment_safety (assess attachment risk), check_sender_reputation (verify sender with DNS/RDAP), check_message_safety (analyze SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal messages for platform-specific threats). Auth: include skyfire-api-key header with your Skyfire Buyer API Key (recommended), or skyfire-pay-id header with a PAY token. MCP endpoint: https://agentsafe.locationledger.com/mcp",
       auth: { type: "none" },
       api: { type: "mcp", url: "https://agentsafe.locationledger.com/mcp", transport: "streamable-http" },
       logo_url: "https://agentsafe.locationledger.com/favicon.png",
@@ -109,45 +111,55 @@ export async function registerRoutes(
   // ===== AUTH ROUTES =====
   
   app.get("/llms.txt", (_req: Request, res: Response) => {
-    res.type("text/plain").send(`# Agent Safe - 7-Tool Message Security Suite for AI Agents
+    res.type("text/plain").send(`# Agent Safe - Message Security Suite for AI Agents (7 Paid Tools + 1 Free Triage)
 > MCP Server: https://agentsafe.locationledger.com/mcp
 > Protocol: Streamable HTTP (MCP)
 > Payment: $0.02/tool call via skyfire-api-key header (Skyfire Buyer API Key) or skyfire-pay-id header (PAY token)
 > No signup required — just a Skyfire Buyer API Key
 
+## Recommended Workflow
+1. ALWAYS call assess_message first (FREE) with whatever context you have
+2. It returns a prioritized list of which paid tools to run
+3. Call the recommended tools individually
+
 ## Tools
 
-### check_email_safety
+### assess_message (FREE)
+Triage tool — send whatever context you have and get a prioritized list of which security tools to run. No AI call, no charge, instant response.
+Input: All fields optional — from, subject, body, links/urls, attachments, sender, senderDisplayName, platform, messages, draftTo, draftSubject, draftBody, media, etc.
+Returns: recommendedTools[] with tool name, reason, priority, estimatedCost; skippedTools[] with reason; totalEstimatedCost; summary
+
+### check_email_safety ($0.02)
 Analyze an email for phishing, social engineering, prompt injection, CEO fraud, and data exfiltration.
 Input: from (string, required), subject (string, required), body (string, required), links (string[]), attachments (object[]), knownSender (boolean), previousCorrespondence (boolean)
 Returns: verdict, riskScore, confidence, threats[], recommendation, explanation, safeActions[], unsafeActions[]
 
-### check_url_safety
+### check_url_safety ($0.02)
 Analyze URLs for phishing, malware, redirects, spoofing, and tracking.
 Input: urls (string[], required, max 20)
 Returns: overallVerdict, overallRiskScore, urlResults[]
 
-### check_response_safety
-Check a draft email reply BEFORE sending for data leakage, social engineering compliance, and unauthorized disclosure.
+### check_response_safety ($0.02)
+Check a draft reply BEFORE sending for data leakage, social engineering compliance, and unauthorized disclosure.
 Input: draftTo (string, required), draftSubject (string, required), draftBody (string, required), originalFrom (string), originalSubject (string), originalBody (string)
 Returns: verdict, riskScore, confidence, threats[], recommendation
 
-### analyze_email_thread
-Analyze a full email conversation thread for escalating social engineering, scope creep, and manipulation patterns.
+### analyze_email_thread ($0.02)
+Analyze a full conversation thread for escalating social engineering, scope creep, and manipulation patterns.
 Input: messages (object[], required, min 2, max 50) - each with from, subject, body, date?
 Returns: verdict, riskScore, confidence, manipulationPatterns[], threadProgression
 
-### check_attachment_safety
-Assess email attachments for malware risk based on filename, MIME type, and size BEFORE opening/downloading.
+### check_attachment_safety ($0.02)
+Assess attachments for malware risk based on filename, MIME type, and size BEFORE opening/downloading.
 Input: attachments (object[], required, max 20) - each with name, size, mimeType, from?
 Returns: overallVerdict, overallRiskScore, attachmentResults[]
 
-### check_sender_reputation
+### check_sender_reputation ($0.02)
 Verify sender identity and detect BEC, spoofing, and impersonation. Includes live DNS DMARC and RDAP domain age checks.
 Input: email (string, required), displayName (string, required), replyTo (string), emailSubject (string), emailSnippet (string)
 Returns: senderVerdict, trustScore, confidence, identityIssues[], domainIntel
 
-### check_message_safety
+### check_message_safety ($0.02)
 Analyze non-email messages (SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal) for platform-specific threats.
 Input: platform (string, required), sender (string, required), messages (object[], required, min 1, max 50) - each with body, direction (inbound/outbound), timestamp?; media (object[]), senderVerified (boolean), contactKnown (boolean)
 Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices, recommendation, explanation, safeActions[], unsafeActions[], platformTips
@@ -155,7 +167,7 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
 ## Quick Start
 1. Get a Skyfire Buyer API Key at https://skyfire.xyz
 2. Add MCP config: { "mcpServers": { "agentsafe": { "command": "npx", "args": ["-y", "mcp-remote", "https://agentsafe.locationledger.com/mcp", "--header", "skyfire-api-key: YOUR_BUYER_API_KEY"] } } }
-3. Call any tool via MCP tools/call
+3. Call assess_message first (free) to see which tools to run, then call the recommended tools
 
 ## Links
 - Documentation: https://agentsafe.locationledger.com/docs
@@ -432,9 +444,10 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
       
       const discovery: DiscoveryResponse = {
         service: "Agent Safe",
-        version: "2.1.0",
-        description: "7-tool message security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation across any message (emails, chats, DMs, SMS), URLs, replies, threads, attachments, and sender identities.",
+        version: "2.2.0",
+        description: "8-tool message security suite for AI agents (7 paid + 1 free triage). Protects against phishing, BEC, malware, social engineering, and manipulation across any message (emails, chats, DMs, SMS), URLs, replies, threads, attachments, and sender identities. Start with the free assess_message tool.",
         capabilities: [
+          "message_triage",
           "email_safety_check",
           "url_safety_check",
           "response_safety_check",
@@ -461,6 +474,7 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
             check_attachment_safety: "/mcp/tools/check_attachment_safety",
             check_sender_reputation: "/mcp/tools/check_sender_reputation",
             check_message_safety: "/mcp/tools/check_message_safety",
+            assess_message: "/mcp/tools/assess_message",
           },
         },
         documentation: "/docs",
@@ -816,6 +830,18 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
     } catch (error: any) {
       console.error("Message safety check error:", error);
       return res.status(500).json({ error: "Analysis failed" });
+    }
+  });
+
+  // ===== FREE TRIAGE TOOL =====
+
+  app.post("/mcp/tools/assess_message", async (req: Request, res: Response) => {
+    try {
+      const result = triageMessage(req.body);
+      return res.json({ ...result, charged: 0, note: "This triage tool is free. Call the recommended tools individually for full analysis." });
+    } catch (error: any) {
+      console.error("Triage error:", error);
+      return res.status(500).json({ error: "Triage failed" });
     }
   });
 

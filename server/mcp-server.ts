@@ -9,6 +9,7 @@ import { analyzeThread } from "./services/analyzers/thread-analysis";
 import { analyzeAttachments } from "./services/analyzers/attachment-safety";
 import { analyzeSender } from "./services/analyzers/sender-reputation";
 import { analyzeMessage } from "./services/analyzers/message-safety";
+import { triageMessage } from "./services/analyzers/triage";
 import {
   validateSkyfireToken,
   chargeSkyfireToken,
@@ -176,6 +177,42 @@ const TOOL_DEFS = {
       })).optional().describe("Media attachments"),
       senderVerified: z.boolean().optional().describe("Whether the platform has verified the sender (blue checkmark, business account)"),
       contactKnown: z.boolean().optional().describe("Whether the sender is in the agent's/user's contacts"),
+    },
+  },
+  assess_message: {
+    description: "FREE triage tool — send whatever context you have (message content, sender info, URLs, attachments, draft replies, thread messages) and get back a prioritized list of which security tools to run. No AI call, no charge, instant response. Always call this first to get the best security coverage.",
+    schema: {
+      from: z.string().optional().describe("Sender email address or identifier"),
+      subject: z.string().optional().describe("Message subject line"),
+      body: z.string().optional().describe("Message body content"),
+      links: z.array(z.string()).optional().describe("URLs found in the message"),
+      urls: z.array(z.string()).optional().describe("URLs to check (alternative to links)"),
+      attachments: z.array(z.object({ name: z.string(), size: z.number(), mimeType: z.string().optional(), type: z.string().optional() })).optional().describe("Attachment metadata"),
+      sender: z.string().optional().describe("Sender identifier for non-email platforms"),
+      senderDisplayName: z.string().optional().describe("Sender display name for reputation check"),
+      replyTo: z.string().optional().describe("Reply-To address if different from sender"),
+      platform: z.string().optional().describe("Message platform (sms, whatsapp, slack, discord, telegram, etc.) — omit for email"),
+      messages: z.array(z.object({
+        from: z.string().optional().describe("Sender of this message"),
+        body: z.string().optional().describe("Message body"),
+        subject: z.string().optional().describe("Subject line"),
+        direction: z.string().optional().describe("inbound or outbound"),
+        date: z.string().optional().describe("Date of the message"),
+        timestamp: z.string().optional().describe("Message timestamp"),
+      })).optional().describe("Array of thread messages (2+ for thread analysis)"),
+      draftTo: z.string().optional().describe("Draft reply recipient"),
+      draftSubject: z.string().optional().describe("Draft reply subject"),
+      draftBody: z.string().optional().describe("Draft reply body — include to check for data leakage"),
+      media: z.array(z.object({
+        type: z.string().describe("Media type"),
+        filename: z.string().optional().describe("Filename"),
+        url: z.string().optional().describe("URL"),
+        caption: z.string().optional().describe("Caption"),
+      })).optional().describe("Media attachments for non-email platforms"),
+      senderVerified: z.boolean().optional().describe("Whether platform has verified the sender"),
+      contactKnown: z.boolean().optional().describe("Whether sender is a known contact"),
+      knownSender: z.boolean().optional().describe("Whether the email sender is known/trusted"),
+      previousCorrespondence: z.boolean().optional().describe("Whether there has been prior correspondence"),
     },
   },
 };
@@ -348,6 +385,11 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
     return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
   });
 
+  server.tool("assess_message", TOOL_DEFS.assess_message.description, TOOL_DEFS.assess_message.schema, ANNOTATIONS.readOnly, async (args) => {
+    const result = triageMessage(args);
+    return mcpSuccess({ ...result, charged: 0, note: "This triage tool is free. Call the recommended tools individually for full analysis." });
+  });
+
   return server;
 }
 
@@ -379,7 +421,7 @@ export function mountMcpServer(app: Express): void {
     res.status(405).json({ jsonrpc: "2.0", error: { code: -32000, message: "Stateless server - session termination not supported" }, id: null });
   });
 
-  console.log("MCP Remote Server mounted at /mcp (Streamable HTTP) - 7 tools registered");
+  console.log("MCP Remote Server mounted at /mcp (Streamable HTTP) - 8 tools registered (7 paid + 1 free triage)");
 }
 
 export { TOOL_DEFS };

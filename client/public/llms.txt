@@ -1,10 +1,15 @@
-# Agent Safe - 7-Tool Message Security Suite for AI Agents
+# Agent Safe - 8-Tool Message Security Suite for AI Agents (7 Paid + 1 Free Triage)
 > MCP Server: https://agentsafe.locationledger.com/mcp
 > Protocol: Streamable HTTP (MCP)
-> Payment: $0.02/tool call via skyfire-pay-id header (Skyfire PAY token)
+> Payment: $0.02/paid tool call via skyfire-api-key header (Skyfire Buyer API Key). assess_message is FREE.
 > No signup required
 
 ## Tools
+
+### assess_message (FREE — No Authentication Required)
+Free triage tool. Send whatever context you have and get a prioritized list of which security tools to run. No AI call, instant response, no cost. Always call this first.
+Input: All optional — from (string), subject (string), body (string), links (string[]), urls (string[]), attachments (object[]), sender (string), senderDisplayName (string), platform (string), messages (object[]), draftTo (string), draftBody (string), media (object[])
+Returns: recommendedTools[], skippedTools[], totalEstimatedCost, summary
 
 ### check_email_safety
 Analyze an email for phishing, social engineering, prompt injection, CEO fraud, and data exfiltration.
@@ -42,9 +47,10 @@ Input: platform (string, required), sender (string, required), messages (object[
 Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices, recommendation, explanation, safeActions[], unsafeActions[], platformTips
 
 ## Quick Start
-1. Get a Skyfire PAY token at https://skyfire.xyz
-2. Add MCP config: { "mcpServers": { "agentsafe": { "command": "npx", "args": ["-y", "mcp-remote", "https://agentsafe.locationledger.com/mcp", "--header", "skyfire-pay-id: YOUR_TOKEN"] } } }
-3. Call any tool via MCP tools/call
+1. Call assess_message (free, no auth needed) to triage your message
+2. Get a Skyfire Buyer API Key at https://skyfire.xyz
+3. Add MCP config: { "mcpServers": { "agentsafe": { "command": "npx", "args": ["-y", "mcp-remote", "https://agentsafe.locationledger.com/mcp", "--header", "skyfire-api-key: YOUR_SKYFIRE_BUYER_API_KEY"] } } }
+4. Call the recommended tools via MCP tools/call
 
 ## Links
 - Documentation: https://agentsafe.locationledger.com/docs

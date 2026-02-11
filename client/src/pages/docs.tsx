@@ -14,8 +14,8 @@ const BASE_URL = "https://agentsafe.locationledger.com";
 
 export default function Docs() {
   useSEO({
-    title: "Documentation - Agent Safe 7-Tool Message Security Suite | API Reference & Integration Guide",
-    description: "Complete documentation for Agent Safe's 7-tool message security suite. Protects AI agents across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. MCP configuration, REST API reference for all 7 tools including check_message_safety.",
+    title: "Documentation - Agent Safe 8-Tool Message Security Suite | API Reference & Free Triage Tool",
+    description: "Complete documentation for Agent Safe's 8-tool message security suite with free assess_message triage tool. Protects AI agents across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. MCP configuration, REST API reference for all 8 tools.",
     path: "/docs",
   });
   const { toast } = useToast();
@@ -126,7 +126,7 @@ async def check_email():
         async with ClientSession(read, write) as session:
             await session.initialize()
             
-            # All 7 tools are called the same way — just change the tool name and arguments
+            # All tools are called the same way — just change the tool name and arguments
             result = await session.call_tool(
                 "check_email_safety",
                 arguments={
@@ -140,7 +140,7 @@ async def check_email():
 
   const pythonRestExample = `import requests
 
-# All 7 tools use the same pattern — swap the endpoint and payload
+# All tools use the same pattern — swap the endpoint and payload
 def check_email_safety(email_data, buyer_api_key):
     response = requests.post(
         "${BASE_URL}/mcp/tools/check_email_safety",
@@ -171,7 +171,7 @@ else:
     print("Email appears safe")`;
 
   const jsExample = `// Using MCP client (recommended)
-// All 7 tools are called the same way — just change the tool name and arguments
+// All tools are called the same way — just change the tool name and arguments
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
@@ -193,7 +193,7 @@ const result = await client.callTool("check_email_safety", {
 console.log(result);`;
 
   const jsRestExample = `// Using REST API (alternative)
-// All 7 tools follow the same pattern — swap the endpoint and payload
+// All tools follow the same pattern — swap the endpoint and payload
 async function checkEmailSafety(email, buyerApiKey) {
   const response = await fetch(
     "${BASE_URL}/mcp/tools/check_email_safety",
@@ -280,7 +280,34 @@ switch (result.recommendation) {
     );
   }
 
+  const restAssessExample = `curl -X POST ${BASE_URL}/mcp/tools/assess_message \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "from": "ceo@company-update.com",
+    "subject": "Urgent Wire Transfer",
+    "body": "Please process this immediately...",
+    "links": ["https://suspicious-site.com/login"],
+    "attachments": [{"name": "invoice.pdf", "size": 50000, "mimeType": "application/pdf"}]
+  }'`;
+
   const toolDefinitions = [
+    {
+      name: "assess_message",
+      description: "Free triage tool that analyzes any message and recommends which specific security tools to call. Accepts all optional fields (from, subject, body, links, attachments, platform, sender, messages, media) and costs nothing. Use this first to determine the best tools for your message.",
+      badge: "FREE",
+      params: [
+        { name: "from", type: "string", required: false, description: "Sender email address or identifier" },
+        { name: "subject", type: "string", required: false, description: "Message subject line" },
+        { name: "body", type: "string", required: false, description: "Message body content" },
+        { name: "links", type: "string[]", required: false, description: "URLs found in the message" },
+        { name: "attachments", type: "object[]", required: false, description: "Attachment metadata (name, size, mimeType)" },
+        { name: "platform", type: "string", required: false, description: "Messaging platform (email, sms, whatsapp, slack, etc.)" },
+        { name: "sender", type: "string", required: false, description: "Sender identifier (phone, username, handle)" },
+        { name: "messages", type: "object[]", required: false, description: "Array of messages for thread/conversation analysis" },
+        { name: "media", type: "object[]", required: false, description: "Media attachments (type, filename, url, caption)" },
+      ],
+      responseNote: "Returns { recommendedTools[], reasoning, riskIndicators[] }. No charge — completely free.",
+    },
     {
       name: "check_email_safety",
       description: "Analyze an email for phishing, social engineering, malware, and other threats. Returns a verdict with risk score, detected threats, and recommended actions.",
@@ -360,6 +387,7 @@ switch (result.recommendation) {
   ];
 
   const restEndpoints = [
+    { path: "/mcp/tools/assess_message", description: "Free triage — recommends which tools to call", free: true },
     { path: "/mcp/tools/check_email_safety", description: "Analyze a single email for threats" },
     { path: "/mcp/tools/check_url_safety", description: "Check one or more URLs for safety" },
     { path: "/mcp/tools/check_response_safety", description: "Verify a draft reply before sending" },
@@ -378,7 +406,7 @@ switch (result.recommendation) {
           MCP Server Documentation
         </h1>
         <p className="text-muted-foreground mb-10">
-          Connect your AI agent to Agent Safe's 7-tool message security suite. Protect against threats across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. No signup required — just a Skyfire Buyer API Key.
+          Connect your AI agent to Agent Safe's 8-tool message security suite — including a free triage tool. Protect against threats across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. No signup required — just a Skyfire Buyer API Key.
         </p>
 
         <div className="space-y-8">
@@ -391,7 +419,7 @@ switch (result.recommendation) {
               <ol className="list-decimal list-inside space-y-3 text-foreground/80 text-sm">
                 <li>Get a <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-primary underline underline-offset-2">Skyfire Buyer API Key</a> from the Skyfire Network</li>
                 <li>Add the MCP server config to your agent's MCP settings file</li>
-                <li>Your agent can now use all <strong>7 message security tools</strong> — including <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_email_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_url_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_response_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>analyze_email_thread</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_attachment_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_sender_reputation</code>, and <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_message_safety</code></li>
+                <li>Your agent can now use all <strong>8 message security tools</strong> — start with the free <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>assess_message</code> triage tool, plus <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_email_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_url_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_response_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>analyze_email_thread</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_attachment_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_sender_reputation</code>, and <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_message_safety</code></li>
               </ol>
 
               <div className="mt-4">
@@ -459,10 +487,11 @@ switch (result.recommendation) {
                 <h4 className="font-semibold text-sm mb-2">Available MCP Methods</h4>
                 <ul className="text-sm text-muted-foreground space-y-1.5">
                   <li><code className="text-xs px-1.5 py-0.5 rounded bg-muted">initialize</code> — Handshake and capability negotiation</li>
-                  <li><code className="text-xs px-1.5 py-0.5 rounded bg-muted">tools/list</code> — Discover all 7 available tools</li>
+                  <li><code className="text-xs px-1.5 py-0.5 rounded bg-muted">tools/list</code> — Discover all 8 available tools</li>
                   <li className="space-y-1">
-                    <span><code className="text-xs px-1.5 py-0.5 rounded bg-muted">tools/call</code> — Execute any of the 7 security tools (requires payment):</span>
+                    <span><code className="text-xs px-1.5 py-0.5 rounded bg-muted">tools/call</code> — Execute any of the 8 security tools:</span>
                     <ul className="ml-6 mt-1 space-y-0.5 text-muted-foreground text-xs">
+                      <li><code style={codeStyle} className="px-1 py-0.5 rounded">assess_message</code> — <Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30 text-[10px] px-1 py-0">FREE</Badge> Triage tool that recommends which tools to call</li>
                       <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_email_safety</code> — Analyze emails for threats</li>
                       <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_url_safety</code> — Check URL safety</li>
                       <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_response_safety</code> — Verify draft replies</li>
@@ -480,7 +509,7 @@ switch (result.recommendation) {
           <Card>
             <CardHeader>
               <CardTitle>REST API</CardTitle>
-              <CardDescription>Alternative REST endpoints for all 7 tools</CardDescription>
+              <CardDescription>Alternative REST endpoints for all 8 tools</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
@@ -499,12 +528,21 @@ switch (result.recommendation) {
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <Badge variant="secondary" data-testid={`badge-rest-post-${idx}`}>POST</Badge>
                     <code className="text-sm text-foreground/80">{endpoint.path}</code>
+                    {endpoint.free && <Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30 text-[10px] px-1 py-0">FREE</Badge>}
                   </div>
                   <p className="text-sm text-muted-foreground mb-1">
-                    {endpoint.description}. Requires <code className="text-xs" style={codeStyle}>skyfire-api-key</code> or <code className="text-xs" style={codeStyle}>skyfire-pay-id</code> header.
+                    {endpoint.free
+                      ? <>{endpoint.description}. No authentication required — completely free.</>
+                      : <>{endpoint.description}. Requires <code className="text-xs" style={codeStyle}>skyfire-api-key</code> or <code className="text-xs" style={codeStyle}>skyfire-pay-id</code> header.</>
+                    }
                   </p>
                 </div>
               ))}
+
+              <div className="mt-2">
+                <p className="text-xs text-muted-foreground/70 mb-2 font-semibold uppercase tracking-wider">Example: assess_message (free — no API key needed)</p>
+                <CodeBlock code={restAssessExample} id="rest-assess" />
+              </div>
 
               <div className="mt-2">
                 <p className="text-xs text-muted-foreground/70 mb-2 font-semibold uppercase tracking-wider">Example: check_email_safety</p>
@@ -516,13 +554,14 @@ switch (result.recommendation) {
           <Card>
             <CardHeader>
               <CardTitle>Tool Reference</CardTitle>
-              <CardDescription>Input parameters for all 7 security tools</CardDescription>
+              <CardDescription>Input parameters for all 8 security tools</CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
               {toolDefinitions.map((tool) => (
                 <div key={tool.name} data-testid={`section-tool-${tool.name}`}>
-                  <h4 className="font-semibold text-sm mb-1">
+                  <h4 className="font-semibold text-sm mb-1 flex flex-wrap items-center gap-2">
                     <code className="px-1.5 py-0.5 rounded text-sm" style={codeStyle}>{tool.name}</code>
+                    {tool.badge && <Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30 text-[10px] px-1.5 py-0">{tool.badge}</Badge>}
                   </h4>
                   <p className="text-sm text-muted-foreground mb-3">{tool.description}</p>
                   <ParamTable rows={tool.params} />
@@ -548,6 +587,11 @@ switch (result.recommendation) {
               <div>
                 <h4 className="font-semibold text-sm mb-3">Response Differences by Tool</h4>
                 <div className="space-y-2 text-sm text-muted-foreground">
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
+                    <code className="text-xs" style={codeStyle}>assess_message</code>
+                    <Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30 text-[10px] px-1 py-0 ml-1">FREE</Badge>
+                    <span className="ml-2">returns <code className="text-xs text-muted-foreground">{"{ recommendedTools[], reasoning, riskIndicators[] }"}</code></span>
+                  </div>
                   <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
                     <code className="text-xs" style={codeStyle}>check_url_safety</code>
                     <span className="ml-2">returns <code className="text-xs text-muted-foreground">{"{ overallVerdict, overallRiskScore, urlResults: [...] }"}</code></span>
@@ -604,7 +648,7 @@ switch (result.recommendation) {
           <Card>
             <CardHeader>
               <CardTitle>Code Examples</CardTitle>
-              <CardDescription>Examples use check_email_safety — all 7 tools are called the same way</CardDescription>
+              <CardDescription>Examples use check_email_safety — all tools are called the same way</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="python-mcp">
@@ -635,7 +679,7 @@ switch (result.recommendation) {
               <CardTitle>Pricing</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-foreground/80 space-y-2">
-              <p><strong>$0.02 per tool call</strong> — charged at time of request via your Skyfire Buyer API Key. Applies to all 7 tools.</p>
+              <p><strong>$0.02 per tool call</strong> — charged at time of request via your Skyfire Buyer API Key. Applies to all paid tools. The <code className="px-1 py-0.5 rounded text-xs" style={codeStyle}>assess_message</code> triage tool is <strong>completely free</strong>.</p>
               <p className="text-muted-foreground">Failed requests (invalid token, insufficient balance) are not charged. Only successful analysis incurs a charge.</p>
             </CardContent>
           </Card>

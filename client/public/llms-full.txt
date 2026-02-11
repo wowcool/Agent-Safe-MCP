@@ -39,7 +39,72 @@ To connect from any MCP-compatible client (Cursor, Windsurf, etc.):
 
 Get your Skyfire Buyer API Key at https://skyfire.xyz — your agent uses this key, and Agent Safe handles PAY token generation automatically.
 
-## The 7 Tools
+## The 8 Tools (7 Paid + 1 Free Triage)
+
+### Tool 0: assess_message (FREE — No Authentication Required)
+
+Free triage tool that analyzes whatever context you have about a message and recommends which security tools to run. Uses pure logic (no AI call), responds instantly, and costs nothing. Always call this first.
+
+#### Input Parameters
+
+All parameters are optional — include whatever you have:
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| from | string | No | Sender email address |
+| subject | string | No | Message subject line |
+| body | string | No | Message body content |
+| links | string[] | No | URLs found in the message |
+| urls | string[] | No | URLs to check (alternative to links) |
+| attachments | object[] | No | Attachment metadata (name, size, mimeType) |
+| sender | string | No | Sender identifier for non-email platforms |
+| senderDisplayName | string | No | Sender display name |
+| platform | string | No | Message platform (sms, whatsapp, slack, discord, telegram, etc.) |
+| messages | object[] | No | Thread messages for thread analysis |
+| draftTo | string | No | Draft reply recipient |
+| draftBody | string | No | Draft reply body |
+| media | object[] | No | Media attachments |
+
+#### Output Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| recommendedTools | array | Prioritized list of tools to run, each with name, reason, priority, and estimatedCost |
+| skippedTools | array | Tools not recommended, each with name and reason |
+| totalEstimatedCost | number | Total cost if all recommended tools are called |
+| summary | string | Brief explanation of the triage decision |
+
+#### Example MCP Tool Call
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "assess_message",
+    "arguments": {
+      "from": "ceo@company-update.com",
+      "subject": "Urgent Wire Transfer",
+      "body": "Please process this wire transfer immediately...",
+      "links": ["https://suspicious-site.com/login"],
+      "attachments": [{"name": "invoice.pdf", "size": 50000, "mimeType": "application/pdf"}]
+    }
+  }
+}
+```
+
+#### Example REST API Call (No Authentication Required)
+
+```bash
+curl -X POST https://agentsafe.locationledger.com/mcp/tools/assess_message \
+  -H "Content-Type: application/json" \
+  -d '{
+    "from": "ceo@company-update.com",
+    "subject": "Urgent Wire Transfer",
+    "body": "Please process this wire transfer immediately...",
+    "links": ["https://suspicious-site.com/login"],
+    "attachments": [{"name": "invoice.pdf", "size": 50000, "mimeType": "application/pdf"}]
+  }'
+```
 
 ### Tool 1: check_email_safety
 
@@ -219,7 +284,7 @@ All REST endpoints accept JSON and require a `skyfire-api-key` header (Skyfire B
 
 Agent Safe uses the Skyfire Network for pay-per-use billing:
 
-- **Cost:** $0.02 USD per tool call
+- **Cost:** $0.02 USD per paid tool call (assess_message is FREE)
 - **Payment method:** Skyfire Buyer API Key sent via `skyfire-api-key` HTTP header (recommended). Agent Safe auto-generates PAY tokens server-side.
 - **No signup required:** Just get a Skyfire Buyer API Key and start using the service
 - **Get started:** Visit https://skyfire.xyz to get your Buyer API Key

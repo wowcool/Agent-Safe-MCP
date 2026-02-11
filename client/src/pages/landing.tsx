@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, Copy, ExternalLink, Mail, Link as LinkIcon, Reply, MessageSquare, Paperclip, UserCheck, ArrowRight, Smartphone } from "lucide-react";
+import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, Copy, ExternalLink, Mail, Link as LinkIcon, Reply, MessageSquare, Paperclip, UserCheck, ArrowRight, Smartphone, Compass } from "lucide-react";
 import { useState } from "react";
 import { useSEO } from "@/lib/seo";
 import { GlobalFooter } from "@/components/global-footer";
@@ -54,8 +54,8 @@ const MCP_CONFIG = `{
 
 export default function Landing() {
   useSEO({
-    title: "Agent Safe - Secure Every Message Your Agent Touches | 7-Tool MCP Security Suite",
-    description: "Protect your AI agent on every platform — email, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, and more. Agent Safe is a 7-tool MCP security suite that detects phishing, BEC, smishing, and manipulation across any message. $0.02 per check via Skyfire.",
+    title: "Agent Safe - Secure Every Message Your Agent Touches | 8-Tool MCP Security Suite",
+    description: "Protect your AI agent on every platform — email, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, and more. Agent Safe is an 8-tool MCP security suite with a free triage tool and 7 paid security tools at $0.02 each. Detects phishing, BEC, smishing, and manipulation across any message via Skyfire.",
     path: "/",
   });
   return (
@@ -77,7 +77,7 @@ export default function Landing() {
             Email. SMS. WhatsApp. Slack. Discord. DMs. Any platform, any message.
           </p>
           <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto leading-relaxed">
-            Your AI agent processes messages across every platform — but should it trust them? Agent Safe is a <a href="#tools" className="text-primary font-bold hover:underline"><strong>7-tool MCP security suite</strong></a> that protects against phishing, BEC, malware, and manipulation on <strong>any messaging platform</strong> your agent operates on.
+            Your AI agent processes messages across every platform — but should it trust them? Agent Safe is an <a href="#tools" className="text-primary font-bold hover:underline"><strong>8-tool MCP security suite</strong></a> that protects against phishing, BEC, malware, and manipulation on <strong>any messaging platform</strong> your agent operates on. Start with the <strong>free triage tool</strong> to instantly know which checks to run.
           </p>
           <div className="flex flex-wrap justify-center gap-2 mb-10">
             <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-email"><Mail className="h-3 w-3 mr-1" /> Email</Badge>
@@ -109,7 +109,7 @@ export default function Landing() {
             <a href="#tools">
               <Badge variant="outline" className="text-sm py-1.5 px-4 cursor-pointer" data-testid="badge-tools">
                 <Shield className="h-3.5 w-3.5 mr-1.5" />
-                <strong>7 Tools</strong>
+                <strong>8 Tools</strong>
               </Badge>
             </a>
             <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-skyfire">
@@ -123,6 +123,10 @@ export default function Landing() {
             <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-price">
               <Zap className="h-3.5 w-3.5 mr-1.5" />
               $0.02 / tool call
+            </Badge>
+            <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-free-triage">
+              <Compass className="h-3.5 w-3.5 mr-1.5" />
+              Free Triage Tool
             </Badge>
           </div>
         </div>
@@ -141,7 +145,7 @@ export default function Landing() {
 
           <p className="text-muted-foreground leading-relaxed mb-10 max-w-3xl mx-auto text-center">
             Smishing via SMS. Wrong-number scams on WhatsApp. Fake brand DMs on Instagram. Impersonation in Slack. Phishing emails. Attackers craft platform-specific attacks designed to exploit an agent's tendency to follow instructions, tricking it into leaking data, making unauthorized payments, or executing harmful actions.
-            Agent Safe gives your agent <a href="#tools" className="text-primary font-bold hover:underline">7 security tools</a> to verify <strong>any message on any platform</strong> before acting — from emails to texts to DMs to chat messages.
+            Agent Safe gives your agent <a href="#tools" className="text-primary font-bold hover:underline">8 security tools</a> — including a <strong>free triage tool</strong> — to verify <strong>any message on any platform</strong> before acting, from emails to texts to DMs to chat messages.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
@@ -183,7 +187,7 @@ export default function Landing() {
                   MCP (Model Context Protocol) is a standard connection method that lets your AI agent plug into external services. Think of it like a USB port for AI — a structured, agreed-upon way for AI systems to talk to tools.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  No custom code. No messy integration. Your agent discovers Agent Safe, connects using the MCP protocol, and can immediately start calling any of the <a href="#tools" className="text-primary font-bold hover:underline">7 security tools</a>. It works with Cursor, Windsurf, and any other MCP-compatible client.
+                  No custom code. No messy integration. Your agent discovers Agent Safe, connects using the MCP protocol, and can immediately start calling any of the <a href="#tools" className="text-primary font-bold hover:underline">8 security tools</a>. Start with the free <strong>assess_message</strong> triage tool, then run the specific checks it recommends. It works with Cursor, Windsurf, and any other MCP-compatible client.
                 </p>
                 <div className="grid sm:grid-cols-3 gap-4 pt-4">
                   <div className="flex items-start gap-3">
@@ -264,7 +268,7 @@ export default function Landing() {
               </div>
               <h3 className="font-semibold mb-1">Secure Everything</h3>
               <p className="text-sm text-muted-foreground">
-                Your agent can now call any of <strong>7 message security tools</strong> to protect against threats
+                Call <strong>assess_message</strong> (free) to triage, then run the recommended <strong>7 paid security tools</strong> at $0.02 each
               </p>
             </div>
           </div>
@@ -275,12 +279,36 @@ export default function Landing() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-features-heading">
-              <strong>7 Tools.</strong> Complete Message Security.
+              <strong>8 Tools.</strong> Complete Message Security.
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              A purpose-built MCP tool suite that agents discover, connect to, and pay for autonomously
+              A purpose-built MCP tool suite that agents discover, connect to, and pay for autonomously. Start with the free triage tool.
             </p>
           </div>
+
+          <a href="/how-it-works#tool-assess_message" className="block mb-8" data-testid="link-tool-assess-message-featured">
+            <Card className="hover-elevate cursor-pointer border-chart-4/30 bg-chart-4/[0.03]" data-testid="card-feature-assess-message-featured">
+              <CardContent className="pt-6">
+                <div className="flex flex-col md:flex-row items-start gap-6">
+                  <div className="w-20 h-20 rounded-md shrink-0 bg-chart-4/10 flex items-center justify-center">
+                    <Compass className="h-10 w-10 text-chart-4" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-3 mb-2">
+                      <span className="text-lg font-bold">assess_message</span>
+                      <Badge className="text-xs bg-chart-4 text-white no-default-hover-elevate">FREE</Badge>
+                    </div>
+                    <p className="text-muted-foreground mb-3">
+                      Start here — send whatever context you have and instantly get a prioritized list of which tools to run. No charge.
+                    </p>
+                    <span className="text-sm text-primary flex items-center gap-1 font-medium">
+                      See how it works <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </a>
 
           <a href="/how-it-works#tool-check_message_safety" className="block mb-8" data-testid="link-tool-check-message-featured">
             <Card className="hover-elevate cursor-pointer border-primary/20 bg-primary/[0.03]" data-testid="card-feature-check-message-featured">
@@ -458,10 +486,11 @@ export default function Landing() {
                 What It Tests For
               </h2>
               <p className="text-muted-foreground mb-6">
-                All 7 tools run every security check automatically on every call. No flags, no configuration. Here is what they catch across your messages.
+                All 8 tools cover every angle of message security. Start with assess_message (free) to triage, then run the recommended checks at $0.02 each. No flags, no configuration.
               </p>
               <div className="space-y-3">
                 {[
+                  { tool: "assess_message", desc: "Free triage — sends back a prioritized list of which tools to run based on your context", count: "FREE", isFree: true },
                   { tool: "check_email_safety", desc: "Phishing, prompt injection, CEO fraud, social engineering, financial fraud, data exfiltration", count: "8 categories" },
                   { tool: "check_message_safety", desc: "Platform-aware threats for SMS, WhatsApp, Slack, Discord, Telegram, and more", count: "8 categories", isNew: true },
                   { tool: "check_url_safety", desc: "Phishing URLs, typosquatting, malware links, redirect abuse, tracking", count: "7 categories" },
@@ -475,7 +504,7 @@ export default function Landing() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-semibold">{item.tool}</span>
-                        <Badge variant="secondary" className="text-[10px]">{item.count}</Badge>
+                        <Badge variant="secondary" className={`text-[10px] ${item.isFree ? "bg-chart-4 text-white no-default-hover-elevate" : ""}`}>{item.count}</Badge>
                         {item.isNew && <Badge className="text-[10px]">NEW</Badge>}
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
@@ -515,7 +544,7 @@ export default function Landing() {
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                    <span className="text-sm"><strong>7 message security tools</strong> included</span>
+                    <span className="text-sm"><strong>7 paid security tools</strong> at $0.02 each + <strong>1 free triage tool</strong></span>
                   </li>
                   <li className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
@@ -561,6 +590,10 @@ export default function Landing() {
                 </div>
                 <div className="space-y-2 pt-2">
                   <p className="text-xs font-semibold text-muted-foreground">Typical costs:</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">Triage (assess_message)</span>
+                    <Badge className="text-xs bg-chart-4 text-white no-default-hover-elevate" data-testid="badge-cost-triage">FREE</Badge>
+                  </div>
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs text-muted-foreground">Single message check</span>
                     <Badge variant="secondary" className="text-xs" data-testid="badge-cost-email">1 unit - $0.02</Badge>

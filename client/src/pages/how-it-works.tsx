@@ -14,7 +14,7 @@ import {
   Bot, Shield, Zap, Lock, Terminal, AlertTriangle,
   Search, ArrowRight, Mail, FileWarning,
   Eye, Brain, ShieldAlert, Skull, Fingerprint, MessageSquareWarning,
-  Link as LinkIcon, MessageSquare, Wrench, Reply, Paperclip, UserCheck, Smartphone
+  Link as LinkIcon, MessageSquare, Wrench, Reply, Paperclip, UserCheck, Smartphone, Compass
 } from "lucide-react";
 import { GlobalFooter } from "@/components/global-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -86,6 +86,33 @@ function StepCard({ number, title, description, icon: Icon }: {
 }
 
 const toolsData = [
+  {
+    id: "assess_message",
+    name: "assess_message",
+    icon: Compass,
+    image: null as string | null,
+    label: "Message Triage",
+    purpose: "FREE triage tool — send whatever context you have about a message (sender, body, URLs, attachments, platform, thread, draft reply) and instantly get a prioritized list of which security tools to run. No AI call, no charge, instant response. Always call this first to get the best security coverage for any message.",
+    purposeExtra: "All fields are optional — just include whatever you have. The tool uses pure logic (no AI) to examine what data is present and recommends the right tools. For example, if URLs are present it recommends check_url_safety; if attachments exist it recommends check_attachment_safety; if there's a sender address it recommends check_sender_reputation. Returns estimated cost so the agent knows upfront.",
+    useCase: "Agent receives any kind of message or content. Before deciding which security tools to call, it passes all available context to assess_message. The tool instantly returns a prioritized list of recommended tools with reasons, skipped tools with explanations, and total estimated cost. The agent then calls only the relevant tools.",
+    categories: [] as { name: string; description: string }[],
+    parameters: [
+      { name: "from", type: "string", required: false, description: "Sender email or identifier" },
+      { name: "subject", type: "string", required: false, description: "Message subject line" },
+      { name: "body", type: "string", required: false, description: "Message body content" },
+      { name: "links", type: "string[]", required: false, description: "URLs found in the message" },
+      { name: "urls", type: "string[]", required: false, description: "URLs to check (alternative to links)" },
+      { name: "attachments", type: "object[]", required: false, description: "Attachment metadata" },
+      { name: "sender", type: "string", required: false, description: "Sender identifier for non-email platforms" },
+      { name: "senderDisplayName", type: "string", required: false, description: "Sender display name" },
+      { name: "platform", type: "string", required: false, description: "Message platform (sms, whatsapp, slack, discord, etc.)" },
+      { name: "messages", type: "object[]", required: false, description: "Thread messages for thread analysis" },
+      { name: "draftTo", type: "string", required: false, description: "Draft reply recipient" },
+      { name: "draftBody", type: "string", required: false, description: "Draft reply body" },
+    ],
+    responseFormat: "recommendedTools[] with tool name, reason, priority, estimatedCost; skippedTools[] with reason; totalEstimatedCost; summary",
+    testResults: "Pure logic — no AI call, no latency, no cost. Instant response.",
+  },
   {
     id: "check_email_safety",
     name: "check_email_safety",
@@ -289,17 +316,21 @@ function ToolDetailCard({ tool }: { tool: typeof toolsData[0] }) {
               <Icon className="h-5 w-5 text-primary" />
             </div>
             <CardTitle className="text-xl font-bold">{tool.name}</CardTitle>
-            <Badge variant="secondary" className="shrink-0">$0.02 / call</Badge>
+            <Badge variant={tool.id === "assess_message" ? "default" : "secondary"} className="shrink-0">
+              {tool.id === "assess_message" ? "FREE" : "$0.02 / call"}
+            </Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col sm:flex-row gap-6">
-            <img
-              src={tool.image}
-              alt={`${tool.name} illustration`}
-              className="w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-md shrink-0 mx-auto sm:mx-0"
-              data-testid={`img-tool-${tool.id}`}
-            />
+            {tool.image && (
+              <img
+                src={tool.image}
+                alt={`${tool.name} illustration`}
+                className="w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-md shrink-0 mx-auto sm:mx-0"
+                data-testid={`img-tool-${tool.id}`}
+              />
+            )}
             <div>
               <h4 className="text-sm font-semibold mb-2">What It Does</h4>
               <p className="text-sm text-muted-foreground leading-relaxed mb-2">{tool.purpose}</p>
@@ -312,17 +343,19 @@ function ToolDetailCard({ tool }: { tool: typeof toolsData[0] }) {
             <p className="text-sm text-muted-foreground leading-relaxed">{tool.useCase}</p>
           </div>
 
-          <div>
-            <h4 className="text-sm font-semibold mb-3">What It Checks For</h4>
-            <div className="grid sm:grid-cols-2 gap-2">
-              {tool.categories.map((cat) => (
-                <div key={cat.name} className="flex items-start gap-2 p-2 rounded-md bg-muted/30">
-                  <Badge variant="secondary" className="shrink-0 text-xs mt-0.5">{cat.name}</Badge>
-                  <span className="text-xs text-muted-foreground">{cat.description}</span>
-                </div>
-              ))}
+          {tool.categories.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold mb-3">What It Checks For</h4>
+              <div className="grid sm:grid-cols-2 gap-2">
+                {tool.categories.map((cat) => (
+                  <div key={cat.name} className="flex items-start gap-2 p-2 rounded-md bg-muted/30">
+                    <Badge variant="secondary" className="shrink-0 text-xs mt-0.5">{cat.name}</Badge>
+                    <span className="text-xs text-muted-foreground">{cat.description}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div>
             <h4 className="text-sm font-semibold mb-3">Parameters</h4>
@@ -372,8 +405,8 @@ function ToolDetailCard({ tool }: { tool: typeof toolsData[0] }) {
 export default function HowItWorks() {
   const getToolFromHash = () => {
     const hash = window.location.hash.replace("#tool-", "");
-    const validTools = ["check_email_safety", "check_url_safety", "check_response_safety", "analyze_email_thread", "check_attachment_safety", "check_sender_reputation", "check_message_safety"];
-    return validTools.includes(hash) ? hash : "check_email_safety";
+    const validTools = ["assess_message", "check_email_safety", "check_url_safety", "check_response_safety", "analyze_email_thread", "check_attachment_safety", "check_sender_reputation", "check_message_safety"];
+    return validTools.includes(hash) ? hash : "assess_message";
   };
 
   const [selectedTool, setSelectedTool] = useState(getToolFromHash);
@@ -393,8 +426,8 @@ export default function HowItWorks() {
   }, []);
 
   useSEO({
-    title: "How Agent Safe Works - 7-Tool Security for Every Messaging Platform | MCP Server",
-    description: "Learn how Agent Safe protects AI agents across every platform — email, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, and more. 7-tool MCP suite detects phishing, smishing, BEC, prompt injection, and social engineering on any messaging platform. See real test results.",
+    title: "How Agent Safe Works - 8-Tool Security Suite (7 Paid + 1 Free Triage) for Every Messaging Platform | MCP Server",
+    description: "Learn how Agent Safe protects AI agents across every platform — email, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, and more. 8-tool MCP suite (7 paid + 1 free triage) detects phishing, smishing, BEC, prompt injection, and social engineering on any messaging platform. See real test results.",
     path: "/how-it-works",
   });
   return (
@@ -411,7 +444,7 @@ export default function HowItWorks() {
               Security Across Every<br />Messaging Platform
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Your agent handles messages on email, SMS, WhatsApp, Slack, Discord, Telegram, and more. Our <a href="#tools-section" className="text-primary underline" data-testid="link-tools-section" onClick={(e) => { e.preventDefault(); document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>7-tool MCP suite</a> detects phishing, smishing, prompt injection, social engineering, and platform-specific threats — no matter where the message comes from.
+              Your agent handles messages on email, SMS, WhatsApp, Slack, Discord, Telegram, and more. Our <a href="#tools-section" className="text-primary underline" data-testid="link-tools-section" onClick={(e) => { e.preventDefault(); document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>8-tool MCP suite (7 paid + 1 free triage)</a> detects phishing, smishing, prompt injection, social engineering, and platform-specific threats — no matter where the message comes from.
             </p>
           </div>
 
@@ -436,7 +469,7 @@ export default function HowItWorks() {
                 number={3}
                 icon={Wrench}
                 title="Agent Calls the Right Tool"
-                description="The agent picks the appropriate tool from the 7-tool suite based on what it needs to analyze: check_email_safety for incoming messages, check_url_safety for suspicious links, check_response_safety for draft replies, check_attachment_safety for file attachments, check_sender_reputation for sender verification, analyze_email_thread for multi-message thread analysis, or check_message_safety for non-email platform messages."
+                description="The agent starts by calling assess_message (free) to triage the content and get a prioritized list of which tools to run. Then it picks the appropriate paid tools from the 8-tool suite: check_email_safety for incoming emails, check_url_safety for suspicious links, check_response_safety for draft replies, check_attachment_safety for file attachments, check_sender_reputation for sender verification, analyze_email_thread for multi-message thread analysis, or check_message_safety for non-email platform messages."
               />
               <StepCard
                 number={4}
@@ -462,7 +495,7 @@ export default function HowItWorks() {
               Tool Explorer
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-explore-heading">
-              Explore the 7 Tools
+              Explore the 8 Tools
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Select a tool below to see its full capabilities, parameters, threat categories, and real test results.
