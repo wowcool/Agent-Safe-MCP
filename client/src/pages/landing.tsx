@@ -7,7 +7,6 @@ import { useState } from "react";
 import { useSEO } from "@/lib/seo";
 import { GlobalFooter } from "@/components/global-footer";
 import { SiteHeader } from "@/components/site-header";
-import heroImage from "@assets/Screenshot_2026-02-11_at_11.44.30_1770828281471.png";
 import toolEmailImg from "@/assets/images/tool-email-safety.png";
 import toolUrlImg from "@/assets/images/tool-url-safety.png";
 import toolResponseImg from "@/assets/images/tool-response-safety.png";
@@ -115,15 +114,6 @@ export default function Landing() {
 
       <section className="py-20 px-4 bg-card/50">
         <div className="container mx-auto max-w-4xl">
-          <div className="flex justify-center mb-10">
-            <img
-              src={heroImage}
-              alt="AI robot with shield protecting against malicious messages"
-              className="w-64 h-64 md:w-80 md:h-80 object-contain"
-              data-testid="img-hero-robot"
-            />
-          </div>
-
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6" data-testid="text-problem-heading">
               Your AI Agent Is One Message Away From Being Compromised
