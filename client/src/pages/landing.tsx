@@ -183,7 +183,7 @@ export default function Landing() {
                   MCP (Model Context Protocol) is a standard connection method that lets your AI agent plug into external services. Think of it like a USB port for AI — a structured, agreed-upon way for AI systems to talk to tools.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  No custom code. No messy integration. Your agent discovers Agent Safe, connects using the MCP protocol, and can immediately start calling any of the <a href="#tools" className="text-primary font-bold hover:underline">7 security tools</a>. It works with Claude Desktop, Cursor, and any other MCP-compatible client.
+                  No custom code. No messy integration. Your agent discovers Agent Safe, connects using the MCP protocol, and can immediately start calling any of the <a href="#tools" className="text-primary font-bold hover:underline">7 security tools</a>. It works with Cursor, Windsurf, and any other MCP-compatible client.
                 </p>
                 <div className="grid sm:grid-cols-3 gap-4 pt-4">
                   <div className="flex items-start gap-3">
@@ -255,7 +255,7 @@ export default function Landing() {
               </div>
               <h3 className="font-semibold mb-1">Add MCP Config</h3>
               <p className="text-sm text-muted-foreground">
-                Paste the config above into your MCP client (Claude Desktop, Cursor, etc.)
+                Paste the config above into your MCP client (Cursor, Windsurf, etc.)
               </p>
             </div>
             <div className="text-center">

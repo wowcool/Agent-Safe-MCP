@@ -93,7 +93,7 @@ const toolsData = [
     image: toolEmailImg,
     label: "Email Safety",
     purpose: "Analyzes incoming emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration. This is the core email security tool in the suite, designed to be the first line of defense when an AI agent receives an email. For non-email messages (SMS, WhatsApp, Slack, Discord, etc.), use check_message_safety instead.",
-    purposeExtra: "All threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. The tool uses Claude AI with a specialized prompt engineered specifically for email threat detection, covering 8 distinct threat categories simultaneously.",
+    purposeExtra: "All threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. The tool uses advanced AI with a specialized prompt engineered specifically for email threat detection, covering 8 distinct threat categories simultaneously.",
     useCase: "Agent receives an email. Before acting on it, it passes the email contents (sender, subject, body) to this tool for safety analysis. The tool returns a structured verdict the agent can use to decide whether to proceed, exercise caution, or refuse to act. For messages from other platforms like SMS, WhatsApp, or Slack, use check_message_safety.",
     categories: [
       { name: "PHISHING", description: "Fake login pages, spoofed domains, credential harvesting" },
@@ -138,7 +138,7 @@ const toolsData = [
       { name: "urls", type: "string[]", required: true, description: "Array of URLs to analyze (max 20)" },
     ],
     responseFormat: "Per-URL results with verdict (safe/suspicious/dangerous), riskScore, threats[], recommendation (safe_to_visit/do_not_visit/visit_with_caution), explanation. Plus overallVerdict and overallRiskScore across all URLs.",
-    testResults: "Correctly flagged a spoofed Microsoft domain (micros0ft-support.com), detected a path traversal attack in URL parameters, and correctly identified a safe Google Docs link. Claude cost per call: $0.004. Latency: 6,890ms.",
+    testResults: "Correctly flagged a spoofed Microsoft domain (micros0ft-support.com), detected a path traversal attack in URL parameters, and correctly identified a safe Google Docs link. Latency: 6,890ms.",
   },
   {
     id: "check_response_safety",
@@ -166,7 +166,7 @@ const toolsData = [
       { name: "originalBody", type: "string", required: false, description: "Original message body for context" },
     ],
     responseFormat: "verdict (safe_to_send/review_required/do_not_send), riskScore (0.0-1.0), confidence (0.0-1.0), threats[] with type/description/severity/dataAtRisk, recommendation, explanation, suggestedRevisions[] with specific changes to make the draft safer.",
-    testResults: "Correctly caught SSN sharing in a draft reply, wire transfer fraud compliance (agent about to send banking details to a fraudulent request), and unauthorized disclosure of internal system credentials. 6 threats detected total. Claude cost: $0.005. Latency: 16,061ms.",
+    testResults: "Correctly caught SSN sharing in a draft reply, wire transfer fraud compliance (agent about to send banking details to a fraudulent request), and unauthorized disclosure of internal system credentials. 6 threats detected total. Latency: 16,061ms.",
   },
   {
     id: "analyze_email_thread",
@@ -189,7 +189,7 @@ const toolsData = [
       { name: "messages", type: "object[]", required: true, description: "Array of messages (min 2, max 50), each with from, subject, body, date (optional)" },
     ],
     responseFormat: "verdict (safe/suspicious/dangerous), riskScore (0.0-1.0), confidence (0.0-1.0), manipulationPatterns[] with type/description/severity/evidenceMessages, threadProgression summary, recommendation (continue_conversation/proceed_with_caution/disengage), safeActions[], unsafeActions[].",
-    testResults: "Detected 6 manipulation patterns in a test thread including trust-to-exploitation progression, deadline manufacturing, scope creep from invoice questions to wire transfer requests, and information harvesting. Claude cost: $0.006. Latency: 10,521ms.",
+    testResults: "Detected 6 manipulation patterns in a test thread including trust-to-exploitation progression, deadline manufacturing, scope creep from invoice questions to wire transfer requests, and information harvesting. Latency: 10,521ms.",
   },
   {
     id: "check_attachment_safety",
@@ -212,7 +212,7 @@ const toolsData = [
       { name: "attachments", type: "object[]", required: true, description: "Array of attachment metadata (max 20), each with name, size (bytes), mimeType, from (optional)" },
     ],
     responseFormat: "Per-attachment results with verdict (safe/suspicious/dangerous), riskScore, threats[], recommendation (safe_to_open/do_not_open/open_with_caution), explanation. Plus overallVerdict, overallRiskScore, safeToProcess[] filenames, doNotProcess[] filenames.",
-    testResults: "Caught a double extension attack (.pdf.exe disguised as a PDF), MIME mismatch (.jpg.js with JavaScript MIME type), archive risk from a suspicious .zip, and macro risk from a .docm file. Claude cost: $0.006. Latency: 8,562ms.",
+    testResults: "Caught a double extension attack (.pdf.exe disguised as a PDF), MIME mismatch (.jpg.js with JavaScript MIME type), archive risk from a suspicious .zip, and macro risk from a .docm file. Latency: 8,562ms.",
   },
   {
     id: "check_sender_reputation",
@@ -220,8 +220,8 @@ const toolsData = [
     icon: UserCheck,
     image: toolSenderImg,
     label: "Sender Reputation",
-    purpose: "Evaluates whether a message sender is who they claim to be. This is the only tool in the suite that combines real infrastructure verification with AI analysis. It performs live DNS DMARC lookups and RDAP domain age checks alongside Claude-powered pattern analysis and BEC (Business Email Compromise) detection. Especially useful for email senders, but works with any sender identity.",
-    purposeExtra: "All checks run on every call automatically: DMARC lookup, RDAP domain age, and Claude AI analysis across all 9 issue categories. No optional flags needed -- the agent just sends the sender's address and display name, and the tool does everything else. The 3-step pipeline runs in sequence: (1) DNS DMARC Lookup (free, ~50-200ms), (2) RDAP Domain Age Lookup (free, ~100-500ms), (3) Claude AI Analysis with infrastructure data injected into the prompt.",
+    purpose: "Evaluates whether a message sender is who they claim to be. This is the only tool in the suite that combines real infrastructure verification with AI analysis. It performs live DNS DMARC lookups and RDAP domain age checks alongside AI-powered pattern analysis and BEC (Business Email Compromise) detection. Especially useful for email senders, but works with any sender identity.",
+    purposeExtra: "All checks run on every call automatically: DMARC lookup, RDAP domain age, and AI analysis across all 9 issue categories. No optional flags needed -- the agent just sends the sender's address and display name, and the tool does everything else. The 3-step pipeline runs in sequence: (1) DNS DMARC Lookup (free, ~50-200ms), (2) RDAP Domain Age Lookup (free, ~100-500ms), (3) AI Analysis with infrastructure data injected into the prompt.",
     useCase: "Agent receives a message from someone claiming to be an authority figure (CEO, IT admin, vendor). Before acting on the request, it checks the sender's trustworthiness. The tool automatically looks up the sender's domain for DMARC policy and registration age, then combines that real data with AI analysis.",
     categories: [
       { name: "DOMAIN_SPOOFING", description: "Sender domain doesn't match claimed organization" },
@@ -242,7 +242,7 @@ const toolsData = [
       { name: "emailSnippet", type: "string", required: false, description: "Brief message snippet for context" },
     ],
     responseFormat: "senderVerdict (trusted/unverified/suspicious/likely_fraudulent), trustScore (0.0-1.0), confidence (0.0-1.0), identityIssues[] with type/description/severity, becProbability (0.0-1.0), recommendation (trust_sender/verify_identity/do_not_trust), verificationSteps[], domainIntelligence with dmarcExists, dmarcPolicy, domainAgeDays, registrationDate, registrar.",
-    testResults: "Identified a fraudulent sender with 93% BEC probability, 6 identity issues detected, and a 'likely_fraudulent' verdict. Live DMARC lookup confirmed no DMARC policy on the spoofed domain. RDAP showed domain registered only 3 days prior. Claude cost: $0.005. Latency: 6,257ms.",
+    testResults: "Identified a fraudulent sender with 93% BEC probability, 6 identity issues detected, and a 'likely_fraudulent' verdict. Live DMARC lookup confirmed no DMARC policy on the spoofed domain. RDAP showed domain registered only 3 days prior. Latency: 6,257ms.",
   },
   {
     id: "check_message_safety",
@@ -251,7 +251,7 @@ const toolsData = [
     image: toolMessageImg,
     label: "Message Safety",
     purpose: "Analyzes non-email messages (SMS, WhatsApp, Instagram DMs, Facebook Messenger, Telegram, Discord, Slack, LinkedIn, iMessage, Signal) for platform-specific threats. Detects smishing, wrong-number scams, OTP interception, impersonation, payment fraud, romance scams, tech support scams, and credential harvesting with platform-aware context.",
-    purposeExtra: "All 10 threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. The tool uses Claude AI with platform-specific threat intelligence to identify messaging-native attacks that differ from email threats. Returns messageIndices to pinpoint which messages in a conversation triggered each threat, plus platform-specific safety tips.",
+    purposeExtra: "All 10 threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. The tool uses advanced AI with platform-specific threat intelligence to identify messaging-native attacks that differ from email threats. Returns messageIndices to pinpoint which messages in a conversation triggered each threat, plus platform-specific safety tips.",
     useCase: "Agent receives a DM, text message, or chat message on a non-email platform. Before acting on it, it passes the message(s), platform, and sender info to this tool. The tool analyzes for platform-specific threats like smishing (SMS phishing), wrong-number crypto scams, OTP interception attempts, and impersonation attacks unique to each platform.",
     categories: [
       { name: "SMISHING", description: "SMS/text phishing: fake delivery notices, bank alerts, toll charges" },
@@ -274,7 +274,7 @@ const toolsData = [
       { name: "contactKnown", type: "boolean", required: false, description: "Whether the sender is in the agent's/user's contacts" },
     ],
     responseFormat: "verdict (safe/suspicious/dangerous), riskScore (0.0-1.0), confidence (0.0-1.0), platform, threats[] with type/description/severity/messageIndices, recommendation (proceed/proceed_with_caution/do_not_engage), explanation, safeActions[], unsafeActions[], platformTips (platform-specific safety advice).",
-    testResults: "Correctly detected a smishing attack via SMS (fake USPS delivery notice), a wrong-number crypto scam on WhatsApp, OTP interception on Telegram, and a fake brand impersonation on Instagram DMs. Platform-specific tips provided for each. Average Claude cost: $0.0042. Average latency: 5,200ms.",
+    testResults: "Correctly detected a smishing attack via SMS (fake USPS delivery notice), a wrong-number crypto scam on WhatsApp, OTP interception on Telegram, and a fake brand impersonation on Instagram DMs. Platform-specific tips provided for each. Average latency: 5,200ms.",
   },
 ];
 
@@ -424,7 +424,7 @@ export default function HowItWorks() {
                 number={1}
                 icon={Search}
                 title="Agent Discovers the Service"
-                description="Your AI agent finds Agent Safe through the Skyfire service directory or you configure it directly as an MCP tool in your agent's client (Claude Desktop, Cursor, etc.). The agent calls the discovery endpoint and learns what the tool does and how to pay."
+                description="Your AI agent finds Agent Safe through the Skyfire service directory or you configure it directly as an MCP tool in your agent's client (Cursor, Windsurf, etc.). The agent calls the discovery endpoint and learns what the tool does and how to pay."
               />
               <StepCard
                 number={2}
@@ -442,7 +442,7 @@ export default function HowItWorks() {
                 number={4}
                 icon={Brain}
                 title="AI Analyzes for Threats"
-                description="Agent Safe uses Claude AI with specialized prompts engineered for each tool's analysis type. It analyzes across all threat categories simultaneously: phishing signals, social engineering tactics, prompt injection patterns, financial fraud indicators, URL threats, and more. The sender-reputation tool includes free DNS and RDAP enrichment for domain intelligence at no extra cost. Your Skyfire wallet is charged $0.02 per call."
+                description="Agent Safe uses advanced AI with specialized prompts engineered for each tool's analysis type. It analyzes across all threat categories simultaneously: phishing signals, social engineering tactics, prompt injection patterns, financial fraud indicators, URL threats, and more. The sender-reputation tool includes free DNS and RDAP enrichment for domain intelligence at no extra cost. Your Skyfire wallet is charged $0.02 per call."
               />
               <StepCard
                 number={5}

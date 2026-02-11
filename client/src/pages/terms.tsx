@@ -67,7 +67,7 @@ export default function Terms() {
             <h2 className="text-lg font-semibold mb-3">5. Service Availability and Limitations</h2>
             <ul className="list-disc pl-6 space-y-1.5">
               <li>The Service is provided on an "as available" basis. We target high availability but do not guarantee uninterrupted service.</li>
-              <li>Analysis results across all 7 tools are advisory only. The Service uses AI (Anthropic Claude) to assess security risks and may produce false positives (flagging safe content as dangerous) or false negatives (missing actual threats). No tool in the suite provides a guarantee of threat detection.</li>
+              <li>Analysis results across all 7 tools are advisory only. The Service uses AI to assess security risks and may produce false positives (flagging safe content as dangerous) or false negatives (missing actual threats). No tool in the suite provides a guarantee of threat detection.</li>
               <li>The Service does not store, retain, or log the content of emails submitted for analysis beyond the duration needed to process the request.</li>
               <li>We reserve the right to implement rate limits to ensure fair usage across all clients.</li>
             </ul>
@@ -79,7 +79,7 @@ export default function Terms() {
               <li>Email content submitted for analysis is processed in real-time and not permanently stored.</li>
               <li>We may log metadata (timestamps, token identifiers, risk scores) for billing and service improvement.</li>
               <li>We do not sell or share submitted email content with third parties.</li>
-              <li>Analysis is performed using third-party AI providers (Anthropic Claude). Email content, URLs, attachment metadata, sender information, and draft replies submitted for analysis are processed by Anthropic's systems. Their data processing terms also apply.</li>
+              <li>Analysis is performed using third-party AI providers. Email content, URLs, attachment metadata, sender information, and draft replies submitted for analysis are processed by our AI provider's systems. Their data processing terms also apply.</li>
               <li>The check_sender_reputation tool performs live DNS queries and RDAP domain lookups using publicly available infrastructure data. No private user data is shared in these lookups.</li>
             </ul>
           </section>

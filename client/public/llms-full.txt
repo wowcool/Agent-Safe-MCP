@@ -4,7 +4,7 @@
 
 ## Overview
 
-Agent Safe is a message safety verification service designed specifically for AI agents. Before an agent processes, replies to, or acts on any message — whether it's an email, chat message, DM, or any other format — it can call Agent Safe to get a safety analysis. The service uses Claude AI to detect multiple categories of threats across all platforms and returns structured, actionable results. Email-specific tools provide extra analysis like sender reputation verification with live DNS lookups.
+Agent Safe is a message safety verification service designed specifically for AI agents. Before an agent processes, replies to, or acts on any message — whether it's an email, chat message, DM, or any other format — it can call Agent Safe to get a safety analysis. The service uses advanced AI to detect multiple categories of threats across all platforms and returns structured, actionable results. Email-specific tools provide extra analysis like sender reputation verification with live DNS lookups.
 
 Agents are first-class customers. No human signup required with Agent Safe. Your agent just needs a Skyfire Buyer API Key — include it in the `skyfire-api-key` header, and Agent Safe automatically generates PAY tokens and charges $0.02 per call. Alternatively, your agent can generate its own PAY tokens and send them via the `skyfire-pay-id` header.
 
@@ -19,7 +19,7 @@ Agent Safe implements the Model Context Protocol (MCP) using Streamable HTTP tra
 
 ### MCP Client Configuration
 
-To connect from any MCP-compatible client (Claude Desktop, Cursor, Windsurf, etc.):
+To connect from any MCP-compatible client (Cursor, Windsurf, etc.):
 
 ```json
 {
