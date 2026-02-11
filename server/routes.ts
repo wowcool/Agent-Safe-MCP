@@ -25,14 +25,20 @@ import {
   validateApiToken,
   getTokenWithOwner,
 } from "./services/token";
-import { analyzeEmail } from "./services/email-analyzer";
+import { analyzeEmail } from "./services/analyzers/email-safety";
+import { analyzeUrls } from "./services/analyzers/url-safety";
+import { analyzeResponse } from "./services/analyzers/response-safety";
+import { analyzeThread } from "./services/analyzers/thread-analysis";
+import { analyzeAttachments } from "./services/analyzers/attachment-safety";
+import { analyzeSender } from "./services/analyzers/sender-reputation";
 import {
   validateSkyfireToken,
   chargeSkyfireToken,
   isSkyfireConfigured,
 } from "./services/skyfire";
 import { z } from "zod";
-import { mountMcpServer } from "./mcp-server";
+import { mountMcpServer, TOOL_DEFS } from "./mcp-server";
+import type { ToolName } from "@shared/schema";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -49,8 +55,8 @@ export async function registerRoutes(
   app.get("/.well-known/mcp.json", (_req: Request, res: Response) => {
     res.json({
       name: "Agent Safe",
-      description: "Email safety MCP server. Detects phishing, prompt injection, CEO fraud for AI agents.",
-      version: "1.0.0",
+      description: "6-tool email security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation across emails, URLs, replies, threads, attachments, and sender identities.",
+      version: "2.0.0",
       protocol: "mcp",
       transport: {
         type: "streamable-http",
@@ -59,23 +65,15 @@ export async function registerRoutes(
       authentication: {
         type: "header",
         header_name: "skyfire-pay-id",
-        description: "Skyfire PAY token for payment. Get one at skyfire.xyz. $0.02 per email check.",
+        description: "Skyfire PAY token for payment. Get one at skyfire.xyz. $0.02 per tool call.",
       },
       tools: [
-        {
-          name: "check_email_safety",
-          description: "Analyze an email for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration threats. Returns verdict, risk score, detected threats, and recommended actions.",
-          inputSchema: {
-            type: "object",
-            properties: {
-              sender: { type: "string", description: "Email sender address" },
-              subject: { type: "string", description: "Email subject line" },
-              body: { type: "string", description: "Email body content (plain text or HTML)" },
-              recipientContext: { type: "string", description: "Optional context about the recipient agent" },
-            },
-            required: ["sender", "subject", "body"],
-          },
-        },
+        { name: "check_email_safety", description: "Analyze an email for phishing, social engineering, prompt injection, CEO fraud, and data exfiltration. Returns verdict, risk score, threats, and actions." },
+        { name: "check_url_safety", description: "Analyze URLs for phishing, malware, redirects, spoofing, and tracking. Returns per-URL and overall verdicts." },
+        { name: "check_response_safety", description: "Check a draft reply BEFORE sending for data leakage, social engineering compliance, and unauthorized disclosure." },
+        { name: "analyze_email_thread", description: "Analyze a full email thread for escalating social engineering, scope creep, and manipulation patterns." },
+        { name: "check_attachment_safety", description: "Assess attachments for malware risk based on filename, MIME type, and size BEFORE opening." },
+        { name: "check_sender_reputation", description: "Verify sender identity with live DNS DMARC and RDAP domain age checks. Detects BEC and impersonation." },
       ],
       pricing: {
         model: "per_request",
@@ -94,17 +92,11 @@ export async function registerRoutes(
     res.json({
       schema_version: "v1",
       name_for_human: "Agent Safe",
-      name_for_model: "agent_safe_email_safety",
-      description_for_human: "Email safety checker for AI agents. Detects phishing, social engineering, prompt injection, and more.",
-      description_for_model: "Agent Safe is a Remote MCP Server that analyzes emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration attempts targeting AI agents. Call the check_email_safety tool with sender, subject, and body to get a safety verdict (safe/suspicious/dangerous), risk score (0.0-1.0), detected threats, and recommended actions. Costs $0.02 per check via Skyfire PAY token. MCP endpoint: https://agentsafe.locationledger.com/mcp",
-      auth: {
-        type: "none",
-      },
-      api: {
-        type: "mcp",
-        url: "https://agentsafe.locationledger.com/mcp",
-        transport: "streamable-http",
-      },
+      name_for_model: "agent_safe_email_security",
+      description_for_human: "6-tool email security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation.",
+      description_for_model: "Agent Safe is a Remote MCP Server with 6 email security tools for AI agents. Tools: check_email_safety (analyze emails), check_url_safety (analyze URLs), check_response_safety (check draft replies), analyze_email_thread (detect thread manipulation), check_attachment_safety (assess attachment risk), check_sender_reputation (verify sender with DNS/RDAP). Each costs $0.02 via Skyfire PAY token (skyfire-pay-id header). MCP endpoint: https://agentsafe.locationledger.com/mcp",
+      auth: { type: "none" },
+      api: { type: "mcp", url: "https://agentsafe.locationledger.com/mcp", transport: "streamable-http" },
       logo_url: "https://agentsafe.locationledger.com/favicon.png",
       contact_email: "support@locationledger.com",
       legal_info_url: "https://agentsafe.locationledger.com/terms",
@@ -378,11 +370,18 @@ export async function registerRoutes(
       const stats = await storage.getGlobalStats();
       
       const discovery: DiscoveryResponse = {
-        service: "SafeMessage Guard",
-        version: "1.0.0",
-        description: "Email safety verification for AI agents. Protects against phishing, social engineering, and manipulation attempts targeting agents.",
-        capabilities: ["email_safety_check"],
-        domainFocus: "email",
+        service: "Agent Safe",
+        version: "2.0.0",
+        description: "6-tool email security suite for AI agents. Protects against phishing, BEC, malware, social engineering, and manipulation across emails, URLs, replies, threads, attachments, and sender identities.",
+        capabilities: [
+          "email_safety_check",
+          "url_safety_check",
+          "response_safety_check",
+          "thread_analysis",
+          "attachment_safety_check",
+          "sender_reputation_check",
+        ],
+        domainFocus: "email_security",
         pricing: {
           perCheck: 0.02,
           currency: "USD",
@@ -393,7 +392,12 @@ export async function registerRoutes(
             skyfire: "/mcp/register/skyfire",
           },
           tools: {
-            checkEmailSafety: "/mcp/tools/check_email_safety",
+            check_email_safety: "/mcp/tools/check_email_safety",
+            check_url_safety: "/mcp/tools/check_url_safety",
+            check_response_safety: "/mcp/tools/check_response_safety",
+            analyze_email_thread: "/mcp/tools/analyze_email_thread",
+            check_attachment_safety: "/mcp/tools/check_attachment_safety",
+            check_sender_reputation: "/mcp/tools/check_sender_reputation",
           },
         },
         documentation: "/docs",
@@ -544,126 +548,182 @@ export async function registerRoutes(
     }
   });
 
-  // ===== MCP TOOLS =====
+  // ===== MCP TOOLS (REST API) =====
 
-  app.post("/mcp/tools/check_email_safety", async (req: Request, res: Response) => {
-    const startTime = Date.now();
-    
-    try {
-      const skyfireToken = req.headers["skyfire-pay-id"] as string;
+  const PRICE = 0.02;
+  const TERMS_URL = "https://agentsafe.locationledger.com/terms";
+  const TERMS_NOTICE = "By using this service you have accepted the Terms of Service. This is an advisory service only.";
 
-      if (!skyfireToken || !isSkyfireConfigured()) {
-        return res.status(401).json({ error: "Missing skyfire-pay-id header. Get a Skyfire PAY token at skyfire.xyz." });
-      }
-
-      return handleSkyfireEmailCheck(req, res, skyfireToken);
-    } catch (error: any) {
-      console.error("Email safety check error:", error);
-      return res.status(500).json({ error: "Analysis failed" });
-    }
-  });
-
-  let skyfireSystemTokenId: string | null = null;
+  let restSkyfireSystemTokenId: string | null = null;
 
   async function getOrCreateSkyfireSystemToken(): Promise<string> {
-    if (skyfireSystemTokenId) {
-      const existing = await storage.getAgentToken(skyfireSystemTokenId);
-      if (existing && existing.status === "active") {
-        return skyfireSystemTokenId;
-      }
+    if (restSkyfireSystemTokenId) {
+      const existing = await storage.getAgentToken(restSkyfireSystemTokenId);
+      if (existing && existing.status === "active") return restSkyfireSystemTokenId;
     }
-
     const existingTokens = await storage.getAgentTokenByHash("skyfire_system_token_hash");
-    if (existingTokens) {
-      skyfireSystemTokenId = existingTokens.id;
-      return skyfireSystemTokenId;
-    }
-
-    const { tokenRecord } = await createAutonomousToken(
-      "skyfire-system",
-      "Skyfire Pay-Per-Use",
-      "skyfire:system",
-      "skyfire",
-      365
-    );
-    skyfireSystemTokenId = tokenRecord.id;
-    return skyfireSystemTokenId;
+    if (existingTokens) { restSkyfireSystemTokenId = existingTokens.id; return restSkyfireSystemTokenId; }
+    const { tokenRecord } = await createAutonomousToken("skyfire-system", "Skyfire Pay-Per-Use", "skyfire:system", "skyfire", 365);
+    restSkyfireSystemTokenId = tokenRecord.id;
+    return restSkyfireSystemTokenId;
   }
 
-  async function handleSkyfireEmailCheck(req: Request, res: Response, skyfireToken: string) {
+  async function validateAndChargeRest(req: Request, res: Response): Promise<{ valid: false } | { valid: true; transactionId: string | null; buyerId: string }> {
+    const skyfireToken = req.headers["skyfire-pay-id"] as string;
+    if (!skyfireToken || !isSkyfireConfigured()) {
+      res.status(401).json({ error: "Missing skyfire-pay-id header. Get a Skyfire PAY token at skyfire.xyz." });
+      return { valid: false };
+    }
+    const validation = await validateSkyfireToken(skyfireToken);
+    if (!validation.valid) {
+      res.status(401).json({ error: "Invalid Skyfire payment token", details: validation.error });
+      return { valid: false };
+    }
+    const chargeResult = await chargeSkyfireToken(skyfireToken, PRICE);
+    if (!chargeResult.success) {
+      res.status(402).json({ error: "Skyfire payment failed", details: chargeResult.error });
+      return { valid: false };
+    }
+    return { valid: true, transactionId: chargeResult.transactionId || null, buyerId: validation.claims?.sub || "unknown" };
+  }
+
+  async function recordRestCheck(
+    toolName: ToolName, verdict: string, riskScore: number, confidence: number,
+    threats: any[], durationMs: number, paymentRef: string | null,
+    senderDomain?: string | null, hasLinks?: boolean, hasAttachments?: boolean,
+  ): Promise<string> {
+    const systemTokenId = await getOrCreateSkyfireSystemToken();
+    const emailCheck = await storage.createEmailCheck({
+      tokenId: systemTokenId, toolName, senderDomain: senderDomain || null,
+      hasLinks: hasLinks || false, hasAttachments: hasAttachments || false,
+      verdict, riskScore: String(riskScore), confidence: String(confidence),
+      threatsDetected: threats, chargedAmount: String(PRICE), paymentType: "skyfire",
+      paymentReference: paymentRef, analysisDurationMs: durationMs,
+    });
+    await storage.updateAgentTokenUsage(systemTokenId);
+    await storage.createUsageLog({ tokenId: systemTokenId, action: toolName, amount: String(PRICE), paymentStatus: "success" });
+    return emailCheck.id;
+  }
+
+  app.post("/mcp/tools/check_email_safety", async (req: Request, res: Response) => {
     try {
-      const validation = await validateSkyfireToken(skyfireToken);
-      if (!validation.valid) {
-        return res.status(401).json({
-          error: "Invalid Skyfire payment token",
-          details: validation.error,
-        });
-      }
+      const payment = await validateAndChargeRest(req, res);
+      if (!payment.valid) return;
 
       const emailRequest = req.body as CheckEmailRequest;
       if (!emailRequest.email?.from || !emailRequest.email?.subject || !emailRequest.email?.body) {
         return res.status(400).json({ error: "Missing required email fields (from, subject, body)" });
       }
 
-      const chargeResult = await chargeSkyfireToken(skyfireToken, 0.02);
-      if (!chargeResult.success) {
-        return res.status(402).json({
-          error: "Skyfire payment failed",
-          details: chargeResult.error,
-        });
-      }
+      const { result, durationMs } = await analyzeEmail(emailRequest);
+      const checkId = await recordRestCheck("check_email_safety", result.verdict, result.riskScore, result.confidence, result.threats, durationMs, payment.transactionId, emailRequest.email.from.split("@")[1], (emailRequest.email.links?.length || 0) > 0, (emailRequest.email.attachments?.length || 0) > 0);
 
-      const { result: analysisResult, durationMs } = await analyzeEmail(emailRequest);
-
-      const systemTokenId = await getOrCreateSkyfireSystemToken();
-
-      const emailCheck = await storage.createEmailCheck({
-        tokenId: systemTokenId,
-        senderDomain: emailRequest.email.from.split("@")[1] || null,
-        hasLinks: (emailRequest.email.links?.length || 0) > 0,
-        hasAttachments: (emailRequest.email.attachments?.length || 0) > 0,
-        verdict: analysisResult.verdict,
-        riskScore: String(analysisResult.riskScore),
-        confidence: String(analysisResult.confidence),
-        threatsDetected: analysisResult.threats,
-        chargedAmount: "0.02",
-        paymentType: "skyfire",
-        paymentReference: chargeResult.transactionId || null,
-        analysisDurationMs: durationMs,
-      });
-
-      await storage.updateAgentTokenUsage(systemTokenId);
-
-      await storage.createUsageLog({
-        tokenId: systemTokenId,
-        action: "email_check",
-        amount: "0.02",
-        paymentStatus: "success",
-      });
-
-      console.log(`Skyfire payment: buyer=${validation.claims?.sub || "unknown"}, txn=${chargeResult.transactionId}, check=${emailCheck.id}`);
-
-      const response: CheckEmailResponse = {
-        verdict: analysisResult.verdict,
-        riskScore: analysisResult.riskScore,
-        confidence: analysisResult.confidence,
-        threats: analysisResult.threats,
-        recommendation: analysisResult.recommendation,
-        explanation: analysisResult.explanation,
-        safeActions: analysisResult.safeActions,
-        unsafeActions: analysisResult.unsafeActions,
-        checkId: emailCheck.id,
-        charged: 0.02,
-        termsOfService: "https://agentsafe.locationledger.com/terms",
-        termsAccepted: "By using this service you have accepted the Terms of Service. This is an advisory service only.",
-      };
-
-      return res.json(response);
+      return res.json({ ...result, checkId, charged: PRICE, termsOfService: TERMS_URL, termsAccepted: TERMS_NOTICE });
     } catch (error: any) {
-      console.error("Skyfire email check error:", error);
+      console.error("Email safety check error:", error);
       return res.status(500).json({ error: "Analysis failed" });
     }
-  }
+  });
+
+  app.post("/mcp/tools/check_url_safety", async (req: Request, res: Response) => {
+    try {
+      const payment = await validateAndChargeRest(req, res);
+      if (!payment.valid) return;
+
+      const { urls } = req.body;
+      if (!Array.isArray(urls) || urls.length === 0) {
+        return res.status(400).json({ error: "Missing required field: urls (array of strings)" });
+      }
+
+      const { result, durationMs } = await analyzeUrls(urls.slice(0, 20));
+      const checkId = await recordRestCheck("check_url_safety", result.overallVerdict, result.overallRiskScore, 0.8, [], durationMs, payment.transactionId, null, true);
+
+      return res.json({ ...result, checkId, charged: PRICE, termsOfService: TERMS_URL, termsAccepted: TERMS_NOTICE });
+    } catch (error: any) {
+      console.error("URL safety check error:", error);
+      return res.status(500).json({ error: "Analysis failed" });
+    }
+  });
+
+  app.post("/mcp/tools/check_response_safety", async (req: Request, res: Response) => {
+    try {
+      const payment = await validateAndChargeRest(req, res);
+      if (!payment.valid) return;
+
+      const { draftTo, draftSubject, draftBody, originalFrom, originalSubject, originalBody } = req.body;
+      if (!draftTo || !draftSubject || !draftBody) {
+        return res.status(400).json({ error: "Missing required fields: draftTo, draftSubject, draftBody" });
+      }
+
+      const { result, durationMs } = await analyzeResponse({ draftTo, draftSubject, draftBody, originalFrom, originalSubject, originalBody });
+      const checkId = await recordRestCheck("check_response_safety", result.verdict, result.riskScore, result.confidence, result.threats, durationMs, payment.transactionId);
+
+      return res.json({ ...result, checkId, charged: PRICE, termsOfService: TERMS_URL, termsAccepted: TERMS_NOTICE });
+    } catch (error: any) {
+      console.error("Response safety check error:", error);
+      return res.status(500).json({ error: "Analysis failed" });
+    }
+  });
+
+  app.post("/mcp/tools/analyze_email_thread", async (req: Request, res: Response) => {
+    try {
+      const payment = await validateAndChargeRest(req, res);
+      if (!payment.valid) return;
+
+      const { messages } = req.body;
+      if (!Array.isArray(messages) || messages.length < 2) {
+        return res.status(400).json({ error: "Missing required field: messages (array of at least 2 messages)" });
+      }
+
+      const { result, durationMs } = await analyzeThread(messages.slice(0, 50));
+      const checkId = await recordRestCheck("analyze_email_thread", result.verdict, result.riskScore, result.confidence, result.manipulationPatterns, durationMs, payment.transactionId);
+
+      return res.json({ ...result, checkId, charged: PRICE, termsOfService: TERMS_URL, termsAccepted: TERMS_NOTICE });
+    } catch (error: any) {
+      console.error("Thread analysis error:", error);
+      return res.status(500).json({ error: "Analysis failed" });
+    }
+  });
+
+  app.post("/mcp/tools/check_attachment_safety", async (req: Request, res: Response) => {
+    try {
+      const payment = await validateAndChargeRest(req, res);
+      if (!payment.valid) return;
+
+      const { attachments } = req.body;
+      if (!Array.isArray(attachments) || attachments.length === 0) {
+        return res.status(400).json({ error: "Missing required field: attachments (array of attachment metadata)" });
+      }
+
+      const { result, durationMs } = await analyzeAttachments(attachments.slice(0, 20));
+      const checkId = await recordRestCheck("check_attachment_safety", result.overallVerdict, result.overallRiskScore, 0.8, [], durationMs, payment.transactionId, null, false, true);
+
+      return res.json({ ...result, checkId, charged: PRICE, termsOfService: TERMS_URL, termsAccepted: TERMS_NOTICE });
+    } catch (error: any) {
+      console.error("Attachment safety check error:", error);
+      return res.status(500).json({ error: "Analysis failed" });
+    }
+  });
+
+  app.post("/mcp/tools/check_sender_reputation", async (req: Request, res: Response) => {
+    try {
+      const payment = await validateAndChargeRest(req, res);
+      if (!payment.valid) return;
+
+      const { email, displayName, replyTo, emailSubject, emailSnippet } = req.body;
+      if (!email || !displayName) {
+        return res.status(400).json({ error: "Missing required fields: email, displayName" });
+      }
+
+      const { result, durationMs } = await analyzeSender({ email, displayName, replyTo, emailSubject, emailSnippet });
+      const checkId = await recordRestCheck("check_sender_reputation", result.senderVerdict, result.trustScore, result.confidence, result.identityIssues, durationMs, payment.transactionId, email.split("@")[1]);
+
+      return res.json({ ...result, checkId, charged: PRICE, termsOfService: TERMS_URL, termsAccepted: TERMS_NOTICE });
+    } catch (error: any) {
+      console.error("Sender reputation check error:", error);
+      return res.status(500).json({ error: "Analysis failed" });
+    }
+  });
 
   // ===== PUBLIC STATS (for landing page) =====
 
