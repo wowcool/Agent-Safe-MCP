@@ -2,11 +2,12 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, Copy, ExternalLink, Mail, Link as LinkIcon, Reply, MessageSquare, Paperclip, UserCheck } from "lucide-react";
+import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, Copy, ExternalLink, Mail, Link as LinkIcon, Reply, MessageSquare, Paperclip, UserCheck, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useSEO } from "@/lib/seo";
 import { GlobalFooter } from "@/components/global-footer";
 import { SiteHeader } from "@/components/site-header";
+import heroImage from "@assets/Screenshot_2026-02-11_at_11.44.30_1770828281471.png";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -43,8 +44,8 @@ const MCP_CONFIG = `{
 
 export default function Landing() {
   useSEO({
-    title: "Agent Safe - Email Security Suite for AI Agents | 6 Tools for Phishing, BEC & Malware Protection",
-    description: "A Remote MCP Server with 6 tools that protect your AI agent from phishing, BEC, malware, and manipulation across emails, URLs, replies, threads, attachments, and sender identities. Pay-per-use via Skyfire. $0.02/tool call.",
+    title: "Agent Safe - Protect Your AI from Email Scams | 6-Tool Security Suite",
+    description: "Your AI reads emails — but should it trust them? Agent Safe is a 6-tool MCP security suite that protects AI agents from phishing, BEC, malware, and manipulation. $0.02 per tool call via Skyfire.",
     path: "/",
   });
   return (
@@ -60,10 +61,13 @@ export default function Landing() {
             Remote MCP Server
           </Badge>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1]" data-testid="text-hero-headline">
-            Email Security Suite<br />for AI Agents
+            Protect Your AI<br />from Email Scams
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-            6 tools that protect your AI agent from phishing, BEC, malware, and manipulation across emails, URLs, replies, threads, attachments, and sender identities. Connect via MCP, pay per use with Skyfire.
+          <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
+            Your AI reads emails. But should it trust them?
+          </p>
+          <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+            <a href="#tools" className="text-primary font-bold hover:underline"><strong>6 tools</strong></a> that protect your AI agent from phishing, BEC, malware, and manipulation across emails, URLs, replies, threads, attachments, and sender identities. Connect via MCP, pay per use with Skyfire.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap mb-16">
@@ -81,10 +85,12 @@ export default function Landing() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-6">
-            <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-tools">
-              <Shield className="h-3.5 w-3.5 mr-1.5" />
-              6 Tools
-            </Badge>
+            <a href="#tools">
+              <Badge variant="outline" className="text-sm py-1.5 px-4 cursor-pointer" data-testid="badge-tools">
+                <Shield className="h-3.5 w-3.5 mr-1.5" />
+                <strong>6 Tools</strong>
+              </Badge>
+            </a>
             <Badge variant="outline" className="text-sm py-1.5 px-4" data-testid="badge-skyfire">
               <Shield className="h-3.5 w-3.5 mr-1.5" />
               Listed on Skyfire
@@ -103,9 +109,18 @@ export default function Landing() {
 
       <section className="py-20 px-4 bg-card/50">
         <div className="container mx-auto max-w-4xl">
+          <div className="flex justify-center mb-10">
+            <img
+              src={heroImage}
+              alt="AI robot with shield protecting against malicious emails"
+              className="w-64 h-64 md:w-80 md:h-80 object-contain"
+              data-testid="img-hero-robot"
+            />
+          </div>
+
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6" data-testid="text-problem-heading">
-              Your AI Agent Is One Message Away From Being Compromised
+              Your AI Agent Is One Email Away From Being Compromised
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
               Every day, AI agents process thousands of emails, URLs, attachments, and threads autonomously. A single malicious message, link, or file can compromise your entire operation.
@@ -115,7 +130,7 @@ export default function Landing() {
           <p className="text-muted-foreground leading-relaxed mb-10 max-w-3xl mx-auto text-center">
             Attackers craft emails, embed malicious URLs, poison reply threads, and disguise dangerous attachments to exploit an agent's tendency to follow instructions,
             tricking it into leaking data, making unauthorized payments, or executing harmful actions.
-            Agent Safe is a suite of 6 remote MCP tools that any MCP-compatible agent can call to verify emails, URLs, replies, threads, attachments, and sender identities before acting.
+            Agent Safe is a suite of <a href="#tools" className="text-primary font-bold hover:underline">6 tools</a> that any MCP-compatible agent can call to verify emails, URLs, replies, threads, attachments, and sender identities before acting.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
@@ -139,7 +154,56 @@ export default function Landing() {
         </div>
       </section>
 
-      <section id="connect" className="py-20 px-4">
+      <section className="py-20 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-mcp-heading">
+              What Is MCP?
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+              A standard way for AI systems to talk to tools
+            </p>
+          </div>
+
+          <Card className="max-w-3xl mx-auto">
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <p className="text-muted-foreground leading-relaxed">
+                  MCP (Model Context Protocol) is a standard connection method that lets your AI agent plug into external services. Think of it like a USB port for AI — a structured, agreed-upon way for AI systems to talk to tools.
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  No custom code. No messy integration. Your agent discovers Agent Safe, connects using the MCP protocol, and can immediately start calling any of the <a href="#tools" className="text-primary font-bold hover:underline">6 security tools</a>. It works with Claude Desktop, Cursor, and any other MCP-compatible client.
+                </p>
+                <div className="grid sm:grid-cols-3 gap-4 pt-4">
+                  <div className="flex items-start gap-3">
+                    <Bot className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold">Standard Protocol</p>
+                      <p className="text-xs text-muted-foreground">Works with any MCP-compatible AI agent</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Zap className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold">No Custom Code</p>
+                      <p className="text-xs text-muted-foreground">Just paste the config and go</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Lock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold">Secure by Design</p>
+                      <p className="text-xs text-muted-foreground">Payment and auth built into the protocol</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <section id="connect" className="py-20 px-4 bg-card/50">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-connect-heading">
@@ -189,18 +253,18 @@ export default function Landing() {
               </div>
               <h3 className="font-semibold mb-1">Secure Everything</h3>
               <p className="text-sm text-muted-foreground">
-                Your agent can now call any of 6 email security tools to protect against threats
+                Your agent can now call any of <strong>6 email security tools</strong> to protect against threats
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20 px-4 bg-card/50">
+      <section id="tools" className="py-20 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-features-heading">
-              6 Tools. Complete Email Security.
+              <strong>6 Tools.</strong> Complete Email Security.
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               A purpose-built MCP tool suite that agents discover, connect to, and pay for autonomously
@@ -208,94 +272,124 @@ export default function Landing() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="hover-elevate" data-testid="card-feature-check-email">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <Mail className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="font-semibold text-lg">check_email_safety</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Analyze emails for phishing, social engineering, prompt injection, CEO fraud
-                </p>
-              </CardContent>
-            </Card>
+            <Link href="/how-it-works#tool-check_email_safety">
+              <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-email">
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
+                    <Mail className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="font-semibold text-lg">check_email_safety</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Analyze emails for phishing, social engineering, prompt injection, CEO fraud, and data exfiltration
+                  </p>
+                  <span className="text-xs text-primary flex items-center gap-1">
+                    Learn more <ArrowRight className="h-3 w-3" />
+                  </span>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover-elevate" data-testid="card-feature-check-url">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <LinkIcon className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="font-semibold text-lg">check_url_safety</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Analyze URLs for phishing, malware, redirects, and spoofing
-                </p>
-              </CardContent>
-            </Card>
+            <Link href="/how-it-works#tool-check_url_safety">
+              <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-url">
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
+                    <LinkIcon className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="font-semibold text-lg">check_url_safety</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Analyze URLs for phishing, malware, redirects, spoofing, and tracking
+                  </p>
+                  <span className="text-xs text-primary flex items-center gap-1">
+                    Learn more <ArrowRight className="h-3 w-3" />
+                  </span>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover-elevate" data-testid="card-feature-check-response">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <Reply className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="font-semibold text-lg">check_response_safety</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Check draft replies BEFORE sending for data leakage and unauthorized disclosure
-                </p>
-              </CardContent>
-            </Card>
+            <Link href="/how-it-works#tool-check_response_safety">
+              <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-response">
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
+                    <Reply className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="font-semibold text-lg">check_response_safety</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Check draft replies BEFORE sending for data leakage and unauthorized disclosure
+                  </p>
+                  <span className="text-xs text-primary flex items-center gap-1">
+                    Learn more <ArrowRight className="h-3 w-3" />
+                  </span>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover-elevate" data-testid="card-feature-analyze-thread">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <MessageSquare className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="font-semibold text-lg">analyze_email_thread</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Analyze full email threads for escalating social engineering and manipulation
-                </p>
-              </CardContent>
-            </Card>
+            <Link href="/how-it-works#tool-analyze_email_thread">
+              <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-analyze-thread">
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
+                    <MessageSquare className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="font-semibold text-lg">analyze_email_thread</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Analyze full email threads for escalating social engineering and manipulation
+                  </p>
+                  <span className="text-xs text-primary flex items-center gap-1">
+                    Learn more <ArrowRight className="h-3 w-3" />
+                  </span>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover-elevate" data-testid="card-feature-check-attachment">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <Paperclip className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="font-semibold text-lg">check_attachment_safety</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Assess attachments for malware risk based on filename, MIME type, and size
-                </p>
-              </CardContent>
-            </Card>
+            <Link href="/how-it-works#tool-check_attachment_safety">
+              <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-attachment">
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
+                    <Paperclip className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="font-semibold text-lg">check_attachment_safety</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Assess attachments for malware risk based on filename, MIME type, and size
+                  </p>
+                  <span className="text-xs text-primary flex items-center gap-1">
+                    Learn more <ArrowRight className="h-3 w-3" />
+                  </span>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover-elevate" data-testid="card-feature-check-sender">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
-                  <UserCheck className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="font-semibold text-lg">check_sender_reputation</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Verify sender identity with live DNS DMARC and RDAP domain age checks
-                </p>
-              </CardContent>
-            </Card>
+            <Link href="/how-it-works#tool-check_sender_reputation">
+              <Card className="hover-elevate h-full cursor-pointer" data-testid="card-feature-check-sender">
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-3">
+                    <UserCheck className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="font-semibold text-lg">check_sender_reputation</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Verify sender identity with live DNS DMARC and RDAP domain age checks
+                  </p>
+                  <span className="text-xs text-primary flex items-center gap-1">
+                    Learn more <ArrowRight className="h-3 w-3" />
+                  </span>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 bg-card/50">
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center tracking-tight mb-16" data-testid="text-pricing-heading">
             Simple, Transparent Pricing
@@ -312,7 +406,7 @@ export default function Landing() {
               <ul className="space-y-4">
                 <li className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
-                  <span className="text-sm">6 email security tools included</span>
+                  <span className="text-sm"><strong>6 email security tools</strong> included</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-chart-4 shrink-0" />
@@ -341,7 +435,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-card/50">
+      <section className="py-16 px-4">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-4" data-testid="text-where-heading">
             Where to Find Us

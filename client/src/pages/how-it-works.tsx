@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Bot, Shield, Zap, Lock, Terminal, CheckCircle2, AlertTriangle,
   XCircle, Search, ArrowRight, Mail, FileWarning,
   Eye, Brain, ShieldAlert, Skull, Fingerprint, MessageSquareWarning,
-  Link as LinkIcon, MessageSquare, Wrench
+  Link as LinkIcon, MessageSquare, Wrench, Reply, Paperclip, UserCheck
 } from "lucide-react";
 import { GlobalFooter } from "@/components/global-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -70,7 +72,247 @@ function StepCard({ number, title, description, icon: Icon }: {
   );
 }
 
+const toolsData = [
+  {
+    id: "check_email_safety",
+    name: "check_email_safety",
+    icon: Mail,
+    label: "Email Safety",
+    purpose: "Analyzes incoming emails for phishing, social engineering, prompt injection, CEO fraud, financial fraud, and data exfiltration. This is the core tool in the suite, designed to be the first line of defense when an AI agent receives any email.",
+    purposeExtra: "All threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. The tool uses Claude AI with a specialized prompt engineered specifically for email threat detection, covering 8 distinct threat categories simultaneously.",
+    useCase: "Agent receives an email. Before acting on it, it passes the email contents (sender, subject, body) to this tool for safety analysis. The tool returns a structured verdict the agent can use to decide whether to proceed, exercise caution, or refuse to act.",
+    categories: [
+      { name: "PHISHING", description: "Fake login pages, spoofed domains, credential harvesting" },
+      { name: "SOCIAL_ENGINEERING", description: "Manipulation tactics, urgency, emotional pressure" },
+      { name: "PROMPT_INJECTION", description: "Hidden instructions to hijack agent behavior" },
+      { name: "CEO_FRAUD", description: "Business email compromise, executive impersonation" },
+      { name: "FINANCIAL_FRAUD", description: "Cryptocurrency scams, fake invoices, advance-fee fraud" },
+      { name: "DATA_EXFILTRATION", description: "Tricks to extract sensitive data or credentials" },
+      { name: "MALWARE", description: "Malicious payload delivery, suspicious downloads" },
+      { name: "IMPERSONATION", description: "Identity spoofing of trusted contacts or services" },
+    ],
+    parameters: [
+      { name: "from", type: "string", required: true, description: "Sender email address" },
+      { name: "subject", type: "string", required: true, description: "Email subject line" },
+      { name: "body", type: "string", required: true, description: "Email body content" },
+      { name: "links", type: "string[]", required: false, description: "URLs found in the email" },
+      { name: "attachments", type: "object[]", required: false, description: "Attachment metadata" },
+      { name: "knownSender", type: "boolean", required: false, description: "Whether sender is known" },
+      { name: "previousCorrespondence", type: "boolean", required: false, description: "Whether prior emails exist" },
+    ],
+    responseFormat: "verdict (safe/suspicious/dangerous), riskScore (0.0-1.0), confidence (0.0-1.0), threats[] with type/description/severity, recommendation (proceed/proceed_with_caution/do_not_act), explanation, safeActions[], unsafeActions[]",
+    testResults: "Production tested against 11 end-to-end scenarios. 9 malicious emails correctly caught, 2 safe emails correctly verified. Threats detected include domain spoofing with risk score 0.95, prompt injection with risk score 1.0, and CEO fraud with risk score 0.95.",
+  },
+  {
+    id: "check_url_safety",
+    name: "check_url_safety",
+    icon: LinkIcon,
+    label: "URL Safety",
+    purpose: "Analyzes URLs for phishing, malware, typosquatting, redirect abuse, and injection patterns before an AI agent visits or clicks them. Accepts up to 20 URLs per call for batch analysis.",
+    purposeExtra: "All threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. Each URL is analyzed individually and receives its own verdict, plus an overall verdict is calculated across all submitted URLs.",
+    useCase: "Agent receives an email with links. Before clicking any of them, it extracts the URLs and passes them to this tool. The tool returns per-URL verdicts so the agent knows which links are safe to visit and which to avoid.",
+    categories: [
+      { name: "PHISHING", description: "Domain spoofing, typosquatting, lookalike domains" },
+      { name: "MALWARE", description: "Known malicious patterns, suspicious file downloads" },
+      { name: "DATA_EXFILTRATION", description: "URLs designed to capture or redirect sensitive data" },
+      { name: "REDIRECT_ABUSE", description: "Open redirect exploitation" },
+      { name: "COMMAND_INJECTION", description: "Path traversal, SQL injection in URLs" },
+      { name: "TRACKING", description: "Excessive tracking parameters or fingerprinting" },
+    ],
+    parameters: [
+      { name: "urls", type: "string[]", required: true, description: "Array of URLs to analyze (max 20)" },
+    ],
+    responseFormat: "Per-URL results with verdict (safe/suspicious/dangerous), riskScore, threats[], recommendation (safe_to_visit/do_not_visit/visit_with_caution), explanation. Plus overallVerdict and overallRiskScore across all URLs.",
+    testResults: "Correctly flagged a spoofed Microsoft domain (micros0ft-support.com), detected a path traversal attack in URL parameters, and correctly identified a safe Google Docs link. Claude cost per call: $0.004. Latency: 6,890ms.",
+  },
+  {
+    id: "check_response_safety",
+    name: "check_response_safety",
+    icon: Reply,
+    label: "Response Safety",
+    purpose: "Reviews an AI agent's draft email reply BEFORE it sends it. Catches data leaks, over-sharing of sensitive information, compliance violations, and social engineering compliance where the agent unknowingly follows manipulation instructions.",
+    purposeExtra: "All threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. Optionally accepts the original email for context, but runs full analysis even without it. Returns specific suggested revisions to make the draft safer.",
+    useCase: "Agent drafts a reply to an email. Before sending, it passes the draft (and optionally the original email) to this tool. The tool checks whether the response would leak sensitive data, comply with a social engineering attempt, or violate compliance policies.",
+    categories: [
+      { name: "DATA_LEAKAGE", description: "Sharing sensitive financial, personal, or proprietary information" },
+      { name: "COMPLIANCE_RISK", description: "PII exposure, financial data regulation violations" },
+      { name: "SOCIAL_ENGINEERING_COMPLIANCE", description: "Unknowingly responding to manipulation" },
+      { name: "UNAUTHORIZED_ACTION", description: "Actions outside normal authorization scope" },
+      { name: "IMPERSONATION_RISK", description: "Response that could enable downstream fraud" },
+      { name: "EXCESSIVE_DISCLOSURE", description: "Sharing more information than necessary" },
+    ],
+    parameters: [
+      { name: "draftTo", type: "string", required: true, description: "Recipient email address" },
+      { name: "draftSubject", type: "string", required: true, description: "Draft subject line" },
+      { name: "draftBody", type: "string", required: true, description: "The draft response body" },
+      { name: "originalFrom", type: "string", required: false, description: "Original email sender" },
+      { name: "originalSubject", type: "string", required: false, description: "Original email subject" },
+      { name: "originalBody", type: "string", required: false, description: "Original email body for context" },
+    ],
+    responseFormat: "verdict (safe_to_send/review_required/do_not_send), riskScore (0.0-1.0), confidence (0.0-1.0), threats[] with type/description/severity/dataAtRisk, recommendation, explanation, suggestedRevisions[] with specific changes to make the draft safer.",
+    testResults: "Correctly caught SSN sharing in a draft reply, wire transfer fraud compliance (agent about to send banking details to a fraudulent request), and unauthorized disclosure of internal system credentials. 6 threats detected total. Claude cost: $0.005. Latency: 16,061ms.",
+  },
+  {
+    id: "analyze_email_thread",
+    name: "analyze_email_thread",
+    icon: MessageSquare,
+    label: "Thread Analysis",
+    purpose: "Analyzes full multi-message email conversations for escalating manipulation patterns. Detects social engineering that builds trust gradually across multiple messages then exploits it -- patterns that single-email analysis would miss entirely.",
+    purposeExtra: "All manipulation pattern categories are checked on every call automatically. No optional flags needed -- full analysis always runs. Uses unit-based billing: 1 unit = 4,000 tokens (~3,000 words). Threads under 5 units ($0.10) auto-charge; larger threads receive a cost quote first so the agent can confirm before proceeding.",
+    useCase: "Agent is in an ongoing email conversation that has spanned multiple messages. Before responding to the latest message, it submits the full thread (2-50 messages) for pattern analysis. The tool examines how the conversation has evolved and whether manipulation patterns are emerging.",
+    categories: [
+      { name: "ESCALATION_PATTERN", description: "Increasing urgency, pressure, or authority claims over time" },
+      { name: "SCOPE_CREEP", description: "Requests gradually expanding from reasonable to suspicious" },
+      { name: "TRUST_BUILDING", description: "Initial rapport-building followed by exploitation" },
+      { name: "AUTHORITY_ESCALATION", description: "Progressively invoking higher authority figures" },
+      { name: "DEADLINE_MANUFACTURING", description: "Creating artificial time pressure across messages" },
+      { name: "INFORMATION_HARVESTING", description: "Systematic extraction of sensitive data across messages" },
+    ],
+    parameters: [
+      { name: "messages", type: "object[]", required: true, description: "Array of messages (min 2, max 50), each with from, subject, body, date (optional)" },
+    ],
+    responseFormat: "verdict (safe/suspicious/dangerous), riskScore (0.0-1.0), confidence (0.0-1.0), manipulationPatterns[] with type/description/severity/evidenceMessages, threadProgression summary, recommendation (continue_conversation/proceed_with_caution/disengage), safeActions[], unsafeActions[].",
+    testResults: "Detected 6 manipulation patterns in a test thread including trust-to-exploitation progression, deadline manufacturing, scope creep from invoice questions to wire transfer requests, and information harvesting. Claude cost: $0.006. Latency: 10,521ms.",
+  },
+  {
+    id: "check_attachment_safety",
+    name: "check_attachment_safety",
+    icon: Paperclip,
+    label: "Attachment Safety",
+    purpose: "Assesses email attachment risk based on metadata (filename, MIME type, file size, sender) BEFORE an AI agent opens or downloads them. Analyzes up to 20 attachments per call. Does not require the actual file content -- metadata analysis is sufficient to catch most threats.",
+    purposeExtra: "All threat categories are checked on every call automatically. No optional flags needed -- full analysis always runs. Each attachment is analyzed individually and receives its own verdict. The response includes explicit safeToProcess[] and doNotProcess[] lists for easy agent decision-making.",
+    useCase: "Agent receives an email with attachments. Before downloading or opening any files, it passes the attachment metadata (filename, size, MIME type) to this tool. The tool identifies disguised executables, double extensions, macro risks, and other file-based threats.",
+    categories: [
+      { name: "EXECUTABLE_MASQUERADE", description: "File pretending to be a safe type but is actually executable" },
+      { name: "DOUBLE_EXTENSION", description: "Multiple extensions used to hide true file type (e.g., .pdf.exe)" },
+      { name: "MACRO_RISK", description: "Document formats known to contain macros (.docm, .xlsm)" },
+      { name: "ARCHIVE_RISK", description: "Compressed files that could contain hidden malware" },
+      { name: "SIZE_ANOMALY", description: "File size inconsistent with claimed type" },
+      { name: "MIME_MISMATCH", description: "MIME type does not match file extension" },
+    ],
+    parameters: [
+      { name: "attachments", type: "object[]", required: true, description: "Array of attachment metadata (max 20), each with name, size (bytes), mimeType, from (optional)" },
+    ],
+    responseFormat: "Per-attachment results with verdict (safe/suspicious/dangerous), riskScore, threats[], recommendation (safe_to_open/do_not_open/open_with_caution), explanation. Plus overallVerdict, overallRiskScore, safeToProcess[] filenames, doNotProcess[] filenames.",
+    testResults: "Caught a double extension attack (.pdf.exe disguised as a PDF), MIME mismatch (.jpg.js with JavaScript MIME type), archive risk from a suspicious .zip, and macro risk from a .docm file. Claude cost: $0.006. Latency: 8,562ms.",
+  },
+  {
+    id: "check_sender_reputation",
+    name: "check_sender_reputation",
+    icon: UserCheck,
+    label: "Sender Reputation",
+    purpose: "Evaluates whether an email sender is who they claim to be. This is the only tool in the suite that combines real infrastructure verification with AI analysis. It performs live DNS DMARC lookups and RDAP domain age checks alongside Claude-powered pattern analysis and BEC (Business Email Compromise) detection.",
+    purposeExtra: "All checks run on every call automatically: DMARC lookup, RDAP domain age, and Claude AI analysis across all 9 issue categories. No optional flags needed -- the agent just sends the email address and display name, and the tool does everything else. The 3-step pipeline runs in sequence: (1) DNS DMARC Lookup (free, ~50-200ms), (2) RDAP Domain Age Lookup (free, ~100-500ms), (3) Claude AI Analysis with infrastructure data injected into the prompt.",
+    useCase: "Agent receives an email from someone claiming to be an authority figure (CEO, IT admin, vendor). Before acting on the request, it checks the sender's trustworthiness. The tool automatically looks up the sender's domain for DMARC policy and registration age, then combines that real data with AI analysis.",
+    categories: [
+      { name: "DOMAIN_SPOOFING", description: "Email domain doesn't match claimed organization" },
+      { name: "REPLY_TO_MISMATCH", description: "Reply-To address differs from sender address" },
+      { name: "DISPLAY_NAME_FRAUD", description: "Display name crafted to impersonate authority" },
+      { name: "AUTHENTICATION_FAILURE", description: "DMARC policy failures (verified via live DNS lookup)" },
+      { name: "BEC_INDICATORS", description: "Business Email Compromise patterns" },
+      { name: "FIRST_CONTACT_RISK", description: "No prior relationship with this sender" },
+      { name: "AUTHORITY_CLAIM", description: "Claiming executive status to pressure action" },
+      { name: "DOMAIN_AGE_RISK", description: "Domain registered very recently (via RDAP lookup)" },
+      { name: "NO_DMARC_POLICY", description: "Domain has no DMARC record published" },
+    ],
+    parameters: [
+      { name: "email", type: "string", required: true, description: "Sender's email address" },
+      { name: "displayName", type: "string", required: true, description: "Sender's display name" },
+      { name: "replyTo", type: "string", required: false, description: "Reply-To address if different" },
+      { name: "emailSubject", type: "string", required: false, description: "Subject line for context" },
+      { name: "emailSnippet", type: "string", required: false, description: "Brief body snippet for context" },
+    ],
+    responseFormat: "senderVerdict (trusted/unverified/suspicious/likely_fraudulent), trustScore (0.0-1.0), confidence (0.0-1.0), identityIssues[] with type/description/severity, becProbability (0.0-1.0), recommendation (trust_sender/verify_identity/do_not_trust), verificationSteps[], domainIntelligence with dmarcExists, dmarcPolicy, domainAgeDays, registrationDate, registrar.",
+    testResults: "Identified a fraudulent sender with 93% BEC probability, 6 identity issues detected, and a 'likely_fraudulent' verdict. Live DMARC lookup confirmed no DMARC policy on the spoofed domain. RDAP showed domain registered only 3 days prior. Claude cost: $0.005. Latency: 6,257ms.",
+  },
+];
+
+function ToolDetailCard({ tool }: { tool: typeof toolsData[0] }) {
+  const Icon = tool.icon;
+  return (
+    <div id={`tool-${tool.id}`} data-testid={`tool-detail-${tool.id}`}>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+              <Icon className="h-5 w-5 text-primary" />
+            </div>
+            <CardTitle className="text-xl font-bold">{tool.name}</CardTitle>
+            <Badge variant="secondary" className="shrink-0">$0.02 / call</Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <h4 className="text-sm font-semibold mb-2">What It Does</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-2">{tool.purpose}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{tool.purposeExtra}</p>
+          </div>
+
+          <div className="bg-muted/50 rounded-md p-4">
+            <h4 className="text-sm font-semibold mb-2">Use Case</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed">{tool.useCase}</p>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold mb-3">What It Checks For</h4>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {tool.categories.map((cat) => (
+                <div key={cat.name} className="flex items-start gap-2 p-2 rounded-md bg-muted/30">
+                  <Badge variant="secondary" className="shrink-0 text-xs mt-0.5">{cat.name}</Badge>
+                  <span className="text-xs text-muted-foreground">{cat.description}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold mb-3">Parameters</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm" data-testid={`table-params-${tool.id}`}>
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Name</th>
+                    <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Type</th>
+                    <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Required</th>
+                    <th className="text-left py-2 font-medium text-muted-foreground">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tool.parameters.map((param) => (
+                    <tr key={param.name} className="border-b last:border-0">
+                      <td className="py-2 pr-4 font-mono text-xs">{param.name}</td>
+                      <td className="py-2 pr-4 text-xs text-muted-foreground">{param.type}</td>
+                      <td className="py-2 pr-4">
+                        <Badge variant={param.required ? "default" : "secondary"} className="text-xs">
+                          {param.required ? "required" : "optional"}
+                        </Badge>
+                      </td>
+                      <td className="py-2 text-xs text-muted-foreground">{param.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold mb-2">Response Format</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed bg-muted/30 rounded-md p-3">{tool.responseFormat}</p>
+          </div>
+
+          <div className="bg-muted/50 rounded-md p-4">
+            <h4 className="text-sm font-semibold mb-2">Test Results</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed">{tool.testResults}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function HowItWorks() {
+  const [selectedTool, setSelectedTool] = useState("check_email_safety");
+
   useSEO({
     title: "How Agent Safe Works - 6-Tool Email Security Suite for AI Agents | MCP Server",
     description: "Learn how Agent Safe's 6-tool email security suite analyzes emails, URLs, replies, attachments, sender reputation, and threads for phishing, prompt injection, CEO fraud, and social engineering. See real testing results and example responses.",
@@ -134,7 +376,50 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      <section className="py-20 px-4 bg-card/50">
+      <section className="py-20 px-4 bg-card/50" data-testid="section-tool-explorer">
+        <div className="container mx-auto max-w-5xl">
+          <div className="text-center mb-12">
+            <Badge variant="secondary" className="mb-6" data-testid="badge-explore-tools">
+              Tool Explorer
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-explore-heading">
+              Explore the 6 Tools
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Select a tool below to see its full capabilities, parameters, threat categories, and real test results.
+            </p>
+          </div>
+
+          <Tabs value={selectedTool} onValueChange={setSelectedTool}>
+            <div className="overflow-x-auto pb-2 mb-6">
+              <TabsList className="w-full flex" data-testid="tabs-tool-selector">
+                {toolsData.map((tool) => {
+                  const Icon = tool.icon;
+                  return (
+                    <TabsTrigger
+                      key={tool.id}
+                      value={tool.id}
+                      className="flex items-center gap-2 min-w-0 flex-1"
+                      data-testid={`tab-${tool.id}`}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span className="hidden sm:inline truncate">{tool.label}</span>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </div>
+
+            {toolsData.map((tool) => (
+              <TabsContent key={tool.id} value={tool.id}>
+                <ToolDetailCard tool={tool} />
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
+      </section>
+
+      <section className="py-20 px-4">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-threats-heading">
@@ -213,7 +498,7 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 bg-card/50">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-results-heading">
@@ -316,7 +601,7 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-card/50">
+      <section className="py-16 px-4">
         <div className="container mx-auto max-w-3xl">
           <Card>
             <CardContent className="pt-6">
@@ -338,7 +623,7 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 bg-card/50">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-4" data-testid="text-cta-heading">
             Protect Your Agent Now
