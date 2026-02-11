@@ -4,26 +4,33 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
-BUILD_PLAN.md
-RESEARCH_AGENT_PAYMENTS_AND_DISCOVERY.md
-replit.md
-tool-concepts-research.md
 
 # Replit-specific (contains env vars and deployment config)
 .replit
+replit.md
 replit.nix
 .cache
 .config
 .local
 generated-icon.png
+server.json
 
 # Deployment-specific configs
 fly.toml
 Dockerfile
 .dockerignore
 
-# Internal documentation and build instructions
+# Internal documentation, research, and proposals
 attached_assets/
+BUILD_PLAN.md
+RESEARCH_AGENT_PAYMENTS_AND_DISCOVERY.md
+tool-concepts-research.md
+proposal-universal-message-tool.md
+
+# Test scripts (contain API key references and internal testing logic)
+test-smithery.ts
+test-message-safety.ts
+tests/
 
 # Registry submission drafts
 registry-submissions/
