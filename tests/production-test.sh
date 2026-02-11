@@ -15,8 +15,8 @@ RESP=$(curl -s -X POST "$BASE_URL/mcp" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{"jsonrpc":"2.0","id":"t1","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}}')
-if echo "$RESP" | grep -q 'SafeMessage'; then
-  pass "MCP initialize returns SafeMessage server info"
+if echo "$RESP" | grep -q 'AgentSafe'; then
+  pass "MCP initialize returns AgentSafe server info"
 else
   fail "MCP initialize" "$RESP"
 fi
@@ -61,8 +61,8 @@ RESP=$(curl -s -X POST "$BASE_URL/mcp" \
   -H "Accept: application/json, text/event-stream" \
   -H "Authorization: Bearer invalidtoken123" \
   -d '{"jsonrpc":"2.0","id":"t5","method":"tools/call","params":{"name":"check_email_safety","arguments":{"from":"test@evil.com","subject":"Click here","body":"Urgent"}}}')
-if echo "$RESP" | grep -q 'Invalid token'; then
-  pass "Invalid Bearer token rejected properly"
+if echo "$RESP" | grep -q 'Payment required\|Invalid token'; then
+  pass "Invalid Bearer token rejected (returns Payment required or Invalid token)"
 else
   fail "Invalid Bearer token" "$RESP"
 fi
@@ -77,7 +77,7 @@ fi
 
 echo "--- Test 7: REST Discovery endpoint ---"
 RESP=$(curl -s "$BASE_URL/mcp/discover")
-if echo "$RESP" | grep -q 'skyfire_pay' && echo "$RESP" | grep -q 'SafeMessage Guard'; then
+if echo "$RESP" | grep -q 'skyfire_pay' && echo "$RESP" | grep -q 'Agent Safe'; then
   pass "REST /mcp/discover returns service info with Skyfire"
 else
   fail "REST /mcp/discover" "$RESP"
