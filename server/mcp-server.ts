@@ -453,13 +453,37 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
   return server;
 }
 
+function extractSmitheryConfig(req: Request): Record<string, string> {
+  const configParam = req.query.config as string | undefined;
+  if (!configParam) return {};
+  try {
+    const decoded = Buffer.from(configParam, "base64").toString("utf-8");
+    let parsed = JSON.parse(decoded);
+    if (parsed.config && typeof parsed.config === "string") {
+      try {
+        parsed = JSON.parse(Buffer.from(parsed.config, "base64").toString("utf-8"));
+      } catch {
+        parsed = JSON.parse(parsed.config);
+      }
+    }
+    return parsed;
+  } catch {
+    return {};
+  }
+}
+
 export function mountMcpServer(app: Express): void {
   app.post("/mcp", async (req: Request, res: Response) => {
     try {
+      const smitheryConfig = extractSmitheryConfig(req);
+      if (Object.keys(smitheryConfig).length > 0) {
+        console.log(`[AUTH] Smithery config detected`);
+      }
       const rawPayId = (req.headers["skyfire-pay-id"] as string | undefined)
         || (req.query.SKYFIRE_PAY_TOKEN as string | undefined);
       const rawApiKey = (req.headers["skyfire-api-key"] as string | undefined)
-        || (req.query.SKYFIRE_API_KEY as string | undefined);
+        || (req.query.SKYFIRE_API_KEY as string | undefined)
+        || smitheryConfig["skyfire-api-key"];
       const { skyfireToken, buyerApiKey, warning } = detectAndFixAuthHeaders(rawPayId, rawApiKey);
       if (warning) {
         console.log(`[AUTH] Header auto-corrected: ${warning}`);
