@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import passport from "passport";
 import { setupAuth, requireAuth } from "./auth";
 import { storage } from "./storage";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 import { 
   insertOwnerSchema, 
   loginSchema, 
@@ -433,6 +435,111 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
     } catch (error) {
       console.error("Recent checks error:", error);
       return res.status(500).json({ error: "Failed to get recent checks" });
+    }
+  });
+
+  // ===== ADMIN DASHBOARD (password-protected) =====
+  const DASH_PASSWORD = "keepitsafe";
+
+  app.get("/api/dash/stats", async (req: Request, res: Response) => {
+    const pw = req.headers["x-dash-password"] || req.query.pw;
+    if (pw !== DASH_PASSWORD) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    try {
+      const results = await db.execute(sql`
+        SELECT
+          COUNT(*)::int AS total_calls,
+          COALESCE(SUM(charged_amount), 0)::numeric(10,2) AS total_revenue,
+          COUNT(CASE WHEN verdict = 'dangerous' THEN 1 END)::int AS dangerous,
+          COUNT(CASE WHEN verdict = 'suspicious' THEN 1 END)::int AS suspicious,
+          COUNT(CASE WHEN verdict = 'safe' THEN 1 END)::int AS safe,
+          AVG(risk_score)::numeric(4,2) AS avg_risk,
+          AVG(analysis_duration_ms)::int AS avg_duration_ms,
+          MIN(created_at) AS first_check,
+          MAX(created_at) AS last_check
+        FROM email_checks
+      `);
+
+      const toolBreakdown = await db.execute(sql`
+        SELECT
+          tool_name,
+          COUNT(*)::int AS calls,
+          COALESCE(SUM(charged_amount), 0)::numeric(10,2) AS revenue,
+          AVG(risk_score)::numeric(4,2) AS avg_risk,
+          COUNT(CASE WHEN verdict = 'dangerous' THEN 1 END)::int AS dangerous,
+          COUNT(CASE WHEN verdict = 'suspicious' THEN 1 END)::int AS suspicious,
+          COUNT(CASE WHEN verdict = 'safe' THEN 1 END)::int AS safe
+        FROM email_checks
+        GROUP BY tool_name
+        ORDER BY calls DESC
+      `);
+
+      const paymentBreakdown = await db.execute(sql`
+        SELECT
+          payment_type,
+          COUNT(*)::int AS calls,
+          COALESCE(SUM(charged_amount), 0)::numeric(10,2) AS revenue
+        FROM email_checks
+        GROUP BY payment_type
+        ORDER BY calls DESC
+      `);
+
+      const dailyTrend = await db.execute(sql`
+        SELECT
+          DATE(created_at) AS day,
+          COUNT(*)::int AS calls,
+          COALESCE(SUM(charged_amount), 0)::numeric(10,2) AS revenue,
+          COUNT(CASE WHEN verdict = 'dangerous' THEN 1 END)::int AS dangerous
+        FROM email_checks
+        GROUP BY DATE(created_at)
+        ORDER BY day
+      `);
+
+      const recentChecks = await db.execute(sql`
+        SELECT tool_name, sender_domain, verdict, risk_score, charged_amount, payment_type, analysis_duration_ms, created_at
+        FROM email_checks
+        ORDER BY created_at DESC
+        LIMIT 25
+      `);
+
+      const threatIntelStats = await db.execute(sql`
+        SELECT
+          COUNT(*)::int AS total_entries,
+          COUNT(CASE WHEN source = 'virustotal' THEN 1 END)::int AS vt_entries,
+          COUNT(CASE WHEN source = 'webRisk' THEN 1 END)::int AS wr_entries
+        FROM threat_intel
+      `);
+
+      const scamPatternStats = await db.execute(sql`
+        SELECT
+          COUNT(*)::int AS total_patterns,
+          COUNT(DISTINCT sender_domain)::int AS domains_tracked
+        FROM scam_patterns
+      `);
+
+      const domainReputationStats = await db.execute(sql`
+        SELECT
+          COUNT(*)::int AS total_domains,
+          AVG(computed_trust_score)::numeric(4,2) AS avg_trust,
+          COUNT(CASE WHEN computed_trust_score < 0.5 THEN 1 END)::int AS low_trust_domains
+        FROM domain_reputation
+      `);
+
+      return res.json({
+        overview: results.rows[0],
+        toolBreakdown: toolBreakdown.rows,
+        paymentBreakdown: paymentBreakdown.rows,
+        dailyTrend: dailyTrend.rows,
+        recentChecks: recentChecks.rows,
+        threatIntel: threatIntelStats.rows[0],
+        scamPatterns: scamPatternStats.rows[0],
+        domainReputation: domainReputationStats.rows[0],
+      });
+    } catch (error) {
+      console.error("Dash stats error:", error);
+      return res.status(500).json({ error: "Failed to get dash stats" });
     }
   });
 

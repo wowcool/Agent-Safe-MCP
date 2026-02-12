@@ -10,6 +10,7 @@ import HowItWorks from "@/pages/how-it-works";
 import Docs from "@/pages/docs";
 import Terms from "@/pages/terms";
 import NotFound from "@/pages/not-found";
+import Dash from "@/pages/dash";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -34,6 +35,7 @@ function Router() {
         <Route path="/how-it-works" component={HowItWorks} />
         <Route path="/docs" component={Docs} />
         <Route path="/terms" component={Terms} />
+        <Route path="/dash" component={Dash} />
         <Route component={NotFound} />
       </Switch>
     </>
