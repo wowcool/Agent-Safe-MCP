@@ -1,5 +1,6 @@
 import { callClaude, parseJsonResponse, clampScore, sanitizeSeverity, type ThreatItem } from "./base";
 import { lookupUrl, lookupDomain, summarizeReputation, type VTReputationResult } from "../virustotal";
+import { lookupUrl as webRiskLookup, type WebRiskResult } from "../google-webrisk";
 
 const PROMPT = `You are a URL security analyzer designed to protect AI agents from phishing, malware, and deceptive destinations. Analyze the following URLs and provide a security assessment.
 
@@ -8,6 +9,9 @@ URLs TO ANALYZE:
 
 VIRUSTOTAL INTELLIGENCE (from 70+ security engines):
 {vtIntel}
+
+GOOGLE WEB RISK INTELLIGENCE (Google's commercial threat database):
+{webRiskIntel}
 
 Analyze EVERY URL for ALL of these threat categories:
 1. PHISHING - Domain spoofing, typosquatting, lookalike domains
@@ -81,33 +85,48 @@ function quickUrlCheck(urls: string[]): ThreatItem[] {
   return threats;
 }
 
-interface VTIntelResult {
+interface ThreatIntelResult {
   vtResults: Map<string, VTReputationResult>;
+  wrResults: Map<string, WebRiskResult>;
   vtIntelText: string;
-  vtThreats: ThreatItem[];
+  webRiskIntelText: string;
+  intelThreats: ThreatItem[];
 }
 
-async function getVTIntel(urls: string[]): Promise<VTIntelResult> {
+async function getThreatIntel(urls: string[]): Promise<ThreatIntelResult> {
   const vtResults = new Map<string, VTReputationResult>();
-  const vtThreats: ThreatItem[] = [];
-  const lines: string[] = [];
+  const wrResults = new Map<string, WebRiskResult>();
+  const intelThreats: ThreatItem[] = [];
+  const vtLines: string[] = [];
+  const wrLines: string[] = [];
 
   try {
     const lookups = urls.slice(0, 5).map(async (url) => {
       try {
         const parsed = new URL(url);
-        const [urlResult, domainResult] = await Promise.all([
+        const [urlResult, domainResult, wrResult] = await Promise.all([
           lookupUrl(url).catch(() => null),
           lookupDomain(parsed.hostname).catch(() => null),
+          webRiskLookup(url).catch(() => null),
         ]);
-        const result = urlResult?.found ? urlResult : domainResult;
-        if (result) {
-          vtResults.set(url, result);
-          lines.push(`${url.substring(0, 80)}: ${summarizeReputation(result)}`);
-          if (result.malicious > 0) {
-            vtThreats.push({ type: "MALWARE", description: `VirusTotal: ${result.malicious} security engine(s) flagged ${parsed.hostname} as malicious`, severity: "critical" });
-          } else if (result.suspicious > 0) {
-            vtThreats.push({ type: "PHISHING", description: `VirusTotal: ${result.suspicious} engine(s) flagged ${parsed.hostname} as suspicious`, severity: "high" });
+
+        const vtResult = urlResult?.found ? urlResult : domainResult;
+        if (vtResult) {
+          vtResults.set(url, vtResult);
+          vtLines.push(`${url.substring(0, 80)}: ${summarizeReputation(vtResult)}`);
+          if (vtResult.malicious > 0) {
+            intelThreats.push({ type: "MALWARE", description: `VirusTotal: ${vtResult.malicious} security engine(s) flagged ${parsed.hostname} as malicious`, severity: "critical" });
+          } else if (vtResult.suspicious > 0) {
+            intelThreats.push({ type: "PHISHING", description: `VirusTotal: ${vtResult.suspicious} engine(s) flagged ${parsed.hostname} as suspicious`, severity: "high" });
+          }
+        }
+
+        if (wrResult) {
+          wrResults.set(url, wrResult);
+          wrLines.push(`${url.substring(0, 80)}: ${wrResult.summary}`);
+          if (!wrResult.safe) {
+            const threatTypes = wrResult.threats.map(t => t.threatType).join(", ");
+            intelThreats.push({ type: "GOOGLE_WEB_RISK", description: `Google Web Risk flagged ${parsed.hostname}: ${threatTypes}`, severity: "critical" });
           }
         }
       } catch {}
@@ -115,27 +134,44 @@ async function getVTIntel(urls: string[]): Promise<VTIntelResult> {
     await Promise.all(lookups);
   } catch {}
 
-  return { vtResults, vtIntelText: lines.length > 0 ? lines.join("\n") : "No VirusTotal data available", vtThreats };
+  return {
+    vtResults,
+    wrResults,
+    vtIntelText: vtLines.length > 0 ? vtLines.join("\n") : "No VirusTotal data available",
+    webRiskIntelText: wrLines.length > 0 ? wrLines.join("\n") : "No Google Web Risk data available",
+    intelThreats,
+  };
 }
 
-function enrichUrlResultsWithVT(result: UrlSafetyResult, vtResults: Map<string, VTReputationResult>): void {
+function enrichWithThreatIntel(result: UrlSafetyResult, vtResults: Map<string, VTReputationResult>, wrResults: Map<string, WebRiskResult>): void {
   for (const urlResult of result.urls) {
     const vtData = vtResults.get(urlResult.url);
-    if (!vtData || !vtData.found) continue;
-
-    if (vtData.malicious > 0) {
-      urlResult.verdict = "dangerous";
-      urlResult.riskScore = Math.max(urlResult.riskScore, 0.95);
-      urlResult.recommendation = "do_not_visit";
-      if (!urlResult.threats.some(t => t.description.includes("VirusTotal"))) {
-        urlResult.threats.push({ type: "MALWARE", description: `VirusTotal: ${vtData.malicious} of ${vtData.totalEngines} security engines flagged this as malicious`, severity: "critical" });
+    if (vtData?.found) {
+      if (vtData.malicious > 0) {
+        urlResult.verdict = "dangerous";
+        urlResult.riskScore = Math.max(urlResult.riskScore, 0.95);
+        urlResult.recommendation = "do_not_visit";
+        if (!urlResult.threats.some(t => t.description.includes("VirusTotal"))) {
+          urlResult.threats.push({ type: "MALWARE", description: `VirusTotal: ${vtData.malicious} of ${vtData.totalEngines} security engines flagged this as malicious`, severity: "critical" });
+        }
+      } else if (vtData.suspicious > 0) {
+        if (urlResult.verdict === "safe") urlResult.verdict = "suspicious";
+        urlResult.riskScore = Math.max(urlResult.riskScore, 0.7);
+        urlResult.recommendation = urlResult.recommendation === "safe_to_visit" ? "visit_with_caution" : urlResult.recommendation;
+        if (!urlResult.threats.some(t => t.description.includes("VirusTotal"))) {
+          urlResult.threats.push({ type: "PHISHING", description: `VirusTotal: ${vtData.suspicious} of ${vtData.totalEngines} engines flagged this as suspicious`, severity: "high" });
+        }
       }
-    } else if (vtData.suspicious > 0) {
-      if (urlResult.verdict === "safe") urlResult.verdict = "suspicious";
-      urlResult.riskScore = Math.max(urlResult.riskScore, 0.7);
-      urlResult.recommendation = urlResult.recommendation === "safe_to_visit" ? "visit_with_caution" : urlResult.recommendation;
-      if (!urlResult.threats.some(t => t.description.includes("VirusTotal"))) {
-        urlResult.threats.push({ type: "PHISHING", description: `VirusTotal: ${vtData.suspicious} of ${vtData.totalEngines} engines flagged this as suspicious`, severity: "high" });
+    }
+
+    const wrData = wrResults.get(urlResult.url);
+    if (wrData && !wrData.safe) {
+      urlResult.verdict = "dangerous";
+      urlResult.riskScore = Math.max(urlResult.riskScore, 0.98);
+      urlResult.recommendation = "do_not_visit";
+      const threatTypes = wrData.threats.map(t => t.threatType).join(", ");
+      if (!urlResult.threats.some(t => t.description.includes("Google Web Risk"))) {
+        urlResult.threats.push({ type: "GOOGLE_WEB_RISK", description: `Google Web Risk: flagged as ${threatTypes}`, severity: "critical" });
       }
     }
   }
@@ -155,13 +191,14 @@ export async function analyzeUrls(urls: string[]): Promise<{ result: UrlSafetyRe
   const startTime = Date.now();
   const patternThreats = quickUrlCheck(urls);
 
-  const { vtResults, vtIntelText, vtThreats } = await getVTIntel(urls);
-  patternThreats.push(...vtThreats);
+  const { vtResults, wrResults, vtIntelText, webRiskIntelText, intelThreats } = await getThreatIntel(urls);
+  patternThreats.push(...intelThreats);
 
   try {
     const prompt = PROMPT
       .replace("{urls}", urls.map((u, i) => `${i + 1}. ${u}`).join("\n"))
-      .replace("{vtIntel}", vtIntelText);
+      .replace("{vtIntel}", vtIntelText)
+      .replace("{webRiskIntel}", webRiskIntelText);
     const { text } = await callClaude(prompt, 1024);
 
     const fallback: UrlSafetyResult = {
@@ -184,7 +221,7 @@ export async function analyzeUrls(urls: string[]): Promise<{ result: UrlSafetyRe
       overallRiskScore: clampScore(parsed.overallRiskScore),
     };
 
-    enrichUrlResultsWithVT(result, vtResults);
+    enrichWithThreatIntel(result, vtResults, wrResults);
 
     if (patternThreats.some(t => t.severity === "critical")) {
       result.overallVerdict = "dangerous";

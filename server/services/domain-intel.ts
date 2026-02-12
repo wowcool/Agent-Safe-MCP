@@ -1,6 +1,7 @@
 import dns from "dns";
 import { promisify } from "util";
 import { lookupDomain, type VTReputationResult, summarizeReputation } from "./virustotal";
+import { lookupUrl as webRiskLookup, type WebRiskResult } from "./google-webrisk";
 
 const resolveTxt = promisify(dns.resolveTxt);
 
@@ -27,10 +28,17 @@ export interface VirusTotalResult {
   categories: Record<string, string>;
 }
 
+export interface GoogleWebRiskResult {
+  safe: boolean;
+  threats: string[];
+  summary: string;
+}
+
 export interface DomainIntelligence {
   dmarc: DMARCResult;
   domainAge: DomainAgeResult;
   virusTotal: VirusTotalResult;
+  googleWebRisk: GoogleWebRiskResult;
 }
 
 const cache = new Map<string, { data: DomainIntelligence; cachedAt: number }>();
@@ -131,10 +139,11 @@ export async function getDomainIntelligence(
     return cached.data;
   }
 
-  const [dmarc, domainAge, vtResult] = await Promise.all([
+  const [dmarc, domainAge, vtResult, wrResult] = await Promise.all([
     lookupDMARC(domain),
     lookupDomainAge(domain),
     lookupDomain(domain).catch(() => null),
+    webRiskLookup(`https://${domain}/`).catch(() => null),
   ]);
 
   const virusTotal: VirusTotalResult = vtResult ? {
@@ -152,7 +161,15 @@ export async function getDomainIntelligence(
     categories: {},
   };
 
-  const result = { dmarc, domainAge, virusTotal };
+  const googleWebRisk: GoogleWebRiskResult = wrResult ? {
+    safe: wrResult.safe,
+    threats: wrResult.threats.map(t => t.threatType),
+    summary: wrResult.summary,
+  } : {
+    safe: true, threats: [], summary: "Google Web Risk lookup unavailable",
+  };
+
+  const result = { dmarc, domainAge, virusTotal, googleWebRisk };
   cache.set(domain, { data: result, cachedAt: Date.now() });
   return result;
 }

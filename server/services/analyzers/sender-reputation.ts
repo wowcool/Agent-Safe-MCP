@@ -26,6 +26,9 @@ Total engines scanned: {vtTotal}
 VirusTotal reputation score: {vtReputation}
 Domain categories: {vtCategories}
 
+GOOGLE WEB RISK (Google's commercial threat intelligence):
+{webRiskSummary}
+
 Analyze this sender for ALL of these issue categories:
 1. DOMAIN_SPOOFING - Email domain doesn't match claimed organization
 2. REPLY_TO_MISMATCH - Reply-To differs from sender address
@@ -79,6 +82,11 @@ export interface SenderReputationResult {
       reputation: number;
       summary: string;
     };
+    googleWebRisk?: {
+      safe: boolean;
+      threats: string[];
+      summary: string;
+    };
   };
 }
 
@@ -107,6 +115,7 @@ export async function analyzeSender(input: {
   const domainAgeDays = domainIntel?.domainAge.ageInDays ?? null;
   const registrar = domainIntel?.domainAge.registrar ?? null;
   const vt = domainIntel?.virusTotal ?? null;
+  const wr = domainIntel?.googleWebRisk ?? null;
 
   try {
     const prompt = PROMPT
@@ -126,7 +135,8 @@ export async function analyzeSender(input: {
       .replace("{vtSuspicious}", String(vt?.suspicious ?? "N/A"))
       .replace("{vtTotal}", String(vt?.totalEngines ?? "N/A"))
       .replace("{vtReputation}", String(vt?.reputation ?? "N/A"))
-      .replace("{vtCategories}", vt?.categories ? Object.entries(vt.categories).map(([k, v]) => `${k}: ${v}`).join(", ") || "None" : "N/A");
+      .replace("{vtCategories}", vt?.categories ? Object.entries(vt.categories).map(([k, v]) => `${k}: ${v}`).join(", ") || "None" : "N/A")
+      .replace("{webRiskSummary}", wr?.summary || "Google Web Risk data unavailable");
 
     const { text } = await callClaude(prompt, 1024);
 
@@ -156,6 +166,7 @@ export async function analyzeSender(input: {
         dmarcExists, dmarcPolicy, dmarcRecord,
         domainAgeDays, registrationDate, registrar,
         virusTotal: vt ? { found: vt.found, malicious: vt.malicious, suspicious: vt.suspicious, totalEngines: vt.totalEngines, reputation: vt.reputation, summary: vt.summary } : undefined,
+        googleWebRisk: wr ? { safe: wr.safe, threats: wr.threats, summary: wr.summary } : undefined,
       },
     };
 
@@ -166,6 +177,17 @@ export async function analyzeSender(input: {
       result.identityIssues.push({
         type: "VIRUSTOTAL_MALICIOUS",
         description: `Domain flagged as malicious by ${vt.malicious} of ${vt.totalEngines} security engines on VirusTotal`,
+        severity: "critical",
+      });
+    }
+
+    if (wr && !wr.safe) {
+      result.senderVerdict = "likely_fraudulent";
+      result.trustScore = Math.min(result.trustScore, 0.1);
+      result.recommendation = "do_not_trust";
+      result.identityIssues.push({
+        type: "GOOGLE_WEB_RISK",
+        description: `Domain flagged by Google Web Risk: ${wr.threats.join(", ")}`,
         severity: "critical",
       });
     }
@@ -184,6 +206,7 @@ export async function analyzeSender(input: {
           dmarcExists, dmarcPolicy, dmarcRecord,
           domainAgeDays, registrationDate, registrar,
           virusTotal: vt ? { found: vt.found, malicious: vt.malicious, suspicious: vt.suspicious, totalEngines: vt.totalEngines, reputation: vt.reputation, summary: vt.summary } : undefined,
+          googleWebRisk: wr ? { safe: wr.safe, threats: wr.threats, summary: wr.summary } : undefined,
         },
       },
       durationMs: Date.now() - startTime,
