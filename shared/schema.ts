@@ -175,6 +175,21 @@ export const domainReputation = pgTable("domain_reputation", {
   index("idx_domain_reputation_trust").on(table.computedTrustScore),
 ]);
 
+// Agent Feedback (collected via free submit_feedback MCP tool)
+export const agentFeedback = pgTable("agent_feedback", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  checkId: varchar("check_id", { length: 255 }),
+  toolName: varchar("tool_name", { length: 100 }),
+  rating: varchar("rating", { length: 20 }).notNull(),
+  comment: text("comment"),
+  agentPlatform: varchar("agent_platform", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("idx_agent_feedback_rating").on(table.rating),
+  index("idx_agent_feedback_created").on(table.createdAt),
+  index("idx_agent_feedback_tool").on(table.toolName),
+]);
+
 // ===== Insert Schemas =====
 
 export const insertOwnerSchema = createInsertSchema(owners).omit({
@@ -243,6 +258,11 @@ export const insertDomainReputationSchema = createInsertSchema(domainReputation)
   lastSeenAt: true,
 });
 
+export const insertAgentFeedbackSchema = createInsertSchema(agentFeedback).omit({
+  id: true,
+  createdAt: true,
+});
+
 // ===== Types =====
 
 export type Owner = typeof owners.$inferSelect;
@@ -271,6 +291,9 @@ export type InsertScamPattern = z.infer<typeof insertScamPatternSchema>;
 
 export type DomainReputation = typeof domainReputation.$inferSelect;
 export type InsertDomainReputation = z.infer<typeof insertDomainReputationSchema>;
+
+export type AgentFeedback = typeof agentFeedback.$inferSelect;
+export type InsertAgentFeedback = z.infer<typeof insertAgentFeedbackSchema>;
 
 // ===== API Types =====
 

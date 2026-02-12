@@ -527,6 +527,24 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
         FROM domain_reputation
       `);
 
+      const feedbackStats = await db.execute(sql`
+        SELECT
+          COUNT(*)::int AS total_feedback,
+          COUNT(CASE WHEN rating = 'helpful' THEN 1 END)::int AS helpful,
+          COUNT(CASE WHEN rating = 'not_helpful' THEN 1 END)::int AS not_helpful,
+          COUNT(CASE WHEN rating = 'inaccurate' THEN 1 END)::int AS inaccurate,
+          COUNT(CASE WHEN rating = 'missed_threat' THEN 1 END)::int AS missed_threat,
+          COUNT(CASE WHEN rating = 'false_positive' THEN 1 END)::int AS false_positive
+        FROM agent_feedback
+      `);
+
+      const recentFeedback = await db.execute(sql`
+        SELECT rating, comment, tool_name, agent_platform, check_id, created_at
+        FROM agent_feedback
+        ORDER BY created_at DESC
+        LIMIT 20
+      `);
+
       return res.json({
         overview: results.rows[0],
         toolBreakdown: toolBreakdown.rows,
@@ -536,6 +554,8 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
         threatIntel: threatIntelStats.rows[0],
         scamPatterns: scamPatternStats.rows[0],
         domainReputation: domainReputationStats.rows[0],
+        feedbackStats: feedbackStats.rows[0],
+        recentFeedback: recentFeedback.rows,
       });
     } catch (error) {
       console.error("Dash stats error:", error);

@@ -10,6 +10,7 @@ import {
   threatIntel,
   scamPatterns,
   domainReputation,
+  agentFeedback,
   type Owner,
   type InsertOwner,
   type AgentToken,
@@ -28,6 +29,8 @@ import {
   type InsertScamPattern,
   type DomainReputation,
   type InsertDomainReputation,
+  type AgentFeedback,
+  type InsertAgentFeedback,
 } from "@shared/schema";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -82,6 +85,9 @@ export interface IStorage {
   // Domain Reputation operations
   getDomainReputation(domain: string): Promise<DomainReputation | undefined>;
   upsertDomainReputation(domain: string, verdict: string, riskScore: number, extraData?: Partial<InsertDomainReputation>): Promise<DomainReputation>;
+
+  // Agent Feedback operations
+  createAgentFeedback(data: InsertAgentFeedback): Promise<AgentFeedback>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -412,6 +418,12 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return created;
+  }
+
+  // Agent Feedback operations
+  async createAgentFeedback(data: InsertAgentFeedback): Promise<AgentFeedback> {
+    const [feedback] = await db.insert(agentFeedback).values(data).returning();
+    return feedback;
   }
 }
 

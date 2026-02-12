@@ -18,6 +18,9 @@ import {
   RefreshCw,
   TrendingUp,
   BarChart3,
+  MessageCircle,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
 
 interface DashData {
@@ -76,6 +79,22 @@ interface DashData {
     avg_trust: string;
     low_trust_domains: number;
   };
+  feedbackStats: {
+    total_feedback: number;
+    helpful: number;
+    not_helpful: number;
+    inaccurate: number;
+    missed_threat: number;
+    false_positive: number;
+  };
+  recentFeedback: {
+    rating: string;
+    comment: string | null;
+    tool_name: string | null;
+    agent_platform: string | null;
+    check_id: string | null;
+    created_at: string;
+  }[];
 }
 
 function verdictColor(verdict: string) {
@@ -425,6 +444,88 @@ export default function Dash() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <MessageCircle className="h-4 w-4" />
+                Agent Feedback
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              {data.feedbackStats.total_feedback === 0 ? (
+                <div className="text-sm text-muted-foreground">
+                  No feedback yet. Agents can call the free <code className="text-xs bg-muted px-1 py-0.5 rounded">submit_feedback</code> tool after any analysis.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-1.5">
+                      <ThumbsUp className="h-4 w-4 text-green-500" />
+                      <span className="text-sm font-medium">{data.feedbackStats.helpful}</span>
+                      <span className="text-xs text-muted-foreground">helpful</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <ThumbsDown className="h-4 w-4 text-destructive" />
+                      <span className="text-sm font-medium">{data.feedbackStats.not_helpful}</span>
+                      <span className="text-xs text-muted-foreground">not helpful</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 flex-wrap text-xs">
+                    {data.feedbackStats.inaccurate > 0 && (
+                      <Badge variant="secondary">{data.feedbackStats.inaccurate} inaccurate</Badge>
+                    )}
+                    {data.feedbackStats.missed_threat > 0 && (
+                      <Badge variant="destructive">{data.feedbackStats.missed_threat} missed threat</Badge>
+                    )}
+                    {data.feedbackStats.false_positive > 0 && (
+                      <Badge variant="secondary">{data.feedbackStats.false_positive} false positive</Badge>
+                    )}
+                  </div>
+                  {data.feedbackStats.total_feedback > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      Satisfaction: {((data.feedbackStats.helpful / data.feedbackStats.total_feedback) * 100).toFixed(0)}% positive ({data.feedbackStats.total_feedback} total)
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {data.recentFeedback.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4" />
+                  Recent Feedback
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <div className="space-y-2">
+                  {data.recentFeedback.slice(0, 8).map((f, i) => (
+                    <div key={i} className="flex items-start gap-2 text-sm" data-testid={`row-feedback-${i}`}>
+                      {f.rating === "helpful" ? (
+                        <ThumbsUp className="h-3.5 w-3.5 text-green-500 mt-0.5 shrink-0" />
+                      ) : (
+                        <ThumbsDown className="h-3.5 w-3.5 text-destructive mt-0.5 shrink-0" />
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge variant="outline" className="text-[10px]">{f.rating}</Badge>
+                          {f.tool_name && <span className="text-xs text-muted-foreground">{toolLabel(f.tool_name)}</span>}
+                          {f.agent_platform && <span className="text-xs text-muted-foreground">via {f.agent_platform}</span>}
+                        </div>
+                        {f.comment && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{f.comment}</p>}
+                        <span className="text-[10px] text-muted-foreground">{formatDate(f.created_at)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <Card>

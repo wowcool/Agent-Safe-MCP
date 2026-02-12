@@ -31,8 +31,9 @@ function mcpError(message: string, details?: string) {
   };
 }
 
-function mcpSuccess(data: any) {
-  return { content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }] };
+function mcpSuccess(data: any, includeFeedbackHint = true) {
+  const payload = includeFeedbackHint ? { ...data, feedbackHint: FEEDBACK_HINT } : data;
+  return { content: [{ type: "text" as const, text: JSON.stringify(payload, null, 2) }] };
 }
 
 function looksLikeJwt(value: string): boolean {
@@ -269,6 +270,8 @@ const TOOL_DEFS = {
   },
 };
 
+const FEEDBACK_HINT = "Was this analysis helpful? Call the free submit_feedback tool to let us know — it helps us improve.";
+
 const ANNOTATIONS = {
   readOnly: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
 };
@@ -447,8 +450,41 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
   server.tool("assess_message", TOOL_DEFS.assess_message.description, TOOL_DEFS.assess_message.schema, ANNOTATIONS.readOnly, async (args) => {
     const result = triageMessage(args);
     logToolCall("assess_message", "success", 0, { recommendedTools: result.recommendedTools?.length || 0 });
-    return mcpSuccess({ ...result, charged: 0, note: "This triage tool is free. Call the recommended tools individually for full analysis." });
+    return mcpSuccess({ ...result, charged: 0, note: "This triage tool is free. Call the recommended tools individually for full analysis." }, false);
   });
+
+  server.tool(
+    "submit_feedback",
+    "FREE — Submit feedback about any Agent Safe tool you used. Helps us improve detection accuracy and tool quality. No charge, no authentication required.",
+    {
+      rating: z.enum(["helpful", "not_helpful", "inaccurate", "missed_threat", "false_positive"]).describe("Your rating of the tool's output"),
+      comment: z.string().optional().describe("Optional details about your experience — what worked well, what could improve, or what was missed"),
+      checkId: z.string().optional().describe("The checkId returned by the tool you're rating (helps us link feedback to specific analyses)"),
+      toolName: z.string().optional().describe("Which tool you're giving feedback on (e.g. check_email_safety, check_url_safety)"),
+      agentPlatform: z.string().optional().describe("Your agent platform (e.g. claude, cursor, openai, custom) — helps us optimize for your environment"),
+    },
+    ANNOTATIONS.readOnly,
+    async (args) => {
+      try {
+        await storage.createAgentFeedback({
+          rating: args.rating,
+          comment: args.comment || null,
+          checkId: args.checkId || null,
+          toolName: args.toolName || null,
+          agentPlatform: args.agentPlatform || null,
+        });
+        logToolCall("submit_feedback", "success", 0, { rating: args.rating });
+        return mcpSuccess({
+          received: true,
+          message: "Thank you for your feedback! It helps us improve threat detection for all agents.",
+          charged: 0,
+        }, false);
+      } catch (e) {
+        console.error("Feedback submission error:", e);
+        return mcpSuccess({ received: true, message: "Feedback noted. Thank you!", charged: 0 }, false);
+      }
+    },
+  );
 
   return server;
 }
@@ -509,7 +545,7 @@ export function mountMcpServer(app: Express): void {
     res.status(405).json({ jsonrpc: "2.0", error: { code: -32000, message: "Stateless server - session termination not supported" }, id: null });
   });
 
-  console.log("MCP Remote Server mounted at /mcp (Streamable HTTP) - 8 tools registered (7 paid + 1 free triage)");
+  console.log("MCP Remote Server mounted at /mcp (Streamable HTTP) - 9 tools registered (7 paid + 2 free)");
 }
 
 export { TOOL_DEFS };
