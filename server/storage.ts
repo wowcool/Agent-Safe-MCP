@@ -7,6 +7,9 @@ import {
   pendingRegistrations,
   referralAgents,
   usageLogs,
+  threatIntel,
+  scamPatterns,
+  domainReputation,
   type Owner,
   type InsertOwner,
   type AgentToken,
@@ -19,6 +22,12 @@ import {
   type InsertReferralAgent,
   type UsageLog,
   type InsertUsageLog,
+  type ThreatIntel,
+  type InsertThreatIntel,
+  type ScamPattern,
+  type InsertScamPattern,
+  type DomainReputation,
+  type InsertDomainReputation,
 } from "@shared/schema";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -59,6 +68,20 @@ export interface IStorage {
   
   // Stats
   getGlobalStats(): Promise<{ agentsServed: number; threatsBlocked: number; totalChecks: number }>;
+
+  // Threat Intelligence operations
+  getThreatIntel(indicatorType: string, indicatorValue: string, source?: string): Promise<ThreatIntel | undefined>;
+  upsertThreatIntel(data: InsertThreatIntel): Promise<ThreatIntel>;
+  getExpiredThreatIntel(limit?: number): Promise<ThreatIntel[]>;
+
+  // Scam Pattern operations
+  recordScamPatterns(patterns: InsertScamPattern[]): Promise<ScamPattern[]>;
+  getScamPatternsByDomain(domain: string, limit?: number): Promise<ScamPattern[]>;
+  getScamPatternStats(domain: string): Promise<{ total: number; byType: Record<string, number> }>;
+
+  // Domain Reputation operations
+  getDomainReputation(domain: string): Promise<DomainReputation | undefined>;
+  upsertDomainReputation(domain: string, verdict: string, riskScore: number, extraData?: Partial<InsertDomainReputation>): Promise<DomainReputation>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -248,6 +271,147 @@ export class DatabaseStorage implements IStorage {
       threatsBlocked: checkStats.suspicious + checkStats.dangerous,
       totalChecks: checkStats.total,
     };
+  }
+
+  // Threat Intelligence operations
+  async getThreatIntel(indicatorType: string, indicatorValue: string, source?: string): Promise<ThreatIntel | undefined> {
+    const conditions = [
+      eq(threatIntel.indicatorType, indicatorType),
+      eq(threatIntel.indicatorValue, indicatorValue.toLowerCase()),
+      gte(threatIntel.expiresAt, new Date()),
+    ];
+    if (source) conditions.push(eq(threatIntel.source, source));
+
+    const [result] = await db.select().from(threatIntel)
+      .where(and(...conditions))
+      .orderBy(desc(threatIntel.lastSeenAt))
+      .limit(1);
+    return result;
+  }
+
+  async upsertThreatIntel(data: InsertThreatIntel): Promise<ThreatIntel> {
+    const normalizedValue = data.indicatorValue.toLowerCase();
+    const existing = await this.getThreatIntel(data.indicatorType, normalizedValue, data.source);
+
+    if (existing) {
+      const [updated] = await db.update(threatIntel)
+        .set({
+          verdict: data.verdict,
+          threatTypes: data.threatTypes,
+          rawData: data.rawData,
+          summary: data.summary,
+          confidence: data.confidence,
+          hitCount: sql`${threatIntel.hitCount} + 1`,
+          lastSeenAt: new Date(),
+          expiresAt: data.expiresAt,
+        })
+        .where(eq(threatIntel.id, existing.id))
+        .returning();
+      return updated;
+    }
+
+    const [created] = await db.insert(threatIntel)
+      .values({ ...data, indicatorValue: normalizedValue })
+      .returning();
+    return created;
+  }
+
+  async getExpiredThreatIntel(limit = 100): Promise<ThreatIntel[]> {
+    return db.select().from(threatIntel)
+      .where(sql`${threatIntel.expiresAt} < NOW()`)
+      .limit(limit);
+  }
+
+  // Scam Pattern operations
+  async recordScamPatterns(patterns: InsertScamPattern[]): Promise<ScamPattern[]> {
+    if (patterns.length === 0) return [];
+    const results = await db.insert(scamPatterns).values(patterns).returning();
+    return results;
+  }
+
+  async getScamPatternsByDomain(domain: string, limit = 50): Promise<ScamPattern[]> {
+    return db.select().from(scamPatterns)
+      .where(eq(scamPatterns.senderDomain, domain.toLowerCase()))
+      .orderBy(desc(scamPatterns.createdAt))
+      .limit(limit);
+  }
+
+  async getScamPatternStats(domain: string): Promise<{ total: number; byType: Record<string, number> }> {
+    const patterns = await db.select({
+      patternType: scamPatterns.patternType,
+      count: sql<number>`count(*)::int`,
+    })
+      .from(scamPatterns)
+      .where(eq(scamPatterns.senderDomain, domain.toLowerCase()))
+      .groupBy(scamPatterns.patternType);
+
+    const byType: Record<string, number> = {};
+    let total = 0;
+    for (const p of patterns) {
+      byType[p.patternType] = p.count;
+      total += p.count;
+    }
+    return { total, byType };
+  }
+
+  // Domain Reputation operations
+  async getDomainReputation(domain: string): Promise<DomainReputation | undefined> {
+    const [result] = await db.select().from(domainReputation)
+      .where(eq(domainReputation.domain, domain.toLowerCase()));
+    return result;
+  }
+
+  async upsertDomainReputation(domain: string, verdict: string, riskScore: number, extraData?: Partial<InsertDomainReputation>): Promise<DomainReputation> {
+    const normalizedDomain = domain.toLowerCase();
+    const existing = await this.getDomainReputation(normalizedDomain);
+
+    if (existing) {
+      const newTotal = (existing.totalChecks || 0) + 1;
+      const oldAvg = existing.avgRiskScore ? parseFloat(existing.avgRiskScore) : 0;
+      const newAvg = ((oldAvg * (existing.totalChecks || 0)) + riskScore) / newTotal;
+
+      const updateData: Record<string, any> = {
+        totalChecks: newTotal,
+        avgRiskScore: String(Math.round(newAvg * 10000) / 10000),
+        lastSeenAt: new Date(),
+      };
+
+      if (verdict === "dangerous") updateData.dangerousCount = sql`${domainReputation.dangerousCount} + 1`;
+      else if (verdict === "suspicious") updateData.suspiciousCount = sql`${domainReputation.suspiciousCount} + 1`;
+      else updateData.safeCount = sql`${domainReputation.safeCount} + 1`;
+
+      if (extraData?.dmarcStatus) updateData.dmarcStatus = extraData.dmarcStatus;
+      if (extraData?.domainAgeDays !== undefined) updateData.domainAgeDays = extraData.domainAgeDays;
+      if (extraData?.vtMaliciousCount !== undefined) updateData.vtMaliciousCount = extraData.vtMaliciousCount;
+      if (extraData?.vtSuspiciousCount !== undefined) updateData.vtSuspiciousCount = extraData.vtSuspiciousCount;
+      if (extraData?.webRiskFlagCount !== undefined) updateData.webRiskFlagCount = extraData.webRiskFlagCount;
+
+      const dangerousCount = (existing.dangerousCount || 0) + (verdict === "dangerous" ? 1 : 0);
+      const suspiciousCount = (existing.suspiciousCount || 0) + (verdict === "suspicious" ? 1 : 0);
+      const dangerousRatio = newTotal > 0 ? (dangerousCount + suspiciousCount * 0.5) / newTotal : 0;
+      updateData.computedTrustScore = String(Math.round(Math.max(0, 1 - dangerousRatio) * 100) / 100);
+
+      const [updated] = await db.update(domainReputation)
+        .set(updateData)
+        .where(eq(domainReputation.id, existing.id))
+        .returning();
+      return updated;
+    }
+
+    const trustScore = verdict === "dangerous" ? 0.2 : verdict === "suspicious" ? 0.5 : 0.8;
+    const [created] = await db.insert(domainReputation)
+      .values({
+        domain: normalizedDomain,
+        totalChecks: 1,
+        dangerousCount: verdict === "dangerous" ? 1 : 0,
+        suspiciousCount: verdict === "suspicious" ? 1 : 0,
+        safeCount: verdict === "safe" ? 1 : 0,
+        avgRiskScore: String(riskScore),
+        computedTrustScore: String(trustScore),
+        ...extraData,
+      })
+      .returning();
+    return created;
   }
 }
 

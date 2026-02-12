@@ -1,6 +1,7 @@
 import { callClaude, parseJsonResponse, clampScore, sanitizeSeverity, type ThreatItem } from "./base";
 import { lookupUrl, lookupDomain, summarizeReputation, type VTReputationResult } from "../virustotal";
 import { lookupUrl as webRiskLookup, type WebRiskResult } from "../google-webrisk";
+import { storeVTResult, storeWebRiskResult, getDomainContext, buildHistoricalContextPrompt } from "../threat-memory";
 
 const PROMPT = `You are a URL security analyzer designed to protect AI agents from phishing, malware, and deceptive destinations. Analyze the following URLs and provide a security assessment.
 
@@ -114,6 +115,7 @@ async function getThreatIntel(urls: string[]): Promise<ThreatIntelResult> {
         if (vtResult) {
           vtResults.set(url, vtResult);
           vtLines.push(`${url.substring(0, 80)}: ${summarizeReputation(vtResult)}`);
+          storeVTResult("url", url, vtResult.malicious, vtResult.suspicious, vtResult.totalEngines, summarizeReputation(vtResult));
           if (vtResult.malicious > 0) {
             intelThreats.push({ type: "MALWARE", description: `VirusTotal: ${vtResult.malicious} security engine(s) flagged ${parsed.hostname} as malicious`, severity: "critical" });
           } else if (vtResult.suspicious > 0) {
@@ -124,6 +126,7 @@ async function getThreatIntel(urls: string[]): Promise<ThreatIntelResult> {
         if (wrResult) {
           wrResults.set(url, wrResult);
           wrLines.push(`${url.substring(0, 80)}: ${wrResult.summary}`);
+          storeWebRiskResult("url", url, wrResult.safe, wrResult.threats, wrResult.summary);
           if (!wrResult.safe) {
             const threatTypes = wrResult.threats.map(t => t.threatType).join(", ");
             intelThreats.push({ type: "GOOGLE_WEB_RISK", description: `Google Web Risk flagged ${parsed.hostname}: ${threatTypes}`, severity: "critical" });

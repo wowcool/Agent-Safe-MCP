@@ -2,6 +2,7 @@ import dns from "dns";
 import { promisify } from "util";
 import { lookupDomain, type VTReputationResult, summarizeReputation } from "./virustotal";
 import { lookupUrl as webRiskLookup, type WebRiskResult } from "./google-webrisk";
+import { lookupStoredIntel, storeVTResult, storeWebRiskResult } from "./threat-memory";
 
 const resolveTxt = promisify(dns.resolveTxt);
 
@@ -139,35 +140,73 @@ export async function getDomainIntelligence(
     return cached.data;
   }
 
+  const [storedVT, storedWR] = await Promise.all([
+    lookupStoredIntel("domain", domain).catch(() => null),
+    lookupStoredIntel("domain", domain).catch(() => null),
+  ]);
+
+  const skipVT = storedVT?.source === "virustotal" && storedVT.hitCount > 2;
+  const skipWR = storedWR?.source === "webrisk" && storedWR.hitCount > 2;
+
   const [dmarc, domainAge, vtResult, wrResult] = await Promise.all([
     lookupDMARC(domain),
     lookupDomainAge(domain),
-    lookupDomain(domain).catch(() => null),
-    webRiskLookup(`https://${domain}/`).catch(() => null),
+    skipVT ? Promise.resolve(null) : lookupDomain(domain).catch(() => null),
+    skipWR ? Promise.resolve(null) : webRiskLookup(`https://${domain}/`).catch(() => null),
   ]);
 
-  const virusTotal: VirusTotalResult = vtResult ? {
-    found: vtResult.found,
-    malicious: vtResult.malicious,
-    suspicious: vtResult.suspicious,
-    harmless: vtResult.harmless,
-    totalEngines: vtResult.totalEngines,
-    reputation: vtResult.reputation,
-    summary: summarizeReputation(vtResult),
-    categories: vtResult.categories,
-  } : {
-    found: false, malicious: 0, suspicious: 0, harmless: 0,
-    totalEngines: 0, reputation: 0, summary: "VirusTotal lookup unavailable",
-    categories: {},
-  };
+  let virusTotal: VirusTotalResult;
+  if (vtResult) {
+    virusTotal = {
+      found: vtResult.found,
+      malicious: vtResult.malicious,
+      suspicious: vtResult.suspicious,
+      harmless: vtResult.harmless,
+      totalEngines: vtResult.totalEngines,
+      reputation: vtResult.reputation,
+      summary: summarizeReputation(vtResult),
+      categories: vtResult.categories,
+    };
+    storeVTResult("domain", domain, vtResult.malicious, vtResult.suspicious, vtResult.totalEngines, virusTotal.summary);
+  } else if (skipVT && storedVT) {
+    const raw = storedVT as any;
+    virusTotal = {
+      found: true,
+      malicious: raw.threatTypes?.includes("malware") ? 1 : 0,
+      suspicious: raw.verdict === "suspicious" ? 1 : 0,
+      harmless: 0,
+      totalEngines: 0,
+      reputation: 0,
+      summary: `[Cached] ${storedVT.summary}`,
+      categories: {},
+    };
+  } else {
+    virusTotal = {
+      found: false, malicious: 0, suspicious: 0, harmless: 0,
+      totalEngines: 0, reputation: 0, summary: "VirusTotal lookup unavailable",
+      categories: {},
+    };
+  }
 
-  const googleWebRisk: GoogleWebRiskResult = wrResult ? {
-    safe: wrResult.safe,
-    threats: wrResult.threats.map(t => t.threatType),
-    summary: wrResult.summary,
-  } : {
-    safe: true, threats: [], summary: "Google Web Risk lookup unavailable",
-  };
+  let googleWebRisk: GoogleWebRiskResult;
+  if (wrResult) {
+    googleWebRisk = {
+      safe: wrResult.safe,
+      threats: wrResult.threats.map(t => t.threatType),
+      summary: wrResult.summary,
+    };
+    storeWebRiskResult("domain", domain, wrResult.safe, wrResult.threats, wrResult.summary);
+  } else if (skipWR && storedWR) {
+    googleWebRisk = {
+      safe: storedWR.verdict === "safe",
+      threats: storedWR.threatTypes,
+      summary: `[Cached] ${storedWR.summary}`,
+    };
+  } else {
+    googleWebRisk = {
+      safe: true, threats: [], summary: "Google Web Risk lookup unavailable",
+    };
+  }
 
   const result = { dmarc, domainAge, virusTotal, googleWebRisk };
   cache.set(domain, { data: result, cachedAt: Date.now() });

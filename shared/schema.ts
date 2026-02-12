@@ -113,6 +113,68 @@ export const usageLogs = pgTable("usage_logs", {
   index("idx_usage_logs_token").on(table.tokenId),
 ]);
 
+// Threat Intelligence (persistent cache of external API results)
+export const threatIntel = pgTable("threat_intel", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  indicatorType: varchar("indicator_type", { length: 20 }).notNull(), // 'domain' or 'url'
+  indicatorValue: varchar("indicator_value", { length: 2048 }).notNull(),
+  source: varchar("source", { length: 50 }).notNull(), // 'virustotal', 'webrisk', 'pattern'
+  verdict: varchar("verdict", { length: 50 }).notNull(), // 'safe', 'suspicious', 'malicious'
+  threatTypes: jsonb("threat_types").default([]),
+  rawData: jsonb("raw_data"),
+  summary: text("summary"),
+  confidence: decimal("confidence", { precision: 3, scale: 2 }),
+  hitCount: integer("hit_count").default(1).notNull(),
+  firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
+  lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+}, (table) => [
+  index("idx_threat_intel_indicator").on(table.indicatorType, table.indicatorValue),
+  index("idx_threat_intel_source").on(table.source),
+  index("idx_threat_intel_expires").on(table.expiresAt),
+  index("idx_threat_intel_verdict").on(table.verdict),
+]);
+
+// Scam Patterns (learned from AI analysis results)
+export const scamPatterns = pgTable("scam_patterns", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  patternType: varchar("pattern_type", { length: 100 }).notNull(), // FAKE_REPLY_THREAD, LURE_EMAIL, etc.
+  senderDomain: varchar("sender_domain", { length: 255 }),
+  verdict: varchar("verdict", { length: 50 }).notNull(),
+  riskScore: decimal("risk_score", { precision: 3, scale: 2 }).notNull(),
+  evidence: jsonb("evidence"),
+  subjectFingerprint: varchar("subject_fingerprint", { length: 64 }),
+  toolName: varchar("tool_name", { length: 100 }),
+  emailCheckId: varchar("email_check_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("idx_scam_patterns_type_domain").on(table.patternType, table.senderDomain),
+  index("idx_scam_patterns_domain").on(table.senderDomain),
+  index("idx_scam_patterns_created").on(table.createdAt),
+]);
+
+// Domain Reputation (aggregated scorecard per domain)
+export const domainReputation = pgTable("domain_reputation", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  domain: varchar("domain", { length: 255 }).notNull().unique(),
+  totalChecks: integer("total_checks").default(0).notNull(),
+  dangerousCount: integer("dangerous_count").default(0).notNull(),
+  suspiciousCount: integer("suspicious_count").default(0).notNull(),
+  safeCount: integer("safe_count").default(0).notNull(),
+  avgRiskScore: decimal("avg_risk_score", { precision: 5, scale: 4 }),
+  dmarcStatus: varchar("dmarc_status", { length: 50 }),
+  domainAgeDays: integer("domain_age_days"),
+  vtMaliciousCount: integer("vt_malicious_count").default(0),
+  vtSuspiciousCount: integer("vt_suspicious_count").default(0),
+  webRiskFlagCount: integer("web_risk_flag_count").default(0),
+  computedTrustScore: decimal("computed_trust_score", { precision: 3, scale: 2 }),
+  lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
+  firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
+}, (table) => [
+  index("idx_domain_reputation_domain").on(table.domain),
+  index("idx_domain_reputation_trust").on(table.computedTrustScore),
+]);
+
 // ===== Insert Schemas =====
 
 export const insertOwnerSchema = createInsertSchema(owners).omit({
@@ -163,6 +225,24 @@ export const insertUsageLogSchema = createInsertSchema(usageLogs).omit({
   createdAt: true,
 });
 
+export const insertThreatIntelSchema = createInsertSchema(threatIntel).omit({
+  id: true,
+  hitCount: true,
+  firstSeenAt: true,
+  lastSeenAt: true,
+});
+
+export const insertScamPatternSchema = createInsertSchema(scamPatterns).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertDomainReputationSchema = createInsertSchema(domainReputation).omit({
+  id: true,
+  firstSeenAt: true,
+  lastSeenAt: true,
+});
+
 // ===== Types =====
 
 export type Owner = typeof owners.$inferSelect;
@@ -182,6 +262,15 @@ export type InsertReferralAgent = z.infer<typeof insertReferralAgentSchema>;
 
 export type UsageLog = typeof usageLogs.$inferSelect;
 export type InsertUsageLog = z.infer<typeof insertUsageLogSchema>;
+
+export type ThreatIntel = typeof threatIntel.$inferSelect;
+export type InsertThreatIntel = z.infer<typeof insertThreatIntelSchema>;
+
+export type ScamPattern = typeof scamPatterns.$inferSelect;
+export type InsertScamPattern = z.infer<typeof insertScamPatternSchema>;
+
+export type DomainReputation = typeof domainReputation.$inferSelect;
+export type InsertDomainReputation = z.infer<typeof insertDomainReputationSchema>;
 
 // ===== API Types =====
 

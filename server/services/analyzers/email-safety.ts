@@ -1,5 +1,6 @@
 import type { CheckEmailRequest, ThreatDetected, Verdict } from "@shared/schema";
 import { callClaude, parseJsonResponse, clampScore, sanitizeSeverity } from "./base";
+import { getDomainContext, buildHistoricalContextPrompt, recordScamDetection, updateDomainReputation } from "../threat-memory";
 
 const ANALYSIS_PROMPT = `You are an expert email security analyzer protecting AI agents from phishing, social engineering, scams, and manipulation. You must be AGGRESSIVE at flagging threats — false negatives (missing real scams) are far more dangerous than false positives.
 
@@ -68,8 +69,8 @@ Respond ONLY with valid JSON in this exact format:
   "unsafeActions": ["<list of actions the agent should NOT take>"]
 }`;
 
-function buildPrompt(request: CheckEmailRequest): string {
-  return ANALYSIS_PROMPT
+function buildPrompt(request: CheckEmailRequest, historicalContext?: string): string {
+  let prompt = ANALYSIS_PROMPT
     .replace("{from}", request.email.from)
     .replace("{subject}", request.email.subject)
     .replace("{body}", request.email.body.substring(0, 5000))
@@ -78,6 +79,12 @@ function buildPrompt(request: CheckEmailRequest): string {
     .replace("{knownSender}", request.context?.knownSender ? "Yes" : "No/Unknown")
     .replace("{previousCorrespondence}", request.context?.previousCorrespondence ? "Yes" : "No/Unknown")
     .replace("{agentCapabilities}", request.context?.agentCapabilities?.join(", ") || "Not specified");
+
+  if (historicalContext) {
+    prompt += "\n" + historicalContext;
+  }
+
+  return prompt;
 }
 
 export interface EmailAnalysisResult {
@@ -180,8 +187,27 @@ export async function analyzeEmail(request: CheckEmailRequest): Promise<{ result
   const startTime = Date.now();
   const patternThreats = quickPatternCheck(request);
 
+  const senderDomain = request.email.from.split("@")[1] || "";
+  let domainCtx = null;
   try {
-    const prompt = buildPrompt(request);
+    domainCtx = await getDomainContext(senderDomain);
+  } catch {}
+
+  const historicalContext = buildHistoricalContextPrompt(domainCtx);
+
+  if (domainCtx && domainCtx.dangerousCount > 0 && domainCtx.totalChecks > 0) {
+    const dangerousRatio = domainCtx.dangerousCount / domainCtx.totalChecks;
+    if (dangerousRatio > 0.5) {
+      patternThreats.push({
+        type: "HISTORICAL_DANGEROUS_DOMAIN",
+        description: `Domain ${senderDomain} has been flagged dangerous in ${domainCtx.dangerousCount} of ${domainCtx.totalChecks} previous checks`,
+        severity: "high",
+      });
+    }
+  }
+
+  try {
+    const prompt = buildPrompt(request, historicalContext);
     const { text } = await callClaude(prompt, 1024);
 
     const fallback: EmailAnalysisResult = {
@@ -231,6 +257,14 @@ export async function analyzeEmail(request: CheckEmailRequest): Promise<{ result
       result.recommendation = "proceed_with_caution";
       result.riskScore = Math.max(result.riskScore, 0.7);
     }
+
+    const highSeverityThreats = result.threats
+      .filter(t => t.severity === "high" || t.severity === "critical")
+      .map(t => ({ patternType: t.type, severity: t.severity, description: t.description }));
+    if (highSeverityThreats.length > 0) {
+      recordScamDetection(highSeverityThreats, senderDomain, result.verdict, result.riskScore, "check_email_safety", undefined, request.email.subject);
+    }
+    updateDomainReputation(senderDomain, result.verdict, result.riskScore);
 
     return { result, durationMs: Date.now() - startTime };
   } catch (error) {

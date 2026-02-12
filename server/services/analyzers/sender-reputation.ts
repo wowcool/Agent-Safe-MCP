@@ -1,5 +1,6 @@
 import { callClaude, parseJsonResponse, clampScore, sanitizeSeverity, type ThreatItem } from "./base";
 import { getDomainIntelligence, type DomainIntelligence } from "../domain-intel";
+import { getDomainContext, buildHistoricalContextPrompt, updateDomainReputation, recordScamDetection } from "../threat-memory";
 
 const PROMPT = `You are a sender identity and reputation analyzer. Your job is to determine if an email sender is who they claim to be. You protect AI agents from Business Email Compromise (BEC), impersonation, and spoofing attacks.
 
@@ -117,8 +118,14 @@ export async function analyzeSender(input: {
   const vt = domainIntel?.virusTotal ?? null;
   const wr = domainIntel?.googleWebRisk ?? null;
 
+  let domainCtx = null;
   try {
-    const prompt = PROMPT
+    domainCtx = await getDomainContext(domain);
+  } catch {}
+  const historicalContext = buildHistoricalContextPrompt(domainCtx);
+
+  try {
+    let prompt = PROMPT
       .replace("{email}", input.email)
       .replace("{displayName}", input.displayName)
       .replace("{replyTo}", input.replyTo || "Same as sender")
@@ -137,6 +144,8 @@ export async function analyzeSender(input: {
       .replace("{vtReputation}", String(vt?.reputation ?? "N/A"))
       .replace("{vtCategories}", vt?.categories ? Object.entries(vt.categories).map(([k, v]) => `${k}: ${v}`).join(", ") || "None" : "N/A")
       .replace("{webRiskSummary}", wr?.summary || "Google Web Risk data unavailable");
+
+    if (historicalContext) prompt += "\n" + historicalContext;
 
     const { text } = await callClaude(prompt, 1024);
 
@@ -190,6 +199,22 @@ export async function analyzeSender(input: {
         description: `Domain flagged by Google Web Risk: ${wr.threats.join(", ")}`,
         severity: "critical",
       });
+    }
+
+    const senderVerdict = result.senderVerdict === "likely_fraudulent" ? "dangerous" : result.senderVerdict === "suspicious" ? "suspicious" : "safe";
+    updateDomainReputation(domain, senderVerdict, 1 - result.trustScore, {
+      dmarcStatus: dmarcPolicy || (dmarcExists ? "exists" : "none"),
+      domainAgeDays: domainAgeDays || undefined,
+      vtMaliciousCount: vt?.malicious || 0,
+      vtSuspiciousCount: vt?.suspicious || 0,
+      webRiskFlagCount: wr && !wr.safe ? 1 : 0,
+    });
+
+    const highIssues = result.identityIssues
+      .filter(i => i.severity === "high" || i.severity === "critical")
+      .map(i => ({ patternType: i.type, severity: i.severity, description: i.description }));
+    if (highIssues.length > 0) {
+      recordScamDetection(highIssues, domain, senderVerdict, 1 - result.trustScore, "check_sender_reputation");
     }
 
     return { result, durationMs: Date.now() - startTime };
