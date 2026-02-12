@@ -29,9 +29,10 @@ export interface DomainContext {
 export async function lookupStoredIntel(
   indicatorType: string,
   indicatorValue: string,
+  source?: string,
 ): Promise<StoredThreatIntel | null> {
   try {
-    const intel = await storage.getThreatIntel(indicatorType, indicatorValue);
+    const intel = await storage.getThreatIntel(indicatorType, indicatorValue, source);
     if (!intel) return null;
 
     return {
@@ -51,10 +52,11 @@ export async function lookupStoredIntel(
 export async function lookupDomainIntelFromAllSources(domain: string): Promise<StoredThreatIntel[]> {
   try {
     const results: StoredThreatIntel[] = [];
-    for (const source of ["virustotal", "webrisk", "pattern"]) {
-      const intel = await lookupStoredIntel("domain", domain);
-      if (intel && intel.source === source) results.push(intel);
-    }
+    const lookups = ["virustotal", "webrisk", "pattern"].map(async (source) => {
+      const intel = await lookupStoredIntel("domain", domain, source);
+      if (intel) results.push(intel);
+    });
+    await Promise.all(lookups);
     return results;
   } catch {
     return [];

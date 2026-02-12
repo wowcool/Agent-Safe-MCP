@@ -141,12 +141,12 @@ export async function getDomainIntelligence(
   }
 
   const [storedVT, storedWR] = await Promise.all([
-    lookupStoredIntel("domain", domain).catch(() => null),
-    lookupStoredIntel("domain", domain).catch(() => null),
+    lookupStoredIntel("domain", domain, "virustotal").catch(() => null),
+    lookupStoredIntel("domain", domain, "webrisk").catch(() => null),
   ]);
 
-  const skipVT = storedVT?.source === "virustotal" && storedVT.hitCount > 2;
-  const skipWR = storedWR?.source === "webrisk" && storedWR.hitCount > 2;
+  const skipVT = storedVT !== null && storedVT.hitCount > 2;
+  const skipWR = storedWR !== null && storedWR.hitCount > 2;
 
   const [dmarc, domainAge, vtResult, wrResult] = await Promise.all([
     lookupDMARC(domain),
