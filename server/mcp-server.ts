@@ -35,6 +35,47 @@ function mcpSuccess(data: any) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }] };
 }
 
+function looksLikeJwt(value: string): boolean {
+  const parts = value.split(".");
+  return parts.length === 3 && parts[0].length > 10 && parts[1].length > 10;
+}
+
+function looksLikeApiKey(value: string): boolean {
+  return !value.includes(".") && value.length >= 20 && value.length <= 200;
+}
+
+function detectAndFixAuthHeaders(
+  rawPayId: string | undefined,
+  rawApiKey: string | undefined,
+): { skyfireToken: string | undefined; buyerApiKey: string | undefined; warning?: string } {
+  if (rawPayId && looksLikeApiKey(rawPayId) && !rawApiKey) {
+    return {
+      skyfireToken: undefined,
+      buyerApiKey: rawPayId,
+      warning: "Auto-corrected: your Skyfire Buyer API Key was sent in the skyfire-pay-id header. Please use the skyfire-api-key header instead.",
+    };
+  }
+  if (rawApiKey && looksLikeJwt(rawApiKey) && !rawPayId) {
+    return {
+      skyfireToken: rawApiKey,
+      buyerApiKey: undefined,
+      warning: "Auto-corrected: your PAY token (JWT) was sent in the skyfire-api-key header. Please use the skyfire-pay-id header instead.",
+    };
+  }
+  return { skyfireToken: rawPayId, buyerApiKey: rawApiKey };
+}
+
+function logToolCall(toolName: string, status: string, durationMs?: number, extra?: Record<string, unknown>) {
+  const parts = [`[TOOL] ${toolName}`, `status=${status}`];
+  if (durationMs !== undefined) parts.push(`duration=${durationMs}ms`);
+  if (extra) {
+    for (const [k, v] of Object.entries(extra)) {
+      parts.push(`${k}=${v}`);
+    }
+  }
+  console.log(parts.join(", "));
+}
+
 let skyfireSystemTokenId: string | null = null;
 
 async function getOrCreateSkyfireSystemToken(): Promise<string> {
@@ -84,14 +125,25 @@ async function validateAndCharge(skyfireToken: string | undefined, buyerApiKey?:
   if (!skyfireToken && buyerApiKey) {
     const tokenResult = await generatePayTokenFromBuyerKey(buyerApiKey, SELLER_SERVICE_ID);
     if (!tokenResult.success || !tokenResult.token) {
-      return { error: mcpError("Failed to generate PAY token from Buyer API Key", tokenResult.error || "Could not create payment token. Verify your Skyfire Buyer API Key is valid and funded.") };
+      const hint = tokenResult.error?.includes("API Key Not Found")
+        ? "Your Skyfire Buyer API Key was not recognized. Verify it is correct and active at skyfire.xyz. Make sure you are using the skyfire-api-key header (not skyfire-pay-id)."
+        : tokenResult.error?.includes("NOT_AUTHORIZED")
+        ? "Authorization failed. Check that your Skyfire Buyer API Key is valid and has sufficient funds."
+        : "Could not create payment token. Verify your Skyfire Buyer API Key is valid and funded at skyfire.xyz.";
+      return { error: mcpError("Failed to generate PAY token from Buyer API Key", hint) };
     }
     skyfireToken = tokenResult.token;
   }
-  if (!skyfireToken) return { error: mcpError("Payment required", "Include a skyfire-api-key header with your Skyfire Buyer API Key, or a skyfire-pay-id header with a PAY token. Get your Buyer API Key at skyfire.xyz.") };
-  if (!isSkyfireConfigured()) return { error: mcpError("Skyfire payments not available", "Server Skyfire integration is not configured.") };
+  if (!skyfireToken) return { error: mcpError("Payment required", "Include a skyfire-api-key header with your Skyfire Buyer API Key, or a skyfire-pay-id header with a PAY token. Get your Buyer API Key at skyfire.xyz. Example MCP config: { \"mcpServers\": { \"agentsafe\": { \"command\": \"npx\", \"args\": [\"-y\", \"mcp-remote\", \"https://agentsafe.locationledger.com/mcp\", \"--header\", \"skyfire-api-key: YOUR_KEY\"] } } }") };
+  if (!isSkyfireConfigured()) return { error: mcpError("Skyfire payments not available", "Server Skyfire integration is not configured. Contact support@locationledger.com.") };
   const validation = await validateSkyfireToken(skyfireToken);
-  if (!validation.valid) return { error: mcpError("Invalid Skyfire token", validation.error) };
+  if (!validation.valid) {
+    let hint = validation.error || "Token validation failed";
+    if (hint.includes("JWS Protected Header is invalid") || hint.includes("Invalid Compact JWS")) {
+      hint += " — This usually means the value is not a valid Skyfire PAY token (JWT). If you are using a Buyer API Key, send it in the skyfire-api-key header (not skyfire-pay-id). If you are using a PAY token, ensure it is the full JWT string from Skyfire.";
+    }
+    return { error: mcpError("Invalid Skyfire token", hint) };
+  }
   const chargeResult = await chargeSkyfireToken(skyfireToken, PRICE);
   if (!chargeResult.success) return { error: mcpError("Skyfire payment failed", chargeResult.error) };
   return { transactionId: chargeResult.transactionId || undefined, buyerId: validation.claims?.sub || "unknown" };
@@ -221,7 +273,7 @@ const ANNOTATIONS = {
   readOnly: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
 };
 
-function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey?: string | undefined): McpServer {
+function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey?: string | undefined, authWarning?: string | undefined): McpServer {
   const server = new McpServer({ name: "AgentSafe", version: "2.0.0" });
 
   server.resource(
@@ -271,7 +323,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
 
   server.tool("check_email_safety", TOOL_DEFS.check_email_safety.description, TOOL_DEFS.check_email_safety.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
-    if (payment.error) return payment.error;
+    if (payment.error) { logToolCall("check_email_safety", "payment_failed"); return payment.error; }
 
     const emailRequest: CheckEmailRequest = {
       email: { from: args.from, subject: args.subject, body: args.body, links: args.links, attachments: args.attachments },
@@ -285,12 +337,13 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
       checkId = await recordToolCheck(systemTokenId, "check_email_safety", result.verdict, result.riskScore, result.confidence, result.threats, durationMs, "skyfire", payment.transactionId || null, emailRequest.email.from.split("@")[1], (emailRequest.email.links?.length || 0) > 0, (emailRequest.email.attachments?.length || 0) > 0);
     } catch (e) { console.error("MCP: Failed to record check:", e); }
 
-    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
+    logToolCall("check_email_safety", "success", durationMs, { verdict: result.verdict, riskScore: result.riskScore, buyer: payment.buyerId });
+    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE, ...(authWarning ? { authWarning } : {}) });
   });
 
   server.tool("check_url_safety", TOOL_DEFS.check_url_safety.description, TOOL_DEFS.check_url_safety.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
-    if (payment.error) return payment.error;
+    if (payment.error) { logToolCall("check_url_safety", "payment_failed"); return payment.error; }
 
     const { result, durationMs } = await analyzeUrls(args.urls);
 
@@ -300,12 +353,13 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
       checkId = await recordToolCheck(systemTokenId, "check_url_safety", result.overallVerdict, result.overallRiskScore, 0.8, [], durationMs, "skyfire", payment.transactionId || null, null, true);
     } catch (e) { console.error("MCP: Failed to record check:", e); }
 
-    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
+    logToolCall("check_url_safety", "success", durationMs, { verdict: result.overallVerdict, urlCount: args.urls.length, buyer: payment.buyerId });
+    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE, ...(authWarning ? { authWarning } : {}) });
   });
 
   server.tool("check_response_safety", TOOL_DEFS.check_response_safety.description, TOOL_DEFS.check_response_safety.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
-    if (payment.error) return payment.error;
+    if (payment.error) { logToolCall("check_response_safety", "payment_failed"); return payment.error; }
 
     const { result, durationMs } = await analyzeResponse(args);
 
@@ -315,12 +369,13 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
       checkId = await recordToolCheck(systemTokenId, "check_response_safety", result.verdict, result.riskScore, result.confidence, result.threats, durationMs, "skyfire", payment.transactionId || null);
     } catch (e) { console.error("MCP: Failed to record check:", e); }
 
-    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
+    logToolCall("check_response_safety", "success", durationMs, { verdict: result.verdict, riskScore: result.riskScore, buyer: payment.buyerId });
+    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE, ...(authWarning ? { authWarning } : {}) });
   });
 
   server.tool("analyze_email_thread", TOOL_DEFS.analyze_email_thread.description, TOOL_DEFS.analyze_email_thread.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
-    if (payment.error) return payment.error;
+    if (payment.error) { logToolCall("analyze_email_thread", "payment_failed"); return payment.error; }
 
     const { result, durationMs } = await analyzeThread(args.messages);
 
@@ -330,12 +385,13 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
       checkId = await recordToolCheck(systemTokenId, "analyze_email_thread", result.verdict, result.riskScore, result.confidence, result.manipulationPatterns, durationMs, "skyfire", payment.transactionId || null);
     } catch (e) { console.error("MCP: Failed to record check:", e); }
 
-    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
+    logToolCall("analyze_email_thread", "success", durationMs, { verdict: result.verdict, messageCount: args.messages.length, buyer: payment.buyerId });
+    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE, ...(authWarning ? { authWarning } : {}) });
   });
 
   server.tool("check_attachment_safety", TOOL_DEFS.check_attachment_safety.description, TOOL_DEFS.check_attachment_safety.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
-    if (payment.error) return payment.error;
+    if (payment.error) { logToolCall("check_attachment_safety", "payment_failed"); return payment.error; }
 
     const { result, durationMs } = await analyzeAttachments(args.attachments);
 
@@ -345,12 +401,13 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
       checkId = await recordToolCheck(systemTokenId, "check_attachment_safety", result.overallVerdict, result.overallRiskScore, 0.8, [], durationMs, "skyfire", payment.transactionId || null, null, false, true);
     } catch (e) { console.error("MCP: Failed to record check:", e); }
 
-    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
+    logToolCall("check_attachment_safety", "success", durationMs, { verdict: result.overallVerdict, attachmentCount: args.attachments.length, buyer: payment.buyerId });
+    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE, ...(authWarning ? { authWarning } : {}) });
   });
 
   server.tool("check_sender_reputation", TOOL_DEFS.check_sender_reputation.description, TOOL_DEFS.check_sender_reputation.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
-    if (payment.error) return payment.error;
+    if (payment.error) { logToolCall("check_sender_reputation", "payment_failed"); return payment.error; }
 
     const { result, durationMs } = await analyzeSender(args);
 
@@ -360,12 +417,13 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
       checkId = await recordToolCheck(systemTokenId, "check_sender_reputation", result.senderVerdict, result.trustScore, result.confidence, result.identityIssues, durationMs, "skyfire", payment.transactionId || null, args.email.split("@")[1]);
     } catch (e) { console.error("MCP: Failed to record check:", e); }
 
-    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
+    logToolCall("check_sender_reputation", "success", durationMs, { verdict: result.senderVerdict, domain: args.email.split("@")[1], buyer: payment.buyerId });
+    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE, ...(authWarning ? { authWarning } : {}) });
   });
 
   server.tool("check_message_safety", TOOL_DEFS.check_message_safety.description, TOOL_DEFS.check_message_safety.schema, ANNOTATIONS.readOnly, async (args) => {
     const payment = await validateAndCharge(skyfireToken, buyerApiKey);
-    if (payment.error) return payment.error;
+    if (payment.error) { logToolCall("check_message_safety", "payment_failed"); return payment.error; }
 
     const { result, durationMs } = await analyzeMessage({
       platform: args.platform,
@@ -382,11 +440,13 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
       checkId = await recordToolCheck(systemTokenId, "check_message_safety", result.verdict, result.riskScore, result.confidence, result.threats, durationMs, "skyfire", payment.transactionId || null);
     } catch (e) { console.error("MCP: Failed to record check:", e); }
 
-    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE });
+    logToolCall("check_message_safety", "success", durationMs, { verdict: result.verdict, platform: args.platform, buyer: payment.buyerId });
+    return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE, ...(authWarning ? { authWarning } : {}) });
   });
 
   server.tool("assess_message", TOOL_DEFS.assess_message.description, TOOL_DEFS.assess_message.schema, ANNOTATIONS.readOnly, async (args) => {
     const result = triageMessage(args);
+    logToolCall("assess_message", "success", 0, { recommendedTools: result.recommendedTools?.length || 0 });
     return mcpSuccess({ ...result, charged: 0, note: "This triage tool is free. Call the recommended tools individually for full analysis." });
   });
 
@@ -396,11 +456,15 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
 export function mountMcpServer(app: Express): void {
   app.post("/mcp", async (req: Request, res: Response) => {
     try {
-      const skyfireToken = (req.headers["skyfire-pay-id"] as string | undefined)
+      const rawPayId = (req.headers["skyfire-pay-id"] as string | undefined)
         || (req.query.SKYFIRE_PAY_TOKEN as string | undefined);
-      const buyerApiKey = (req.headers["skyfire-api-key"] as string | undefined)
+      const rawApiKey = (req.headers["skyfire-api-key"] as string | undefined)
         || (req.query.SKYFIRE_API_KEY as string | undefined);
-      const server = createPerRequestMcpServer(skyfireToken, buyerApiKey);
+      const { skyfireToken, buyerApiKey, warning } = detectAndFixAuthHeaders(rawPayId, rawApiKey);
+      if (warning) {
+        console.log(`[AUTH] Header auto-corrected: ${warning}`);
+      }
+      const server = createPerRequestMcpServer(skyfireToken, buyerApiKey, warning);
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
       res.on("close", () => { transport.close(); });
       await server.connect(transport);
