@@ -151,6 +151,7 @@ export default function Dash() {
       return res.json();
     },
     enabled: authed,
+    staleTime: 0,
     refetchInterval: 30000,
   });
 
