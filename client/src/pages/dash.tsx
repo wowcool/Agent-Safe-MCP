@@ -132,17 +132,22 @@ export default function Dash() {
     description: "Internal usage dashboard",
   });
 
-  const [password, setPassword] = useState("");
-  const [authed, setAuthed] = useState(false);
+  const [password, setPassword] = useState(() => sessionStorage.getItem("dash-pw") || "");
+  const [authed, setAuthed] = useState(() => !!sessionStorage.getItem("dash-pw"));
   const [error, setError] = useState("");
 
   const { data, isLoading, refetch } = useQuery<DashData>({
-    queryKey: ["/api/dash/stats", password],
+    queryKey: ["/api/dash/stats"],
     queryFn: async () => {
+      const pw = sessionStorage.getItem("dash-pw") || password;
       const res = await fetch(`/api/dash/stats`, {
-        headers: { "x-dash-password": password },
+        headers: { "x-dash-password": pw },
       });
-      if (!res.ok) throw new Error("Unauthorized");
+      if (!res.ok) {
+        sessionStorage.removeItem("dash-pw");
+        setAuthed(false);
+        throw new Error("Unauthorized");
+      }
       return res.json();
     },
     enabled: authed,
@@ -166,6 +171,7 @@ export default function Dash() {
                     headers: { "x-dash-password": password },
                   }).then((r) => {
                     if (r.ok) {
+                      sessionStorage.setItem("dash-pw", password);
                       setAuthed(true);
                       setError("");
                     } else {
