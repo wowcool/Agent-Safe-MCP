@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -136,6 +136,8 @@ export default function Dash() {
   const [authed, setAuthed] = useState(() => !!sessionStorage.getItem("dash-pw"));
   const [error, setError] = useState("");
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const { data, isLoading, refetch } = useQuery<DashData>({
     queryKey: ["/api/dash/stats"],
     queryFn: async () => {
@@ -154,6 +156,12 @@ export default function Dash() {
     staleTime: 0,
     refetchInterval: 30000,
   });
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+  }, [refetch]);
 
   if (!authed) {
     return (
@@ -233,9 +241,9 @@ export default function Dash() {
             <span className="text-xs text-muted-foreground hidden sm:inline">
               Auto-refreshes every 30s
             </span>
-            <Button size="sm" variant="outline" onClick={() => refetch()} data-testid="button-refresh">
-              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-              Refresh
+            <Button size="sm" variant="outline" onClick={handleRefresh} disabled={isRefreshing} data-testid="button-refresh">
+              <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isRefreshing ? "animate-spin" : ""}`} />
+              {isRefreshing ? "Refreshing..." : "Refresh"}
             </Button>
           </div>
         </div>
