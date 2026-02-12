@@ -18,6 +18,14 @@ Domain Registration Date: {registrationDate}
 Domain Age (days): {domainAge}
 Registrar: {registrar}
 
+VIRUSTOTAL DOMAIN REPUTATION (from 70+ security engines):
+{vtSummary}
+Malicious detections: {vtMalicious}
+Suspicious detections: {vtSuspicious}
+Total engines scanned: {vtTotal}
+VirusTotal reputation score: {vtReputation}
+Domain categories: {vtCategories}
+
 Analyze this sender for ALL of these issue categories:
 1. DOMAIN_SPOOFING - Email domain doesn't match claimed organization
 2. REPLY_TO_MISMATCH - Reply-To differs from sender address
@@ -63,6 +71,14 @@ export interface SenderReputationResult {
     domainAgeDays: number | null;
     registrationDate: string | null;
     registrar: string | null;
+    virusTotal?: {
+      found: boolean;
+      malicious: number;
+      suspicious: number;
+      totalEngines: number;
+      reputation: number;
+      summary: string;
+    };
   };
 }
 
@@ -90,6 +106,7 @@ export async function analyzeSender(input: {
   const registrationDate = domainIntel?.domainAge.registrationDate ?? null;
   const domainAgeDays = domainIntel?.domainAge.ageInDays ?? null;
   const registrar = domainIntel?.domainAge.registrar ?? null;
+  const vt = domainIntel?.virusTotal ?? null;
 
   try {
     const prompt = PROMPT
@@ -103,7 +120,13 @@ export async function analyzeSender(input: {
       .replace("{dmarcRecord}", dmarcRecord || "No DMARC record")
       .replace("{registrationDate}", registrationDate || "Unknown")
       .replace("{domainAge}", domainAgeDays !== null ? String(domainAgeDays) : "Unknown")
-      .replace("{registrar}", registrar || "Unknown");
+      .replace("{registrar}", registrar || "Unknown")
+      .replace("{vtSummary}", vt?.summary || "VirusTotal data unavailable")
+      .replace("{vtMalicious}", String(vt?.malicious ?? "N/A"))
+      .replace("{vtSuspicious}", String(vt?.suspicious ?? "N/A"))
+      .replace("{vtTotal}", String(vt?.totalEngines ?? "N/A"))
+      .replace("{vtReputation}", String(vt?.reputation ?? "N/A"))
+      .replace("{vtCategories}", vt?.categories ? Object.entries(vt.categories).map(([k, v]) => `${k}: ${v}`).join(", ") || "None" : "N/A");
 
     const { text } = await callClaude(prompt, 1024);
 
@@ -132,8 +155,20 @@ export async function analyzeSender(input: {
       domainIntelligence: {
         dmarcExists, dmarcPolicy, dmarcRecord,
         domainAgeDays, registrationDate, registrar,
+        virusTotal: vt ? { found: vt.found, malicious: vt.malicious, suspicious: vt.suspicious, totalEngines: vt.totalEngines, reputation: vt.reputation, summary: vt.summary } : undefined,
       },
     };
+
+    if (vt && vt.malicious > 0) {
+      result.senderVerdict = "likely_fraudulent";
+      result.trustScore = Math.min(result.trustScore, 0.15);
+      result.recommendation = "do_not_trust";
+      result.identityIssues.push({
+        type: "VIRUSTOTAL_MALICIOUS",
+        description: `Domain flagged as malicious by ${vt.malicious} of ${vt.totalEngines} security engines on VirusTotal`,
+        severity: "critical",
+      });
+    }
 
     return { result, durationMs: Date.now() - startTime };
   } catch (error) {
@@ -148,6 +183,7 @@ export async function analyzeSender(input: {
         domainIntelligence: {
           dmarcExists, dmarcPolicy, dmarcRecord,
           domainAgeDays, registrationDate, registrar,
+          virusTotal: vt ? { found: vt.found, malicious: vt.malicious, suspicious: vt.suspicious, totalEngines: vt.totalEngines, reputation: vt.reputation, summary: vt.summary } : undefined,
         },
       },
       durationMs: Date.now() - startTime,

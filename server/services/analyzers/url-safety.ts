@@ -1,9 +1,13 @@
 import { callClaude, parseJsonResponse, clampScore, sanitizeSeverity, type ThreatItem } from "./base";
+import { lookupUrl, lookupDomain, summarizeReputation, type VTReputationResult } from "../virustotal";
 
 const PROMPT = `You are a URL security analyzer designed to protect AI agents from phishing, malware, and deceptive destinations. Analyze the following URLs and provide a security assessment.
 
 URLs TO ANALYZE:
 {urls}
+
+VIRUSTOTAL INTELLIGENCE (from 70+ security engines):
+{vtIntel}
 
 Analyze EVERY URL for ALL of these threat categories:
 1. PHISHING - Domain spoofing, typosquatting, lookalike domains
@@ -77,12 +81,87 @@ function quickUrlCheck(urls: string[]): ThreatItem[] {
   return threats;
 }
 
+interface VTIntelResult {
+  vtResults: Map<string, VTReputationResult>;
+  vtIntelText: string;
+  vtThreats: ThreatItem[];
+}
+
+async function getVTIntel(urls: string[]): Promise<VTIntelResult> {
+  const vtResults = new Map<string, VTReputationResult>();
+  const vtThreats: ThreatItem[] = [];
+  const lines: string[] = [];
+
+  try {
+    const lookups = urls.slice(0, 5).map(async (url) => {
+      try {
+        const parsed = new URL(url);
+        const [urlResult, domainResult] = await Promise.all([
+          lookupUrl(url).catch(() => null),
+          lookupDomain(parsed.hostname).catch(() => null),
+        ]);
+        const result = urlResult?.found ? urlResult : domainResult;
+        if (result) {
+          vtResults.set(url, result);
+          lines.push(`${url.substring(0, 80)}: ${summarizeReputation(result)}`);
+          if (result.malicious > 0) {
+            vtThreats.push({ type: "MALWARE", description: `VirusTotal: ${result.malicious} security engine(s) flagged ${parsed.hostname} as malicious`, severity: "critical" });
+          } else if (result.suspicious > 0) {
+            vtThreats.push({ type: "PHISHING", description: `VirusTotal: ${result.suspicious} engine(s) flagged ${parsed.hostname} as suspicious`, severity: "high" });
+          }
+        }
+      } catch {}
+    });
+    await Promise.all(lookups);
+  } catch {}
+
+  return { vtResults, vtIntelText: lines.length > 0 ? lines.join("\n") : "No VirusTotal data available", vtThreats };
+}
+
+function enrichUrlResultsWithVT(result: UrlSafetyResult, vtResults: Map<string, VTReputationResult>): void {
+  for (const urlResult of result.urls) {
+    const vtData = vtResults.get(urlResult.url);
+    if (!vtData || !vtData.found) continue;
+
+    if (vtData.malicious > 0) {
+      urlResult.verdict = "dangerous";
+      urlResult.riskScore = Math.max(urlResult.riskScore, 0.95);
+      urlResult.recommendation = "do_not_visit";
+      if (!urlResult.threats.some(t => t.description.includes("VirusTotal"))) {
+        urlResult.threats.push({ type: "MALWARE", description: `VirusTotal: ${vtData.malicious} of ${vtData.totalEngines} security engines flagged this as malicious`, severity: "critical" });
+      }
+    } else if (vtData.suspicious > 0) {
+      if (urlResult.verdict === "safe") urlResult.verdict = "suspicious";
+      urlResult.riskScore = Math.max(urlResult.riskScore, 0.7);
+      urlResult.recommendation = urlResult.recommendation === "safe_to_visit" ? "visit_with_caution" : urlResult.recommendation;
+      if (!urlResult.threats.some(t => t.description.includes("VirusTotal"))) {
+        urlResult.threats.push({ type: "PHISHING", description: `VirusTotal: ${vtData.suspicious} of ${vtData.totalEngines} engines flagged this as suspicious`, severity: "high" });
+      }
+    }
+  }
+
+  const hasMalicious = result.urls.some(u => u.verdict === "dangerous");
+  const hasSuspicious = result.urls.some(u => u.verdict === "suspicious");
+  if (hasMalicious) {
+    result.overallVerdict = "dangerous";
+    result.overallRiskScore = Math.max(result.overallRiskScore, 0.95);
+  } else if (hasSuspicious && result.overallVerdict === "safe") {
+    result.overallVerdict = "suspicious";
+    result.overallRiskScore = Math.max(result.overallRiskScore, 0.6);
+  }
+}
+
 export async function analyzeUrls(urls: string[]): Promise<{ result: UrlSafetyResult; durationMs: number }> {
   const startTime = Date.now();
   const patternThreats = quickUrlCheck(urls);
 
+  const { vtResults, vtIntelText, vtThreats } = await getVTIntel(urls);
+  patternThreats.push(...vtThreats);
+
   try {
-    const prompt = PROMPT.replace("{urls}", urls.map((u, i) => `${i + 1}. ${u}`).join("\n"));
+    const prompt = PROMPT
+      .replace("{urls}", urls.map((u, i) => `${i + 1}. ${u}`).join("\n"))
+      .replace("{vtIntel}", vtIntelText);
     const { text } = await callClaude(prompt, 1024);
 
     const fallback: UrlSafetyResult = {
@@ -104,6 +183,8 @@ export async function analyzeUrls(urls: string[]): Promise<{ result: UrlSafetyRe
       overallVerdict: ["safe", "suspicious", "dangerous"].includes(parsed.overallVerdict) ? parsed.overallVerdict : "suspicious",
       overallRiskScore: clampScore(parsed.overallRiskScore),
     };
+
+    enrichUrlResultsWithVT(result, vtResults);
 
     if (patternThreats.some(t => t.severity === "critical")) {
       result.overallVerdict = "dangerous";

@@ -1,5 +1,6 @@
 import dns from "dns";
 import { promisify } from "util";
+import { lookupDomain, type VTReputationResult, summarizeReputation } from "./virustotal";
 
 const resolveTxt = promisify(dns.resolveTxt);
 
@@ -15,9 +16,21 @@ export interface DomainAgeResult {
   registrar: string | null;
 }
 
+export interface VirusTotalResult {
+  found: boolean;
+  malicious: number;
+  suspicious: number;
+  harmless: number;
+  totalEngines: number;
+  reputation: number;
+  summary: string;
+  categories: Record<string, string>;
+}
+
 export interface DomainIntelligence {
   dmarc: DMARCResult;
   domainAge: DomainAgeResult;
+  virusTotal: VirusTotalResult;
 }
 
 const cache = new Map<string, { data: DomainIntelligence; cachedAt: number }>();
@@ -118,12 +131,28 @@ export async function getDomainIntelligence(
     return cached.data;
   }
 
-  const [dmarc, domainAge] = await Promise.all([
+  const [dmarc, domainAge, vtResult] = await Promise.all([
     lookupDMARC(domain),
     lookupDomainAge(domain),
+    lookupDomain(domain).catch(() => null),
   ]);
 
-  const result = { dmarc, domainAge };
+  const virusTotal: VirusTotalResult = vtResult ? {
+    found: vtResult.found,
+    malicious: vtResult.malicious,
+    suspicious: vtResult.suspicious,
+    harmless: vtResult.harmless,
+    totalEngines: vtResult.totalEngines,
+    reputation: vtResult.reputation,
+    summary: summarizeReputation(vtResult),
+    categories: vtResult.categories,
+  } : {
+    found: false, malicious: 0, suspicious: 0, harmless: 0,
+    totalEngines: 0, reputation: 0, summary: "VirusTotal lookup unavailable",
+    categories: {},
+  };
+
+  const result = { dmarc, domainAge, virusTotal };
   cache.set(domain, { data: result, cachedAt: Date.now() });
   return result;
 }
