@@ -426,8 +426,8 @@ export default function HowItWorks() {
   }, []);
 
   useSEO({
-    title: "How Agent Safe Works - 8-Tool Security Suite (7 Paid + 1 Free Triage) for Every Messaging Platform | MCP Server",
-    description: "Learn how Agent Safe protects AI agents across every platform — email, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, and more. 8-tool MCP suite (7 paid + 1 free triage) detects phishing, smishing, BEC, prompt injection, and social engineering on any messaging platform. See real test results.",
+    title: "How Agent Safe Works - 9-Tool Security Suite (7 Paid + 2 Free) for Every Messaging Platform | MCP Server",
+    description: "Learn how Agent Safe protects AI agents across every platform — email, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, and more. 9-tool MCP suite (7 paid + 2 free) detects phishing, smishing, BEC, prompt injection, and social engineering on any messaging platform. See real test results.",
     path: "/how-it-works",
   });
   return (
@@ -444,7 +444,7 @@ export default function HowItWorks() {
               Security Across Every<br />Messaging Platform
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Your agent handles messages on email, SMS, WhatsApp, Slack, Discord, Telegram, and more. Our <a href="#tools-section" className="text-primary underline" data-testid="link-tools-section" onClick={(e) => { e.preventDefault(); document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>8-tool MCP suite (7 paid + 1 free triage)</a> detects phishing, smishing, prompt injection, social engineering, and platform-specific threats — no matter where the message comes from.
+              Your agent handles messages on email, SMS, WhatsApp, Slack, Discord, Telegram, and more. Our <a href="#tools-section" className="text-primary underline" data-testid="link-tools-section" onClick={(e) => { e.preventDefault(); document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>9-tool MCP suite (7 paid + 2 free)</a> detects phishing, smishing, prompt injection, social engineering, and platform-specific threats — no matter where the message comes from.
             </p>
           </div>
 
@@ -469,7 +469,7 @@ export default function HowItWorks() {
                 number={3}
                 icon={Wrench}
                 title="Agent Calls the Right Tool"
-                description="The agent starts by calling assess_message (free) to triage the content and get a prioritized list of which tools to run. Then it picks the appropriate paid tools from the 8-tool suite: check_email_safety for incoming emails, check_url_safety for suspicious links, check_response_safety for draft replies, check_attachment_safety for file attachments, check_sender_reputation for sender verification, analyze_email_thread for multi-message thread analysis, or check_message_safety for non-email platform messages."
+                description="The agent starts by calling assess_message (free) to triage the content and get a prioritized list of which tools to run. Then it picks the appropriate paid tools from the 9-tool suite: check_email_safety for incoming emails, check_url_safety for suspicious links, check_response_safety for draft replies, check_attachment_safety for file attachments, check_sender_reputation for sender verification, analyze_email_thread for multi-message thread analysis, or check_message_safety for non-email platform messages."
               />
               <StepCard
                 number={4}
@@ -495,7 +495,7 @@ export default function HowItWorks() {
               Tool Explorer
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-explore-heading">
-              Explore the 8 Tools
+              Explore the 9 Tools
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Select a tool below to see its full capabilities, parameters, threat categories, and real test results.

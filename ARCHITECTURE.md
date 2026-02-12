@@ -2,13 +2,13 @@
 
 ## Overview
 
-Agent Safe is a Remote MCP (Model Context Protocol) Server that provides 8 message security tools (7 paid + 1 free triage) to protect AI agents from phishing, social engineering, BEC, malware, and manipulation. Agents connect via MCP Streamable HTTP, call the free triage tool to figure out which security checks to run, then call the recommended paid tools and receive structured safety verdicts.
+Agent Safe is a Remote MCP (Model Context Protocol) Server that provides 9 message security tools (7 paid + 2 free: triage + feedback) to protect AI agents from phishing, social engineering, BEC, malware, and manipulation. Agents connect via MCP Streamable HTTP, call the free triage tool to figure out which security checks to run, then call the recommended paid tools and receive structured safety verdicts.
 
 This document explains how the system works under the hood — how it uses Claude for AI-powered analysis, how it connects to external threat intelligence APIs, and how it learns and improves over time.
 
 ---
 
-## The 8 Tools
+## The 9 Tools (7 Paid + 2 Free)
 
 | Tool | What It Does | Cost |
 |------|-------------|------|
@@ -20,6 +20,7 @@ This document explains how the system works under the hood — how it uses Claud
 | `check_attachment_safety` | Assesses malware risk from filenames, MIME types, and file sizes | $0.02 |
 | `check_sender_reputation` | Verifies sender identity with live DNS and domain intelligence | $0.02 |
 | `check_message_safety` | Analyzes SMS, WhatsApp, Slack, Discord, and other platform messages | $0.02 |
+| `submit_feedback` | Free feedback tool — agents report whether analysis results were helpful, inaccurate, or missed a threat | Free |
 
 ---
 

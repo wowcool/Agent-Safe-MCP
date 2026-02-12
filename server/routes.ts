@@ -60,7 +60,7 @@ export async function registerRoutes(
   app.get("/.well-known/mcp.json", (_req: Request, res: Response) => {
     res.json({
       name: "Agent Safe",
-      description: "8-tool message security suite for AI agents (7 paid + 1 free triage). Protects against phishing, BEC, malware, social engineering, and manipulation across any message (emails, chats, DMs, SMS), URLs, replies, threads, attachments, and sender identities. Start with the free assess_message tool to get personalized recommendations.",
+      description: "9-tool message security suite for AI agents (7 paid + 2 free). Protects against phishing, BEC, malware, social engineering, and manipulation across any message (emails, chats, DMs, SMS), URLs, replies, threads, attachments, and sender identities. Start with the free assess_message tool to get personalized recommendations, and use submit_feedback to report results.",
       version: "2.2.0",
       protocol: "mcp",
       transport: {
@@ -100,8 +100,8 @@ export async function registerRoutes(
       schema_version: "v1",
       name_for_human: "Agent Safe",
       name_for_model: "agent_safe_message_security",
-      description_for_human: "8-tool message security suite for AI agents (7 paid + 1 free triage). Protects against phishing, BEC, malware, social engineering, and manipulation across any message format.",
-      description_for_model: "Agent Safe is a Remote MCP Server with 8 message security tools for AI agents. ALWAYS START with assess_message (FREE, no charge) to get personalized tool recommendations. Then call the recommended paid tools ($0.02 each): check_email_safety (analyze emails), check_url_safety (analyze URLs), check_response_safety (check draft replies), analyze_email_thread (detect thread manipulation), check_attachment_safety (assess attachment risk), check_sender_reputation (verify sender with DNS/RDAP), check_message_safety (analyze SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal messages for platform-specific threats). Auth: include skyfire-api-key header with your Skyfire Buyer API Key (recommended), or skyfire-pay-id header with a PAY token. MCP endpoint: https://agentsafe.locationledger.com/mcp",
+      description_for_human: "9-tool message security suite for AI agents (7 paid + 2 free). Protects against phishing, BEC, malware, social engineering, and manipulation across any message format.",
+      description_for_model: "Agent Safe is a Remote MCP Server with 9 message security tools for AI agents (7 paid + 2 free). ALWAYS START with assess_message (FREE, no charge) to get personalized tool recommendations. Then call the recommended paid tools ($0.02 each): check_email_safety (analyze emails), check_url_safety (analyze URLs), check_response_safety (check draft replies), analyze_email_thread (detect thread manipulation), check_attachment_safety (assess attachment risk), check_sender_reputation (verify sender with DNS/RDAP), check_message_safety (analyze SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal messages for platform-specific threats). After analysis, use submit_feedback (FREE) to report whether results were helpful. Auth: include skyfire-api-key header with your Skyfire Buyer API Key (recommended), or skyfire-pay-id header with a PAY token. MCP endpoint: https://agentsafe.locationledger.com/mcp",
       auth: { type: "none" },
       api: { type: "mcp", url: "https://agentsafe.locationledger.com/mcp", transport: "streamable-http" },
       logo_url: "https://agentsafe.locationledger.com/favicon.png",
@@ -113,7 +113,7 @@ export async function registerRoutes(
   // ===== AUTH ROUTES =====
   
   app.get("/llms.txt", (_req: Request, res: Response) => {
-    res.type("text/plain").send(`# Agent Safe - Message Security Suite for AI Agents (7 Paid Tools + 1 Free Triage)
+    res.type("text/plain").send(`# Agent Safe - Message Security Suite for AI Agents (7 Paid Tools + 2 Free)
 > MCP Server: https://agentsafe.locationledger.com/mcp
 > Protocol: Streamable HTTP (MCP)
 > Payment: $0.02/tool call via skyfire-api-key header (Skyfire Buyer API Key) or skyfire-pay-id header (PAY token)
@@ -572,7 +572,7 @@ Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices
       const discovery: DiscoveryResponse = {
         service: "Agent Safe",
         version: "2.2.0",
-        description: "8-tool message security suite for AI agents (7 paid + 1 free triage). Protects against phishing, BEC, malware, social engineering, and manipulation across any message (emails, chats, DMs, SMS), URLs, replies, threads, attachments, and sender identities. Start with the free assess_message tool.",
+        description: "9-tool message security suite for AI agents (7 paid + 2 free). Protects against phishing, BEC, malware, social engineering, and manipulation across any message (emails, chats, DMs, SMS), URLs, replies, threads, attachments, and sender identities. Start with the free assess_message tool, and use submit_feedback to report results.",
         capabilities: [
           "message_triage",
           "email_safety_check",

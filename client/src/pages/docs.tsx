@@ -14,8 +14,8 @@ const BASE_URL = "https://agentsafe.locationledger.com";
 
 export default function Docs() {
   useSEO({
-    title: "Documentation - Agent Safe 8-Tool Message Security Suite | API Reference & Free Triage Tool",
-    description: "Complete documentation for Agent Safe's 8-tool message security suite with free assess_message triage tool. Protects AI agents across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. MCP configuration, REST API reference for all 8 tools.",
+    title: "Documentation - Agent Safe 9-Tool Message Security Suite | API Reference & 2 Free Tools",
+    description: "Complete documentation for Agent Safe's 9-tool message security suite with 2 free tools (assess_message triage + submit_feedback). Protects AI agents across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. MCP configuration, REST API reference for all 9 tools.",
     path: "/docs",
   });
   const { toast } = useToast();
@@ -384,6 +384,19 @@ switch (result.recommendation) {
       ],
       responseNote: "Returns { verdict, riskScore, confidence, platform, threats[] with messageIndices, recommendation, explanation, safeActions[], unsafeActions[], platformTips }.",
     },
+    {
+      name: "submit_feedback",
+      description: "Free tool for agents to rate any analysis and help improve detection quality. No charge, no authentication required. Accepts a rating, optional comment, checkId, tool name, and agent platform.",
+      badge: "FREE",
+      params: [
+        { name: "rating", type: "enum", required: true, description: "Your rating: helpful, not_helpful, inaccurate, missed_threat, or false_positive" },
+        { name: "comment", type: "string", required: false, description: "Optional details about your experience" },
+        { name: "checkId", type: "string", required: false, description: "The checkId returned by the tool you're rating" },
+        { name: "toolName", type: "string", required: false, description: "Which tool you're giving feedback on" },
+        { name: "agentPlatform", type: "string", required: false, description: "Your agent platform (e.g. claude, cursor, openai)" },
+      ],
+      responseNote: "Returns { received, message, charged: 0 }. No charge — completely free.",
+    },
   ];
 
   const restEndpoints = [
@@ -395,6 +408,7 @@ switch (result.recommendation) {
     { path: "/mcp/tools/check_attachment_safety", description: "Assess attachment safety by metadata" },
     { path: "/mcp/tools/check_sender_reputation", description: "Verify sender identity and domain reputation" },
     { path: "/mcp/tools/check_message_safety", description: "Analyze non-email messages for platform threats" },
+    { path: "/mcp/tools/submit_feedback", description: "Submit feedback on any analysis — free", free: true },
   ];
 
   return (
@@ -406,7 +420,7 @@ switch (result.recommendation) {
           MCP Server Documentation
         </h1>
         <p className="text-muted-foreground mb-10">
-          Connect your AI agent to Agent Safe's 8-tool message security suite — including a free triage tool. Protect against threats across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. No signup required — just a Skyfire Buyer API Key.
+          Connect your AI agent to Agent Safe's 9-tool message security suite — including 2 free tools (triage + feedback). Protect against threats across email, SMS, WhatsApp, Slack, Discord, and every messaging platform. No signup required — just a Skyfire Buyer API Key.
         </p>
 
         <div className="space-y-8">
@@ -419,7 +433,7 @@ switch (result.recommendation) {
               <ol className="list-decimal list-inside space-y-3 text-foreground/80 text-sm">
                 <li>Get a <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-primary underline underline-offset-2">Skyfire Buyer API Key</a> from the Skyfire Network</li>
                 <li>Add the MCP server config to your agent's MCP settings file</li>
-                <li>Your agent can now use all <strong>8 message security tools</strong> — start with the free <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>assess_message</code> triage tool, plus <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_email_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_url_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_response_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>analyze_email_thread</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_attachment_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_sender_reputation</code>, and <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_message_safety</code></li>
+                <li>Your agent can now use all <strong>9 message security tools</strong> — start with the free <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>assess_message</code> triage tool, 7 paid tools (<code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_email_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_url_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_response_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>analyze_email_thread</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_attachment_safety</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_sender_reputation</code>, <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>check_message_safety</code>), and the free <code className="px-1.5 py-0.5 rounded text-xs" style={codeStyle}>submit_feedback</code> tool</li>
               </ol>
 
               <div className="mt-4">
@@ -487,9 +501,9 @@ switch (result.recommendation) {
                 <h4 className="font-semibold text-sm mb-2">Available MCP Methods</h4>
                 <ul className="text-sm text-muted-foreground space-y-1.5">
                   <li><code className="text-xs px-1.5 py-0.5 rounded bg-muted">initialize</code> — Handshake and capability negotiation</li>
-                  <li><code className="text-xs px-1.5 py-0.5 rounded bg-muted">tools/list</code> — Discover all 8 available tools</li>
+                  <li><code className="text-xs px-1.5 py-0.5 rounded bg-muted">tools/list</code> — Discover all 9 available tools</li>
                   <li className="space-y-1">
-                    <span><code className="text-xs px-1.5 py-0.5 rounded bg-muted">tools/call</code> — Execute any of the 8 security tools:</span>
+                    <span><code className="text-xs px-1.5 py-0.5 rounded bg-muted">tools/call</code> — Execute any of the 9 security tools:</span>
                     <ul className="ml-6 mt-1 space-y-0.5 text-muted-foreground text-xs">
                       <li><code style={codeStyle} className="px-1 py-0.5 rounded">assess_message</code> — <Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30 text-[10px] px-1 py-0">FREE</Badge> Triage tool that recommends which tools to call</li>
                       <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_email_safety</code> — Analyze emails for threats</li>
@@ -499,6 +513,7 @@ switch (result.recommendation) {
                       <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_attachment_safety</code> — Assess attachments</li>
                       <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_sender_reputation</code> — Verify sender identity</li>
                       <li><code style={codeStyle} className="px-1 py-0.5 rounded">check_message_safety</code> — Analyze non-email messages</li>
+                      <li><code style={codeStyle} className="px-1 py-0.5 rounded">submit_feedback</code> — <Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30 text-[10px] px-1 py-0">FREE</Badge> Rate analysis quality</li>
                     </ul>
                   </li>
                 </ul>
@@ -509,7 +524,7 @@ switch (result.recommendation) {
           <Card>
             <CardHeader>
               <CardTitle>REST API</CardTitle>
-              <CardDescription>Alternative REST endpoints for all 8 tools</CardDescription>
+              <CardDescription>Alternative REST endpoints for all 9 tools</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
@@ -554,7 +569,7 @@ switch (result.recommendation) {
           <Card>
             <CardHeader>
               <CardTitle>Tool Reference</CardTitle>
-              <CardDescription>Input parameters for all 8 security tools</CardDescription>
+              <CardDescription>Input parameters for all 9 security tools</CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
               {toolDefinitions.map((tool) => (
@@ -615,6 +630,11 @@ switch (result.recommendation) {
                   <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
                     <code className="text-xs" style={codeStyle}>check_message_safety</code>
                     <span className="ml-2">returns <code className="text-xs text-muted-foreground">{"{ verdict, riskScore, confidence, platform, threats, recommendation, platformTips }"}</code></span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
+                    <code className="text-xs" style={codeStyle}>submit_feedback</code>
+                    <Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30 text-[10px] px-1 py-0 ml-1">FREE</Badge>
+                    <span className="ml-2">returns <code className="text-xs text-muted-foreground">{"{ received, message, charged: 0 }"}</code></span>
                   </div>
                 </div>
               </div>
@@ -679,7 +699,7 @@ switch (result.recommendation) {
               <CardTitle>Pricing</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-foreground/80 space-y-2">
-              <p><strong>$0.02 per tool call</strong> — charged at time of request via your Skyfire Buyer API Key. Applies to all paid tools. The <code className="px-1 py-0.5 rounded text-xs" style={codeStyle}>assess_message</code> triage tool is <strong>completely free</strong>.</p>
+              <p><strong>$0.02 per tool call</strong> — charged at time of request via your Skyfire Buyer API Key. Applies to all 7 paid tools. Two tools are <strong>completely free</strong>: <code className="px-1 py-0.5 rounded text-xs" style={codeStyle}>assess_message</code> (triage) and <code className="px-1 py-0.5 rounded text-xs" style={codeStyle}>submit_feedback</code> (quality feedback).</p>
               <p className="text-muted-foreground">Failed requests (invalid token, insufficient balance) are not charged. Only successful analysis incurs a charge.</p>
             </CardContent>
           </Card>

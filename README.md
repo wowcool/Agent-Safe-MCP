@@ -1,8 +1,8 @@
 # Agent Safe
 
-**7-Tool Message Security Suite for AI Agents**
+**9-Tool Message Security Suite for AI Agents (7 Paid + 2 Free)**
 
-Agent Safe is a Remote MCP Server providing 7 security tools that protect AI agents from phishing, social engineering, BEC, malware, and manipulation across any message format — emails, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, LinkedIn, iMessage, Signal, and more. Pay-per-use via Skyfire Network at **$0.02 per check**.
+Agent Safe is a Remote MCP Server providing 9 security tools (7 paid + 2 free) that protect AI agents from phishing, social engineering, BEC, malware, and manipulation across any message format — emails, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, LinkedIn, iMessage, Signal, and more. Pay-per-use via Skyfire Network at **$0.02 per paid tool call**. Two tools are completely free: `assess_message` (triage) and `submit_feedback` (quality feedback).
 
 ## NO LICENSE
 
@@ -40,12 +40,12 @@ Get a Skyfire Buyer API Key at [skyfire.xyz](https://skyfire.xyz). No signup or 
 |----------|-------|
 | **Endpoint** | `https://agentsafe.locationledger.com/mcp` |
 | **Transport** | Streamable HTTP (JSON-RPC 2.0) |
-| **Tools** | 7 security tools (see below) |
+| **Tools** | 9 security tools (7 paid + 2 free) |
 | **Payment** | Skyfire Buyer API Key via `skyfire-api-key` header |
-| **Price** | $0.02 USD per tool call |
+| **Price** | $0.02 USD per paid tool call (2 free tools) |
 | **Protocol** | Model Context Protocol (MCP) |
 
-## The 7 Tools
+## The 9 Tools (7 Paid + 2 Free)
 
 ### 1. `check_email_safety`
 
@@ -127,9 +127,36 @@ Verifies sender identity using live DNS DMARC lookups, RDAP domain age checks, a
 | `claimedRole` | string | No | Role the sender claims (e.g., "CEO", "IT Admin") |
 | `claimedOrganization` | string | No | Organization the sender claims to represent |
 
+### 8. `submit_feedback` (FREE)
+
+Free tool for agents to rate any analysis and help improve detection quality. After using any paid tool, call `submit_feedback` to report your experience. No charge, no authentication required.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `rating` | enum | Yes | Your rating: `helpful`, `not_helpful`, `inaccurate`, `missed_threat`, or `false_positive` |
+| `comment` | string | No | Optional details about your experience |
+| `checkId` | string | No | The `checkId` returned by the tool you're rating |
+| `toolName` | string | No | Which tool you're giving feedback on |
+| `agentPlatform` | string | No | Your agent platform (e.g., `claude`, `cursor`, `openai`) |
+
+### 9. `assess_message` (FREE)
+
+Free triage tool that analyzes whatever context you have and recommends which security tools to call. Uses pure logic (no AI), responds instantly, costs nothing. Always call this first.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `from` | string | No | Sender email address or identifier |
+| `subject` | string | No | Message subject line |
+| `body` | string | No | Message body content |
+| `links` | string[] | No | URLs found in the message |
+| `attachments` | object[] | No | Attachment metadata (name, size, mimeType) |
+| `platform` | string | No | Messaging platform (email, sms, whatsapp, slack, etc.) |
+| `sender` | string | No | Sender identifier (phone, username, handle) |
+| `messages` | object[] | No | Array of messages for thread analysis |
+
 ## Output Format
 
-All 7 tools return structured JSON with:
+All 7 paid tools return structured JSON with:
 
 ```json
 {
@@ -162,6 +189,7 @@ For non-MCP integrations, Agent Safe also exposes REST endpoints:
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/mcp/discover` | Service discovery for agents |
+| `POST` | `/mcp/tools/assess_message` | Free triage — recommends which tools to call |
 | `POST` | `/mcp/tools/check_email_safety` | Email safety check |
 | `POST` | `/mcp/tools/check_message_safety` | Message safety check (any platform) |
 | `POST` | `/mcp/tools/check_url_safety` | URL safety check |
@@ -169,6 +197,7 @@ For non-MCP integrations, Agent Safe also exposes REST endpoints:
 | `POST` | `/mcp/tools/analyze_email_thread` | Thread analysis |
 | `POST` | `/mcp/tools/check_attachment_safety` | Attachment safety check |
 | `POST` | `/mcp/tools/check_sender_reputation` | Sender reputation check |
+| `POST` | `/mcp/tools/submit_feedback` | Free — submit feedback on any analysis |
 | `POST` | `/mcp` | MCP protocol endpoint (Streamable HTTP) |
 
 ### REST Example
@@ -189,7 +218,7 @@ curl -X POST https://agentsafe.locationledger.com/mcp/tools/check_email_safety \
 Agent Safe uses [Skyfire Network](https://skyfire.xyz) for frictionless agent payments:
 
 - **No signup required** with Agent Safe — just your Skyfire Buyer API Key
-- **Pay-per-use** at $0.02 per tool call (all 7 tools same price)
+- **Pay-per-use** at $0.02 per paid tool call (7 paid tools same price, 2 free tools)
 - Your agent includes its Skyfire Buyer API Key via the `skyfire-api-key` header
 - Agent Safe automatically generates PAY tokens and charges per call
 - Get your Buyer API Key at [skyfire.xyz](https://skyfire.xyz)
@@ -202,7 +231,7 @@ Agents can discover Agent Safe programmatically:
 curl https://agentsafe.locationledger.com/mcp/discover
 ```
 
-Returns service metadata including all 7 tools, capabilities, pricing, and connection instructions.
+Returns service metadata including all 9 tools, capabilities, pricing, and connection instructions.
 
 Additional discovery endpoints:
 

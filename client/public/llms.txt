@@ -1,4 +1,4 @@
-# Agent Safe - 8-Tool Message Security Suite for AI Agents (7 Paid + 1 Free Triage)
+# Agent Safe - 9-Tool Message Security Suite for AI Agents (7 Paid + 2 Free)
 > MCP Server: https://agentsafe.locationledger.com/mcp
 > Protocol: Streamable HTTP (MCP)
 > Payment: $0.02/paid tool call via skyfire-api-key header (Skyfire Buyer API Key). assess_message is FREE.

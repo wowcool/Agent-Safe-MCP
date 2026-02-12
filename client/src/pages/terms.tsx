@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 export default function Terms() {
   useSEO({
     title: "Terms of Service - Agent Safe | Liability & Usage Terms",
-    description: "Terms of Service for Agent Safe 7-tool message security suite. Covers all tools including email, URL, attachment, sender, thread, response, and cross-platform message analysis. Includes liability disclaimers and usage terms.",
+    description: "Terms of Service for Agent Safe 9-tool message security suite. Covers all tools including email, URL, attachment, sender, thread, response, and cross-platform message analysis. Includes liability disclaimers and usage terms.",
     path: "/terms",
   });
   return (
@@ -39,7 +39,7 @@ export default function Terms() {
           <section>
             <h2 className="text-lg font-semibold mb-3">3. Payment and Pricing</h2>
             <p className="mb-3">
-              The Service charges $0.02 USD per tool call across all 7 tools. Payment is processed through the Skyfire Network using PAY tokens. By submitting a request with a valid Skyfire PAY token, you authorize the charge for that request.
+              The Service charges $0.02 USD per tool call across all 7 paid tools. Payment is processed through the Skyfire Network using PAY tokens. By submitting a request with a valid Skyfire PAY token, you authorize the charge for that request.
             </p>
             <ul className="list-disc pl-6 space-y-1.5">
               <li>All charges are final and non-refundable once the analysis has been performed.</li>
@@ -67,7 +67,7 @@ export default function Terms() {
             <h2 className="text-lg font-semibold mb-3">5. Service Availability and Limitations</h2>
             <ul className="list-disc pl-6 space-y-1.5">
               <li>The Service is provided on an "as available" basis. We target high availability but do not guarantee uninterrupted service.</li>
-              <li>Analysis results across all 7 tools are advisory only. The Service uses AI to assess security risks and may produce false positives (flagging safe content as dangerous) or false negatives (missing actual threats). No tool in the suite provides a guarantee of threat detection.</li>
+              <li>Analysis results across all 7 paid tools are advisory only. The Service uses AI to assess security risks and may produce false positives (flagging safe content as dangerous) or false negatives (missing actual threats). No tool in the suite provides a guarantee of threat detection.</li>
               <li>The Service does not store, retain, or log the content of emails submitted for analysis beyond the duration needed to process the request.</li>
               <li>We reserve the right to implement rate limits to ensure fair usage across all clients.</li>
             </ul>
@@ -120,7 +120,7 @@ export default function Terms() {
               <li>Damages resulting from actions taken by AI agents or automated systems based on the Service's analysis.</li>
               <li>Harm caused by phishing, social engineering, or other message-based attacks that the Service failed to identify.</li>
               <li>Any consequences arising from reliance on the Service's safety verdicts, risk scores, or recommendations.</li>
-              <li>Consequences arising from reliance on any of the 7 tools' analysis, including but not limited to email safety verdicts, URL risk scores, attachment safety assessments, sender reputation evaluations, thread manipulation detection, or draft reply recommendations.</li>
+              <li>Consequences arising from reliance on any of the 7 paid tools' analysis, including but not limited to email safety verdicts, URL risk scores, attachment safety assessments, sender reputation evaluations, thread manipulation detection, or draft reply recommendations.</li>
             </ul>
             <p>
               Our total aggregate liability for any and all claims related to the Service shall not exceed the lesser of (a) the total amount paid by you to us in the 30 calendar days immediately preceding the event giving rise to the claim, or (b) one US dollar ($1.00).
