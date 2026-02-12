@@ -24,6 +24,7 @@ export interface DomainContext {
   previousPatterns: string[];
   vtMaliciousCount: number;
   webRiskFlagCount: number;
+  hasInfrastructureIssues: boolean;
 }
 
 export async function lookupStoredIntel(
@@ -168,6 +169,10 @@ export async function getDomainContext(domain: string): Promise<DomainContext | 
 
     if (!rep && patternStats.total === 0) return null;
 
+    const vtMaliciousCount = rep?.vtMaliciousCount || 0;
+    const webRiskFlagCount = rep?.webRiskFlagCount || 0;
+    const hasInfrastructureIssues = vtMaliciousCount > 0 || webRiskFlagCount > 0;
+
     return {
       totalChecks: rep?.totalChecks || 0,
       dangerousCount: rep?.dangerousCount || 0,
@@ -176,8 +181,9 @@ export async function getDomainContext(domain: string): Promise<DomainContext | 
       avgRiskScore: rep?.avgRiskScore ? parseFloat(rep.avgRiskScore) : 0,
       computedTrustScore: rep?.computedTrustScore ? parseFloat(rep.computedTrustScore) : 0.5,
       previousPatterns: Object.keys(patternStats.byType),
-      vtMaliciousCount: rep?.vtMaliciousCount || 0,
-      webRiskFlagCount: rep?.webRiskFlagCount || 0,
+      vtMaliciousCount,
+      webRiskFlagCount,
+      hasInfrastructureIssues,
     };
   } catch (e) {
     console.error("[ThreatMemory] domain context error:", e);
@@ -190,16 +196,16 @@ export function buildHistoricalContextPrompt(ctx: DomainContext | null): string 
 
   const lines: string[] = ["HISTORICAL INTELLIGENCE (from our database):"];
   lines.push(`- Domain checked ${ctx.totalChecks} time(s) previously`);
-  lines.push(`- Previous verdicts: ${ctx.dangerousCount} dangerous, ${ctx.suspiciousCount} suspicious, ${ctx.safeCount} safe`);
-  lines.push(`- Average risk score: ${(ctx.avgRiskScore * 100).toFixed(0)}%`);
-  lines.push(`- Computed trust score: ${(ctx.computedTrustScore * 100).toFixed(0)}%`);
+  lines.push(`- Previous email verdicts: ${ctx.dangerousCount} dangerous, ${ctx.suspiciousCount} suspicious, ${ctx.safeCount} safe`);
 
-  if (ctx.vtMaliciousCount > 0) lines.push(`- VirusTotal has flagged this domain as malicious ${ctx.vtMaliciousCount} time(s)`);
-  if (ctx.webRiskFlagCount > 0) lines.push(`- Google Web Risk has flagged this domain ${ctx.webRiskFlagCount} time(s)`);
-  if (ctx.previousPatterns.length > 0) lines.push(`- Previous scam patterns detected: ${ctx.previousPatterns.join(", ")}`);
+  if (ctx.vtMaliciousCount > 0) lines.push(`- VirusTotal has flagged this domain infrastructure as malicious ${ctx.vtMaliciousCount} time(s)`);
+  if (ctx.webRiskFlagCount > 0) lines.push(`- Google Web Risk has flagged this domain infrastructure ${ctx.webRiskFlagCount} time(s)`);
+  if (ctx.previousPatterns.length > 0) lines.push(`- Previous scam pattern types observed from this domain: ${ctx.previousPatterns.join(", ")}`);
 
-  if (ctx.dangerousCount > 0) {
-    lines.push(`\nWARNING: This domain has been previously flagged as dangerous. Treat with extreme caution and score accordingly.`);
+  if (ctx.hasInfrastructureIssues) {
+    lines.push(`\nWARNING: This domain has confirmed infrastructure-level security issues (flagged by VirusTotal or Google Web Risk). The domain itself may be operated by threat actors.`);
+  } else if (ctx.dangerousCount > 0) {
+    lines.push(`\nNOTE: Scam emails have been observed FROM this domain, but the domain infrastructure itself appears clean. This likely indicates the domain was spoofed (forged From header) or a legitimate account was compromised — NOT that the domain itself is malicious. Do NOT penalize the domain for this; instead focus your analysis on the EMAIL CONTENT and PATTERNS.`);
   }
 
   return "\n" + lines.join("\n");

@@ -30,6 +30,12 @@ Domain categories: {vtCategories}
 GOOGLE WEB RISK (Google's commercial threat intelligence):
 {webRiskSummary}
 
+IMPORTANT — DOMAIN vs. EMAIL DISTINCTION:
+A scam email sent "from" a domain does NOT mean the domain itself is malicious. Scammers frequently SPOOF (forge the From header) or HIJACK (compromise an account on) legitimate business domains. The domain owner is often a VICTIM, not the attacker. Your analysis should focus on:
+- Infrastructure signals (DMARC, domain age, VirusTotal, Web Risk) to assess the DOMAIN itself
+- Email content signals (BEC patterns, impersonation) to assess the SPECIFIC EMAIL
+These are separate concerns. A legitimate 10-year-old domain with proper DMARC can still be used to send a phishing email — that doesn't make the domain malicious.
+
 Analyze this sender for ALL of these issue categories:
 1. DOMAIN_SPOOFING - Email domain doesn't match claimed organization
 2. REPLY_TO_MISMATCH - Reply-To differs from sender address
@@ -40,6 +46,7 @@ Analyze this sender for ALL of these issue categories:
 7. AUTHORITY_CLAIM - Claiming executive status to pressure action
 8. DOMAIN_AGE_RISK - Domain registered very recently (use the domain age data above)
 9. NO_DMARC_POLICY - Domain has no DMARC record published
+10. LIKELY_SPOOFED - Email appears to be sent FROM a legitimate domain but content suggests the sender is not who they claim (account compromise or header forgery)
 
 Respond ONLY with valid JSON in this exact format:
 {
@@ -201,8 +208,29 @@ export async function analyzeSender(input: {
       });
     }
 
-    const senderVerdict = result.senderVerdict === "likely_fraudulent" ? "dangerous" : result.senderVerdict === "suspicious" ? "suspicious" : "safe";
-    updateDomainReputation(domain, senderVerdict, 1 - result.trustScore, {
+    const hasVtFlags = vt && vt.malicious > 0;
+    const hasWrFlags = wr && !wr.safe;
+    const hasNoDmarc = !dmarcExists;
+    const isNewDomain = domainAgeDays !== null && domainAgeDays < 90;
+    const hasInfraIssues = hasVtFlags || hasWrFlags;
+
+    let infraVerdict: string;
+    let infraRiskScore: number;
+    if (hasVtFlags || hasWrFlags) {
+      infraVerdict = "dangerous";
+      infraRiskScore = 0.9;
+    } else if (isNewDomain && hasNoDmarc) {
+      infraVerdict = "suspicious";
+      infraRiskScore = 0.6;
+    } else if (isNewDomain || hasNoDmarc) {
+      infraVerdict = "suspicious";
+      infraRiskScore = 0.4;
+    } else {
+      infraVerdict = "safe";
+      infraRiskScore = 0.1;
+    }
+
+    updateDomainReputation(domain, infraVerdict, infraRiskScore, {
       dmarcStatus: dmarcPolicy || (dmarcExists ? "exists" : "none"),
       domainAgeDays: domainAgeDays || undefined,
       vtMaliciousCount: vt?.malicious || 0,
@@ -210,11 +238,11 @@ export async function analyzeSender(input: {
       webRiskFlagCount: wr && !wr.safe ? 1 : 0,
     });
 
-    const highIssues = result.identityIssues
-      .filter(i => i.severity === "high" || i.severity === "critical")
+    const infraIssues = result.identityIssues
+      .filter(i => (i.severity === "high" || i.severity === "critical") && hasInfraIssues)
       .map(i => ({ patternType: i.type, severity: i.severity, description: i.description }));
-    if (highIssues.length > 0) {
-      recordScamDetection(highIssues, domain, senderVerdict, 1 - result.trustScore, "check_sender_reputation");
+    if (infraIssues.length > 0) {
+      recordScamDetection(infraIssues, domain, infraVerdict, infraRiskScore, "check_sender_reputation");
     }
 
     return { result, durationMs: Date.now() - startTime };

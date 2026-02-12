@@ -1,6 +1,6 @@
 import type { CheckEmailRequest, ThreatDetected, Verdict } from "@shared/schema";
 import { callClaude, parseJsonResponse, clampScore, sanitizeSeverity } from "./base";
-import { getDomainContext, buildHistoricalContextPrompt, recordScamDetection, updateDomainReputation } from "../threat-memory";
+import { getDomainContext, buildHistoricalContextPrompt, recordScamDetection } from "../threat-memory";
 
 const ANALYSIS_PROMPT = `You are an expert email security analyzer protecting AI agents from phishing, social engineering, scams, and manipulation. You must be AGGRESSIVE at flagging threats — false negatives (missing real scams) are far more dangerous than false positives.
 
@@ -28,6 +28,9 @@ RED FLAG COMBINATIONS — any single one of these should push riskScore above 0.
 - Generic greeting ("Dear Sir/Madam", "Hello", no personal greeting) combined with a business proposal = MASS SCAM
 - Urgency language + financial/document request = SOCIAL ENGINEERING
 - Links to file-sharing services (Google Drive, Dropbox, OneDrive) from unknown senders = POTENTIAL MALWARE DELIVERY
+
+IMPORTANT — DOMAIN vs. EMAIL DISTINCTION:
+Scammers often SPOOF or HIJACK legitimate business domains. A phishing email sent "from" a domain does NOT mean the domain itself is malicious. The domain owner may be a victim too (their email account was compromised, or the From header was forged). Focus your analysis on the EMAIL CONTENT and PATTERNS, not on blaming the sender's domain. A scam from "ceo@legitimatebusiness.com" means the email is dangerous, but the domain itself may be perfectly legitimate.
 
 SCORING GUIDANCE:
 - 0.0-0.3: Clearly safe, from known/verified senders, normal business content
@@ -195,15 +198,12 @@ export async function analyzeEmail(request: CheckEmailRequest): Promise<{ result
 
   const historicalContext = buildHistoricalContextPrompt(domainCtx);
 
-  if (domainCtx && domainCtx.dangerousCount > 0 && domainCtx.totalChecks > 0) {
-    const dangerousRatio = domainCtx.dangerousCount / domainCtx.totalChecks;
-    if (dangerousRatio > 0.5) {
-      patternThreats.push({
-        type: "HISTORICAL_DANGEROUS_DOMAIN",
-        description: `Domain ${senderDomain} has been flagged dangerous in ${domainCtx.dangerousCount} of ${domainCtx.totalChecks} previous checks`,
-        severity: "high",
-      });
-    }
+  if (domainCtx && domainCtx.hasInfrastructureIssues) {
+    patternThreats.push({
+      type: "DOMAIN_INFRASTRUCTURE_RISK",
+      description: `Domain ${senderDomain} has been flagged by security services (VirusTotal/Google Web Risk) — domain infrastructure itself is suspicious`,
+      severity: "high",
+    });
   }
 
   try {
@@ -264,7 +264,6 @@ export async function analyzeEmail(request: CheckEmailRequest): Promise<{ result
     if (highSeverityThreats.length > 0) {
       recordScamDetection(highSeverityThreats, senderDomain, result.verdict, result.riskScore, "check_email_safety", undefined, request.email.subject);
     }
-    updateDomainReputation(senderDomain, result.verdict, result.riskScore);
 
     return { result, durationMs: Date.now() - startTime };
   } catch (error) {
