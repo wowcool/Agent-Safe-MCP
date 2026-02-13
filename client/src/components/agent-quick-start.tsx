@@ -211,18 +211,18 @@ const AGENTS: AgentInfo[] = [
     name: "ChatGPT",
     icon: <SiOpenai className="h-4 w-4" />,
     configPath: "Apps > Create",
-    config: `MCP Server URL:
-https://agentsafe.locationledger.com/mcp
-
-Authentication: API Key
-Header Name: skyfire-api-key
-Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
+    config: `Name: Agent Safe
+Description: Message security suite for AI agents
+MCP Server URL: https://agentsafe.locationledger.com/mcp
+Authentication: None`,
     configRaw: `https://agentsafe.locationledger.com/mcp`,
     verifySteps: [
-      "Go to chatgpt.com > Settings > Developer Mode and turn it on",
-      "Go to Apps > Create to create a new app",
-      "Enter the MCP Server URL above and set authentication to API Key",
-      "Add the skyfire-api-key header with your key, then start a new chat to use the tools",
+      "Go to chatgpt.com > Settings and enable Developer Mode",
+      "Go to Apps > Create to open the New App form",
+      "Enter \"Agent Safe\" as the name and paste the MCP Server URL above",
+      "Set Authentication to \"None\", check the risk acknowledgment box, and click Create",
+      "Start a new chat — the free tools (assess_message, submit_feedback) will be available",
+      "Note: ChatGPT does not support custom headers, so paid tools requiring a Skyfire key are not available through ChatGPT's native MCP. Use the free triage tool here, or use Claude Desktop / Cursor for full access.",
     ],
     examplePrompt:
       "I got this suspicious email. Can you use Agent Safe to check if it's a phishing attempt? Here's the email:",
