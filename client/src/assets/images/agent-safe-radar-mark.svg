@@ -1,0 +1,20 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Agent Safe Mark - Radar Scan -->
+  <!-- Active threat scanning concept -->
+  <!-- Color: #0433FF -->
+  
+  <!-- Outer ring -->
+  <circle cx="60" cy="60" r="45" stroke="#0433FF" stroke-width="4" fill="none"/>
+  
+  <!-- Middle ring -->
+  <circle cx="60" cy="60" r="30" stroke="#0433FF" stroke-width="3" fill="none" opacity="0.6"/>
+  
+  <!-- Inner ring -->
+  <circle cx="60" cy="60" r="15" stroke="#0433FF" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <!-- Scan line -->
+  <line x1="60" y1="60" x2="95" y2="35" stroke="#0433FF" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Center dot -->
+  <circle cx="60" cy="60" r="5" fill="#0433FF"/>
+</svg>
