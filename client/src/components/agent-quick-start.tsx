@@ -25,7 +25,7 @@ function CopyBtn({ text }: { text: string }) {
   );
 }
 
-type AgentId = "chatgpt" | "claude-desktop" | "claude-code" | "cursor" | "windsurf" | "vscode" | "gemini-cli";
+type AgentId = "chatgpt" | "claude-desktop" | "claude-code" | "cursor" | "windsurf" | "vscode" | "grok" | "gemini-cli";
 
 interface AgentInfo {
   id: AgentId;
@@ -217,6 +217,34 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
       "Use the agentsafe tool to check this email thread for manipulation:",
   },
   {
+    id: "grok",
+    name: "Grok (xAI)",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+        <path d="M2.04 4.055h4.147l6.872 9.487h.065L19.85 4.055h4.11L14.158 17.15h-.065L2.04 4.055zM4.067 19.945l2.072-2.855 5.877-8.116h.066l2.04 2.816-5.915 8.155H4.067z" />
+      </svg>
+    ),
+    configPath: "console.x.ai → API Keys → MCP Connections",
+    config: `MCP Server URL:
+https://agentsafe.locationledger.com/mcp
+
+Header: skyfire-api-key
+Value: <YOUR_SKYFIRE_BUYER_API_KEY>
+
+Note: Grok MCP is configured via the xAI developer
+panel, not a local config file. You need an xAI API
+account at console.x.ai to set up MCP connections.`,
+    configRaw: `https://agentsafe.locationledger.com/mcp`,
+    verifySteps: [
+      "Go to console.x.ai and sign in to your xAI developer account",
+      "Navigate to API Keys or MCP Connections in the developer panel",
+      "Add Agent Safe's MCP server URL and your Skyfire API key header",
+      "Open Grok and confirm Agent Safe tools are available in the conversation",
+    ],
+    examplePrompt:
+      "Use Agent Safe to check if this message is a scam:",
+  },
+  {
     id: "gemini-cli",
     name: "Gemini CLI",
     icon: (
@@ -321,7 +349,7 @@ export function AgentQuickStart() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-sm font-semibold mb-2 text-muted-foreground" data-testid="text-install-step-1">
-                      Step 1 — {agent.id === "chatgpt" ? "Enable Developer Mode" : "Open your config file"}
+                      Step 1 — {agent.id === "chatgpt" ? "Enable Developer Mode" : agent.id === "grok" ? "Open the xAI developer panel" : "Open your config file"}
                     </h3>
                     <div className="bg-muted/50 rounded-md p-3">
                       <code className="text-sm break-all" data-testid="text-config-path">
@@ -339,7 +367,7 @@ export function AgentQuickStart() {
                   <div>
                     <div className="flex items-center justify-between gap-4 mb-2">
                       <h3 className="text-sm font-semibold text-muted-foreground" data-testid="text-install-step-2">
-                        Step 2 — {agent.id === "claude-code" ? "Run this command" : agent.id === "chatgpt" ? "Enter these details" : "Paste this config"}
+                        Step 2 — {agent.id === "claude-code" ? "Run this command" : agent.id === "chatgpt" || agent.id === "grok" ? "Enter these details" : "Paste this config"}
                       </h3>
                       <CopyBtn text={agent.config} />
                     </div>
