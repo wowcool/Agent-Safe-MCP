@@ -706,7 +706,7 @@ export default function HowItWorks() {
             Secure your agent on every platform — email, SMS, WhatsApp, Slack, Discord, and more. Connect in 30 seconds, no signup required.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/#connect">
+            <Link href="/#use-in-your-agent">
               <Button size="lg" data-testid="button-cta-connect">
                 <Terminal className="h-5 w-5 mr-2" />
                 Connect Your Agent

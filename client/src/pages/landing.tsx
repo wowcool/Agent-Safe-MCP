@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, Copy, ExternalLink, Mail, Link as LinkIcon, Reply, MessageSquare, Paperclip, UserCheck, ArrowRight, Smartphone, Compass } from "lucide-react";
+import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, ExternalLink, Mail, Link as LinkIcon, Reply, MessageSquare, Paperclip, UserCheck, ArrowRight, Smartphone, Compass } from "lucide-react";
 import { useState } from "react";
 import { useSEO } from "@/lib/seo";
 import { GlobalFooter } from "@/components/global-footer";
@@ -17,41 +17,6 @@ import toolSenderImg from "@/assets/images/tool-sender-reputation.png";
 import toolMessageImg from "@/assets/images/tool-message-safety.png";
 import whatItTestsForImg from "@/assets/images/what-it-tests-for.png";
 
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-  return (
-    <Button
-      size="icon"
-      variant="ghost"
-      className="text-muted-foreground shrink-0"
-      data-testid="button-copy-config"
-      onClick={() => {
-        navigator.clipboard.writeText(text);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }}
-    >
-      {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-    </Button>
-  );
-}
-
-const MCP_CONFIG = `{
-  "mcpServers": {
-    "agentsafe": {
-      "command": "npx",
-      "args": [
-        "-y", "mcp-remote",
-        "https://agentsafe.locationledger.com/mcp",
-        "--header",
-        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
-      ]
-    }
-  }
-}
-
-// Your agent uses the Buyer API Key to auto-generate
-// PAY tokens for each request. Get your key at skyfire.xyz`;
 
 export default function Landing() {
   useSEO({
@@ -218,63 +183,6 @@ export default function Landing() {
               </div>
             </CardContent>
           </Card>
-        </div>
-      </section>
-
-      <section id="connect" className="py-20 px-4 bg-card/50">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-connect-heading">
-              Connect in 30 Seconds
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Add Agent Safe to any MCP-compatible client. No signup, no API keys to manage.
-            </p>
-          </div>
-
-          <Card className="max-w-2xl mx-auto mb-12">
-            <CardHeader className="flex flex-row items-center justify-between gap-4 pb-3">
-              <CardTitle className="text-base font-medium">MCP Client Configuration</CardTitle>
-              <CopyButton text={MCP_CONFIG} />
-            </CardHeader>
-            <CardContent>
-              <pre className="text-sm text-muted-foreground overflow-x-auto leading-relaxed" data-testid="code-mcp-config">
-                <code>{MCP_CONFIG}</code>
-              </pre>
-            </CardContent>
-          </Card>
-
-          <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                <span className="text-primary font-bold text-sm">1</span>
-              </div>
-              <h3 className="font-semibold mb-1">Get a Skyfire Buyer API Key</h3>
-              <p className="text-sm text-muted-foreground">
-                Create a buyer account at{" "}
-                <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-primary underline">skyfire.xyz</a>
-                {" "}and get your API key
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                <span className="text-primary font-bold text-sm">2</span>
-              </div>
-              <h3 className="font-semibold mb-1">Add MCP Config</h3>
-              <p className="text-sm text-muted-foreground">
-                Paste the config above into your MCP client (Cursor, Windsurf, etc.)
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                <span className="text-primary font-bold text-sm">3</span>
-              </div>
-              <h3 className="font-semibold mb-1">Secure Everything</h3>
-              <p className="text-sm text-muted-foreground">
-                Call <strong>assess_message</strong> (free) to triage, run the <strong>7 paid security tools</strong> at $0.02 each, then <strong>submit_feedback</strong> (free)
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 

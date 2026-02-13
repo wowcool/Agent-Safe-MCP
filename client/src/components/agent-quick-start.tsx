@@ -3,7 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, CheckCircle2, Terminal, ArrowRight, ExternalLink } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Copy, CheckCircle2, Terminal, ArrowRight, ExternalLink, Settings } from "lucide-react";
 
 function CopyBtn({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -191,6 +192,20 @@ const AGENTS: AgentInfo[] = [
       "Use the agentsafe tool to check this email thread for manipulation:",
   },
 ];
+
+const UNIVERSAL_CONFIG = `{
+  "mcpServers": {
+    "agentsafe": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://agentsafe.locationledger.com/mcp",
+        "--header",
+        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
+      ]
+    }
+  }
+}`;
 
 export function AgentQuickStart() {
   const [selectedAgent, setSelectedAgent] = useState<AgentId>("claude-desktop");
@@ -416,6 +431,71 @@ export function AgentQuickStart() {
                 </div>
               </TabsContent>
             </Tabs>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6" data-testid="card-universal-agent">
+          <CardContent className="pt-6">
+            <Accordion type="single" collapsible>
+              <AccordionItem value="universal" className="border-0">
+                <AccordionTrigger className="py-0" data-testid="button-universal-agent-toggle">
+                  <div className="flex items-center gap-3">
+                    <Settings className="h-5 w-5 text-muted-foreground shrink-0" />
+                    <div className="text-left">
+                      <span className="font-semibold text-sm">Using a different MCP client?</span>
+                      <p className="text-xs text-muted-foreground font-normal mt-0.5">Universal config for any MCP-compatible agent</p>
+                    </div>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="pt-4 space-y-4">
+                    <p className="text-sm text-muted-foreground" data-testid="text-universal-intro">
+                      Most MCP clients use the <code className="text-foreground">mcpServers</code> format below. Paste this into your client's MCP configuration file.
+                    </p>
+                    <div>
+                      <div className="flex items-center justify-between gap-4 mb-2">
+                        <span className="text-sm font-semibold text-muted-foreground">MCP Client Configuration</span>
+                        <CopyBtn text={UNIVERSAL_CONFIG} />
+                      </div>
+                      <pre
+                        className="bg-muted/50 rounded-md p-4 text-sm text-muted-foreground overflow-x-auto leading-relaxed"
+                        data-testid="code-universal-config"
+                      >
+                        <code>{UNIVERSAL_CONFIG}</code>
+                      </pre>
+                      <p className="text-xs text-muted-foreground mt-2" data-testid="text-universal-api-note">
+                        Replace <code className="text-foreground">&lt;YOUR_SKYFIRE_BUYER_API_KEY&gt;</code> with your key from{" "}
+                        <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-primary underline" data-testid="link-skyfire-universal">skyfire.xyz</a>
+                      </p>
+                    </div>
+                    <div className="grid sm:grid-cols-3 gap-4 pt-2">
+                      <div className="text-center">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                          <span className="text-primary font-bold text-xs">1</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground" data-testid="text-universal-step-1">
+                          Get a Skyfire Buyer API Key at <a href="https://skyfire.xyz" target="_blank" rel="noopener" className="text-primary underline">skyfire.xyz</a>
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                          <span className="text-primary font-bold text-xs">2</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground" data-testid="text-universal-step-2">Paste the config into your MCP client's configuration file</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                          <span className="text-primary font-bold text-xs">3</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground" data-testid="text-universal-step-3">
+                          Call <strong>assess_message</strong> (free) to triage, then run the recommended paid tools at $0.02 each
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </CardContent>
         </Card>
       </div>
