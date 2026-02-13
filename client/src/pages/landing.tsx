@@ -140,9 +140,13 @@ export default function Landing() {
           <Badge variant="secondary" className="mb-8" data-testid="badge-mcp">
             Remote MCP Server
           </Badge>
-          <AutoScaleHeadline>
-            Secure Every <RotatingWord /> Your Agent Touches
-          </AutoScaleHeadline>
+          <div className="mb-8">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight leading-[1.1]" data-testid="text-hero-headline">
+              <span className="block">Secure Every</span>
+              <span className="block my-2 md:my-3"><RotatingWord /></span>
+              <span className="block">Your Agent Touches</span>
+            </h1>
+          </div>
           <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
             Email. SMS. WhatsApp. Slack. Discord. DMs.<br />Any platform, any message, any image.
           </p>
