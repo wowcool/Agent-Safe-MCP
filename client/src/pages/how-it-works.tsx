@@ -14,7 +14,7 @@ import {
   Bot, Shield, Zap, Lock, Terminal, AlertTriangle,
   Search, ArrowRight, Mail, FileWarning,
   Eye, Brain, ShieldAlert, Skull, Fingerprint, MessageSquareWarning,
-  Link as LinkIcon, MessageSquare, Wrench, Reply, Paperclip, UserCheck, Smartphone, Compass
+  Link as LinkIcon, MessageSquare, Wrench, Reply, Paperclip, UserCheck, Smartphone, Compass, Camera, MessageCircle
 } from "lucide-react";
 import { GlobalFooter } from "@/components/global-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -26,6 +26,7 @@ import toolThreadImg from "@/assets/images/tool-thread-analysis.png";
 import toolAttachmentImg from "@/assets/images/tool-attachment-safety.png";
 import toolSenderImg from "@/assets/images/tool-sender-reputation.png";
 import toolMessageImg from "@/assets/images/tool-message-safety.png";
+import toolMediaImg from "@/assets/images/tool-media-authenticity.png";
 
 function ThreatCard({ icon: Icon, title, description, example, riskLevel }: {
   icon: any;
@@ -303,6 +304,49 @@ const toolsData = [
     responseFormat: "verdict (safe/suspicious/dangerous), riskScore (0.0-1.0), confidence (0.0-1.0), platform, threats[] with type/description/severity/messageIndices, recommendation (proceed/proceed_with_caution/do_not_engage), explanation, safeActions[], unsafeActions[], platformTips (platform-specific safety advice).",
     testResults: "Correctly detected a smishing attack via SMS (fake USPS delivery notice), a wrong-number crypto scam on WhatsApp, OTP interception on Telegram, and a fake brand impersonation on Instagram DMs. Platform-specific tips provided for each. Average latency: 5,200ms.",
   },
+  {
+    id: "check_media_authenticity",
+    name: "check_media_authenticity",
+    icon: Camera,
+    image: toolMediaImg,
+    label: "Media Authenticity",
+    purpose: "Detects AI-generated images, deepfakes, and manipulated media using multi-layer forensic analysis. Supports both images and videos. Uses four analysis layers for images: EXIF metadata forensics, error level analysis, ML-based AI detection, and noise pattern analysis. Videos use AI detection only. Variable pricing: 4 units ($0.04) for images, 10 units ($0.10) for videos.",
+    purposeExtra: "All four analysis layers run automatically on every image — no optional flags needed. Each layer produces a confidence score that is combined using weighted aggregation (EXIF: 10%, ELA: 15%, AI Detection: 55%, Noise: 20%) to produce a final verdict. Videos are analyzed using the ML-based AI detection layer only. Results include per-layer breakdowns so agents can understand what triggered the verdict.",
+    useCase: "Agent receives a message containing an image or video — a profile photo, a document screenshot, a video call recording, or media shared in a chat. Before trusting the media content, it passes the URL to this tool. The tool downloads and analyzes the media, returning a structured verdict (authentic/likely_authentic/inconclusive/likely_ai_generated/ai_generated) with confidence scores from each analysis layer.",
+    categories: [
+      { name: "AI_GENERATED", description: "Content created entirely by AI image/video generators (DALL-E, Midjourney, Stable Diffusion)" },
+      { name: "DEEPFAKE", description: "Face swaps, voice cloning, or manipulated video of real people" },
+      { name: "METADATA_TAMPERING", description: "EXIF data stripped, modified, or inconsistent with claimed source" },
+      { name: "MANIPULATION", description: "Splicing, cloning, retouching, or composite images with detectable artifacts" },
+    ],
+    parameters: [
+      { name: "mediaUrl", type: "string", required: true, description: "URL of the image or video to analyze" },
+      { name: "mediaType", type: "enum", required: false, description: "Type of media: 'image' or 'video' (auto-detected from URL if not specified)" },
+      { name: "context", type: "string", required: false, description: "Optional context about where the media appeared (e.g., 'profile photo', 'document screenshot')" },
+    ],
+    responseFormat: "verdict (authentic/likely_authentic/inconclusive/likely_ai_generated/ai_generated), confidence (0.0-1.0), mediaType, analysisLayers[] with name/verdict/confidence/details, threats[] with type/description/severity, recommendation (trust_media/verify_source/do_not_trust), explanation, charged (units used).",
+    testResults: "Multi-layer analysis with weighted aggregation. EXIF layer detects AI tool signatures and stripped metadata. ELA layer identifies manipulation artifacts. AI detection model provides AI-generation probability. Noise analysis detects GAN artifacts and texture inconsistencies. Image analysis: 4 units ($0.04). Video analysis: 10 units ($0.10).",
+  },
+  {
+    id: "submit_feedback",
+    name: "submit_feedback",
+    icon: MessageCircle,
+    image: null as string | null,
+    label: "Submit Feedback",
+    purpose: "FREE feedback tool — rate any Agent Safe tool you used and help improve detection accuracy. No charge, no authentication required. Agents can submit ratings, comments, and link feedback to specific analyses via checkId.",
+    purposeExtra: "Supports five rating levels: helpful, not_helpful, inaccurate, missed_threat, and false_positive. Optional comment field lets agents describe what worked well or what was missed. Linking feedback to a specific checkId helps the system learn from real-world results.",
+    useCase: "After calling any paid security tool, the agent evaluates whether the result was accurate and useful. It calls submit_feedback with a rating and optional comment, helping Agent Safe improve its detection models over time. This creates a continuous improvement loop at zero cost to the agent.",
+    categories: [],
+    parameters: [
+      { name: "rating", type: "enum", required: true, description: "Your rating: helpful, not_helpful, inaccurate, missed_threat, or false_positive" },
+      { name: "comment", type: "string", required: false, description: "Optional details about your experience — what worked well, what could improve, or what was missed" },
+      { name: "checkId", type: "string", required: false, description: "The checkId returned by the tool you're rating (links feedback to a specific analysis)" },
+      { name: "toolName", type: "string", required: false, description: "Which tool you're giving feedback on (e.g. check_email_safety, check_url_safety)" },
+      { name: "agentPlatform", type: "string", required: false, description: "Your agent platform (e.g. claude, cursor, openai, custom)" },
+    ],
+    responseFormat: "confirmation message with feedbackId, timestamp, and a thank you note.",
+    testResults: "Accepts ratings and comments for any tool. Feedback is stored and used to improve detection accuracy over time. No charge, no authentication required.",
+  },
 ];
 
 function ToolDetailCard({ tool }: { tool: typeof toolsData[0] }) {
@@ -316,8 +360,8 @@ function ToolDetailCard({ tool }: { tool: typeof toolsData[0] }) {
               <Icon className="h-5 w-5 text-primary" />
             </div>
             <CardTitle className="text-xl font-bold">{tool.name}</CardTitle>
-            <Badge variant={tool.id === "assess_message" ? "default" : "secondary"} className="shrink-0">
-              {tool.id === "assess_message" ? "FREE" : "$0.02 / call"}
+            <Badge variant={tool.id === "assess_message" || tool.id === "submit_feedback" ? "default" : "secondary"} className="shrink-0">
+              {tool.id === "assess_message" || tool.id === "submit_feedback" ? "FREE" : tool.id === "check_media_authenticity" ? "$0.04-$0.10 / call" : "$0.01 / call"}
             </Badge>
           </div>
         </CardHeader>
@@ -405,7 +449,7 @@ function ToolDetailCard({ tool }: { tool: typeof toolsData[0] }) {
 export default function HowItWorks() {
   const getToolFromHash = () => {
     const hash = window.location.hash.replace("#tool-", "");
-    const validTools = ["assess_message", "check_email_safety", "check_url_safety", "check_response_safety", "analyze_email_thread", "check_attachment_safety", "check_sender_reputation", "check_message_safety"];
+    const validTools = ["assess_message", "check_email_safety", "check_url_safety", "check_response_safety", "analyze_email_thread", "check_attachment_safety", "check_sender_reputation", "check_message_safety", "check_media_authenticity", "submit_feedback"];
     return validTools.includes(hash) ? hash : "assess_message";
   };
 
@@ -426,8 +470,8 @@ export default function HowItWorks() {
   }, []);
 
   useSEO({
-    title: "How Agent Safe Works - 9-Tool Security Suite (7 Paid + 2 Free) for Every Messaging Platform | MCP Server",
-    description: "Learn how Agent Safe protects AI agents across every platform — email, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, and more. 9-tool MCP suite (7 paid + 2 free) detects phishing, smishing, BEC, prompt injection, and social engineering on any messaging platform. See real test results.",
+    title: "How Agent Safe Works - 10-Tool Security Suite (8 Paid + 2 Free) for Every Messaging Platform | MCP Server",
+    description: "Learn how Agent Safe protects AI agents across every platform — email, SMS, WhatsApp, Slack, Discord, Telegram, Instagram DMs, and more. 10-tool MCP suite (8 paid + 2 free) detects phishing, smishing, BEC, prompt injection, and social engineering on any messaging platform. See real test results.",
     path: "/how-it-works",
   });
   return (
@@ -444,7 +488,7 @@ export default function HowItWorks() {
               Security Across Every<br />Messaging Platform
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Your agent handles messages on email, SMS, WhatsApp, Slack, Discord, Telegram, and more. Our <a href="#tools-section" className="text-primary underline" data-testid="link-tools-section" onClick={(e) => { e.preventDefault(); document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>9-tool MCP suite (7 paid + 2 free)</a> detects phishing, smishing, prompt injection, social engineering, and platform-specific threats — no matter where the message comes from.
+              Your agent handles messages on email, SMS, WhatsApp, Slack, Discord, Telegram, and more. Our <a href="#tools-section" className="text-primary underline" data-testid="link-tools-section" onClick={(e) => { e.preventDefault(); document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>10-tool MCP suite (8 paid + 2 free)</a> detects phishing, smishing, prompt injection, social engineering, and platform-specific threats — no matter where the message comes from.
             </p>
           </div>
 
@@ -463,19 +507,19 @@ export default function HowItWorks() {
                 number={2}
                 icon={Lock}
                 title="Payment is Authorized"
-                description="Your agent includes its Skyfire Buyer API Key in the skyfire-api-key header. Agent Safe automatically generates a PAY token on each request and charges $0.02. Alternatively, your agent can generate its own PAY tokens and send them via the skyfire-pay-id header. Either way — no signup with Agent Safe, no subscriptions."
+                description="Your agent includes its Skyfire Buyer API Key in the skyfire-api-key header. Agent Safe automatically generates a PAY token on each request and charges $0.01. Alternatively, your agent can generate its own PAY tokens and send them via the skyfire-pay-id header. Either way — no signup with Agent Safe, no subscriptions."
               />
               <StepCard
                 number={3}
                 icon={Wrench}
                 title="Agent Calls the Right Tool"
-                description="The agent starts by calling assess_message (free) to triage the content and get a prioritized list of which tools to run. Then it picks the appropriate paid tools from the 9-tool suite: check_email_safety for incoming emails, check_url_safety for suspicious links, check_response_safety for draft replies, check_attachment_safety for file attachments, check_sender_reputation for sender verification, analyze_email_thread for multi-message thread analysis, or check_message_safety for non-email platform messages."
+                description="The agent starts by calling assess_message (free) to triage the content and get a prioritized list of which tools to run. Then it picks the appropriate paid tools from the 10-tool suite: check_email_safety for incoming emails, check_url_safety for suspicious links, check_response_safety for draft replies, check_attachment_safety for file attachments, check_sender_reputation for sender verification, analyze_email_thread for multi-message thread analysis, check_message_safety for non-email platform messages, check_media_authenticity for images and videos."
               />
               <StepCard
                 number={4}
                 icon={Brain}
                 title="AI Analyzes for Threats"
-                description="Agent Safe uses advanced AI with specialized prompts engineered for each tool's analysis type. It analyzes across all threat categories simultaneously: phishing signals, social engineering tactics, prompt injection patterns, financial fraud indicators, URL threats, and more. The sender-reputation tool includes free DNS and RDAP enrichment for domain intelligence at no extra cost. Your Skyfire wallet is charged $0.02 per call."
+                description="Agent Safe uses advanced AI with specialized prompts engineered for each tool's analysis type. It analyzes across all threat categories simultaneously: phishing signals, social engineering tactics, prompt injection patterns, financial fraud indicators, URL threats, and more. The sender-reputation tool includes free DNS and RDAP enrichment for domain intelligence at no extra cost. Your Skyfire wallet is charged $0.01 per unit."
               />
               <StepCard
                 number={5}
@@ -495,7 +539,7 @@ export default function HowItWorks() {
               Tool Explorer
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" data-testid="text-explore-heading">
-              Explore the 9 Tools
+              Explore the 10 Tools
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Select a tool below to see its full capabilities, parameters, threat categories, and real test results.
