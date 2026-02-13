@@ -4,8 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, CheckCircle2, Terminal, ArrowRight, ExternalLink } from "lucide-react";
-import { SiCursor } from "react-icons/si";
-
 import guideClaudeDesktopImg from "@/assets/images/guide-claude-desktop.png";
 import guideClaudeCodeImg from "@/assets/images/guide-claude-code.png";
 import guideCursorImg from "@/assets/images/guide-cursor.png";
@@ -109,7 +107,11 @@ const AGENTS: AgentInfo[] = [
   {
     id: "cursor",
     name: "Cursor",
-    icon: <SiCursor className="h-5 w-5" />,
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+        <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 01.35-.15h6.87a.5.5 0 00.35-.85L6.35 2.86a.5.5 0 00-.85.35z" />
+      </svg>
+    ),
     configPath: "~/.cursor/mcp.json",
     config: `{
   "mcpServers": {
