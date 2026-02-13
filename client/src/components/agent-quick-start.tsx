@@ -4,11 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, CheckCircle2, Terminal, ArrowRight, ExternalLink } from "lucide-react";
-import guideClaudeDesktopImg from "@/assets/images/guide-claude-desktop.png";
-import guideClaudeCodeImg from "@/assets/images/guide-claude-code.png";
-import guideCursorImg from "@/assets/images/guide-cursor.png";
-import guideWindsurfImg from "@/assets/images/guide-windsurf.png";
-import guideVscodeImg from "@/assets/images/guide-vscode.png";
 
 function CopyBtn({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -40,7 +35,6 @@ interface AgentInfo {
   config: string;
   configRaw: string;
   verifySteps: string[];
-  guideImg: string;
   examplePrompt: string;
 }
 
@@ -74,7 +68,6 @@ const AGENTS: AgentInfo[] = [
       "Look for the MCP indicator (hammer icon) at the bottom-right of the chat input",
       "Click the indicator to see \"agentsafe\" and its 9 tools listed",
     ],
-    guideImg: guideClaudeDesktopImg,
     examplePrompt:
       "I received this suspicious email. Can you use Agent Safe to check if it's safe? Here's the email:",
   },
@@ -100,7 +93,6 @@ const AGENTS: AgentInfo[] = [
       "Confirm \"agentsafe\" appears in the server list",
       "Start a Claude Code session and ask it to list available tools",
     ],
-    guideImg: guideClaudeCodeImg,
     examplePrompt:
       "Check this SMS for scams using Agent Safe's assess_message tool: 'Hi, I think I have the wrong number. Is this Sarah?'",
   },
@@ -132,7 +124,6 @@ const AGENTS: AgentInfo[] = [
       "Go to Settings > Tools & Integrations > MCP Tools",
       "Look for a green dot next to \"agentsafe\" — click to see available tools",
     ],
-    guideImg: guideCursorImg,
     examplePrompt:
       "Use the agentsafe MCP to analyze this Slack message for social engineering:",
   },
@@ -164,7 +155,6 @@ const AGENTS: AgentInfo[] = [
       "Confirm \"agentsafe\" appears and shows as connected",
       "You can toggle individual tools on/off from the MCP settings page",
     ],
-    guideImg: guideWindsurfImg,
     examplePrompt:
       "I got this WhatsApp message. Run it through Agent Safe's message safety check:",
   },
@@ -197,7 +187,6 @@ const AGENTS: AgentInfo[] = [
       "Open GitHub Copilot Chat and switch to Agent mode",
       "Click the Tools icon in the chat panel to see agentsafe tools listed",
     ],
-    guideImg: guideVscodeImg,
     examplePrompt:
       "Use the agentsafe tool to check this email thread for manipulation:",
   },
@@ -318,17 +307,6 @@ export function AgentQuickStart() {
                     </div>
                   </div>
 
-                  <div className="border-t pt-6">
-                    <p className="text-xs text-muted-foreground mb-3 font-medium">
-                      Where to find MCP settings in {agent.name}
-                    </p>
-                    <img
-                      src={agent.guideImg}
-                      alt={`${agent.name} MCP configuration guide`}
-                      className="w-full rounded-md border"
-                      data-testid={`img-guide-${agent.id}`}
-                    />
-                  </div>
                 </div>
               </TabsContent>
 
