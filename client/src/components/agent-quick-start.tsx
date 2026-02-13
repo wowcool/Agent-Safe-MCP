@@ -4,8 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Copy, CheckCircle2, ArrowRight, ExternalLink, Settings } from "lucide-react";
-import { SiOpenai, SiClaude, SiCodeium, SiGithubcopilot, SiGooglegemini } from "react-icons/si";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Copy, CheckCircle2, ArrowRight, ExternalLink, Settings, ChevronDown } from "lucide-react";
+import { SiOpenai, SiClaude, SiCodeium, SiGithubcopilot, SiGooglegemini, SiAmazonwebservices, SiRaycast, SiDeepgram } from "react-icons/si";
 
 function CopyBtn({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -50,11 +51,108 @@ function GrokIcon({ className }: { className?: string }) {
   );
 }
 
-function LetterIcon({ letter, className }: { letter: string; className?: string }) {
+function ClineIcon({ className }: { className?: string }) {
   return (
-    <div className={`flex items-center justify-center font-bold text-[10px] leading-none w-5 h-5 rounded bg-muted text-muted-foreground ${className || ""}`}>
-      {letter}
-    </div>
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.18L18.36 7.5 12 10.82 5.64 7.5 12 4.18zM5 9.06l6 3.33v6.55L5 15.61V9.06zm8 9.88v-6.55l6-3.33v6.55l-6 3.33z"/>
+    </svg>
+  );
+}
+
+function RooCodeIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15.5 3C13.57 3 12 4.57 12 6.5c0 .55.13 1.07.36 1.53L8.54 11.85A3.48 3.48 0 0 0 7 11.5C5.07 11.5 3.5 13.07 3.5 15S5.07 18.5 7 18.5c1.58 0 2.92-1.05 3.36-2.5h3.28c.44 1.45 1.78 2.5 3.36 2.5 1.93 0 3.5-1.57 3.5-3.5 0-1.58-1.05-2.92-2.5-3.36V8.36C19.45 7.92 20.5 6.58 20.5 5c0-1.93-1.57-3.5-3.5-3.5H15.5zM17 5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM7 13.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm10 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/>
+    </svg>
+  );
+}
+
+function GooseIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10.5 2C9.12 2 8 3.12 8 4.5c0 .58.2 1.11.53 1.53L5.3 10.5C4.5 10 3.79 10 3 10.5c-1.1.7-1.5 2.1-.8 3.3.4.7 1 1.1 1.8 1.2v4c0 1.66 1.34 3 3 3h10c1.66 0 3-1.34 3-3v-4c.77-.1 1.4-.5 1.8-1.2.7-1.2.3-2.6-.8-3.3-.79-.5-1.5-.5-2.3 0L15.47 6.03c.33-.42.53-.95.53-1.53C16 3.12 14.88 2 13.5 2h-3zM12 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm-5 8h10v6H7v-6z"/>
+    </svg>
+  );
+}
+
+function AugmentIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+      <path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function BoltAIIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/>
+    </svg>
+  );
+}
+
+function LibreChatIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12zM7 9h2v2H7V9zm4 0h2v2h-2V9zm4 0h2v2h-2V9z"/>
+    </svg>
+  );
+}
+
+function EnconvoIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 6h-2V4a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zM7 4h10v2H7V4zm14 14H3V8h18v10zm-7-8H10v2h4v-2zm-4 3h4v2h-4v-2z"/>
+    </svg>
+  );
+}
+
+function HighlightIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15.24 2.69l5.66 5.66a.5.5 0 0 1 0 .71l-8.49 8.49a.5.5 0 0 1-.35.15H7.41a.5.5 0 0 1-.35-.15L2.4 12.9a.5.5 0 0 1 0-.71l8.49-8.49a.5.5 0 0 1 .71 0l3.64-1.01zM3 21h18v2H3v-2z"/>
+    </svg>
+  );
+}
+
+function WitsyIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16.4l-6.4 4.8L8 14 2 9.2h7.6L12 2z"/>
+    </svg>
+  );
+}
+
+function QordinateIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="6" cy="6" r="2" fill="currentColor" />
+      <circle cx="18" cy="6" r="2" fill="currentColor" />
+      <circle cx="6" cy="18" r="2" fill="currentColor" />
+      <circle cx="18" cy="18" r="2" fill="currentColor" />
+      <line x1="6" y1="8" x2="6" y2="16" />
+      <line x1="18" y1="8" x2="18" y2="16" />
+      <line x1="8" y1="6" x2="16" y2="6" />
+      <line x1="8" y1="18" x2="16" y2="18" />
+    </svg>
+  );
+}
+
+function PokeIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+    </svg>
+  );
+}
+
+function TomeIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 4H3a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zM4 6h7v12H4V6zm9 12V6h7v12h-7zM6 9h3v1.5H6V9zm0 3h3v1.5H6V12zm9-3h3v1.5h-3V9zm0 3h3v1.5h-3V12z"/>
+    </svg>
   );
 }
 
@@ -103,11 +201,16 @@ const VSCODE_CONFIG = `{
 
 const VSCODE_CONFIG_RAW = `{"servers":{"agentsafe":{"type":"stdio","command":"npx","args":["-y","mcp-remote","https://agentsafe.locationledger.com/mcp","--header","skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]}}}`;
 
+const MAJOR_AGENT_IDS: AgentId[] = [
+  "chatgpt", "claude-desktop", "claude-code", "cursor",
+  "windsurf", "vscode", "grok", "gemini-cli",
+];
+
 const AGENTS: AgentInfo[] = [
   {
     id: "chatgpt",
     name: "ChatGPT",
-    icon: <SiOpenai className="h-5 w-5" />,
+    icon: <SiOpenai className="h-4 w-4" />,
     configPath: "Settings > Connectors > Create",
     config: `MCP Server URL:
 https://agentsafe.locationledger.com/mcp
@@ -128,7 +231,7 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
   {
     id: "claude-desktop",
     name: "Claude Desktop",
-    icon: <SiClaude className="h-5 w-5" />,
+    icon: <SiClaude className="h-4 w-4" />,
     configPath: "~/Library/Application Support/Claude/claude_desktop_config.json",
     configPathWin: "%APPDATA%\\Claude\\claude_desktop_config.json",
     config: STANDARD_CONFIG,
@@ -144,7 +247,7 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
   {
     id: "claude-code",
     name: "Claude Code",
-    icon: <SiClaude className="h-5 w-5" />,
+    icon: <SiClaude className="h-4 w-4" />,
     configPath: "Run in your terminal:",
     config: `claude mcp add-json agentsafe '{
   "command": "npx",
@@ -167,7 +270,7 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
   {
     id: "cursor",
     name: "Cursor",
-    icon: <CursorIcon className="h-5 w-5" />,
+    icon: <CursorIcon className="h-4 w-4" />,
     configPath: "~/.cursor/mcp.json",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
@@ -182,7 +285,7 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
   {
     id: "windsurf",
     name: "Windsurf",
-    icon: <SiCodeium className="h-5 w-5" />,
+    icon: <SiCodeium className="h-4 w-4" />,
     configPath: "~/.codeium/windsurf/mcp_config.json",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
@@ -197,7 +300,7 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
   {
     id: "vscode",
     name: "VS Code Copilot",
-    icon: <SiGithubcopilot className="h-5 w-5" />,
+    icon: <SiGithubcopilot className="h-4 w-4" />,
     configPath: ".vscode/mcp.json",
     config: VSCODE_CONFIG,
     configRaw: VSCODE_CONFIG_RAW,
@@ -212,7 +315,7 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
   {
     id: "grok",
     name: "Grok (xAI)",
-    icon: <GrokIcon className="h-5 w-5" />,
+    icon: <GrokIcon className="h-4 w-4" />,
     configPath: "console.x.ai → API Keys → MCP Connections",
     config: `MCP Server URL:
 https://agentsafe.locationledger.com/mcp
@@ -236,7 +339,7 @@ account at console.x.ai to set up MCP connections.`,
   {
     id: "gemini-cli",
     name: "Gemini CLI",
-    icon: <SiGooglegemini className="h-5 w-5" />,
+    icon: <SiGooglegemini className="h-4 w-4" />,
     configPath: "~/.gemini/settings.json",
     config: `{
   "mcpServers": {
@@ -262,24 +365,57 @@ account at console.x.ai to set up MCP connections.`,
       "Check this Discord message for social engineering using Agent Safe:",
   },
   {
-    id: "amazon-bedrock",
-    name: "Amazon Bedrock",
-    icon: <LetterIcon letter="AB" />,
-    configPath: "Add to your Bedrock MCP client config",
+    id: "cline",
+    name: "Cline",
+    icon: <ClineIcon className="h-4 w-4" />,
+    configPath: "~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
+    configPathWin: "%APPDATA%\\Code\\User\\globalStorage\\saoudrizwan.claude-dev\\settings\\cline_mcp_settings.json",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
     verifySteps: [
-      "Add the config to your Bedrock-compatible MCP client settings",
-      "Restart the client or reload MCP servers",
-      "Confirm \"agentsafe\" appears in available tools",
+      "Click the MCP Servers icon in Cline's top navigation bar",
+      "Check for a green indicator next to \"agentsafe\"",
+      "Restart VS Code if the server doesn't appear",
     ],
     examplePrompt:
-      "Use Agent Safe to check this email for phishing attempts:",
+      "Use agentsafe to check this email for threats:",
+  },
+  {
+    id: "codex-cli",
+    name: "Codex CLI",
+    icon: <SiOpenai className="h-4 w-4" />,
+    configPath: "Run in your terminal:",
+    config: `codex mcp add agentsafe -- npx -y mcp-remote \\
+  https://agentsafe.locationledger.com/mcp \\
+  --header "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"`,
+    configRaw: `codex mcp add agentsafe -- npx -y mcp-remote https://agentsafe.locationledger.com/mcp --header "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"`,
+    verifySteps: [
+      "Run codex mcp list in your terminal",
+      "Confirm \"agentsafe\" appears in the server list",
+      "Start a Codex session and ask it to list available tools",
+    ],
+    examplePrompt:
+      "Check this message for scams using Agent Safe:",
+  },
+  {
+    id: "roo-code",
+    name: "Roo Code",
+    icon: <RooCodeIcon className="h-4 w-4" />,
+    configPath: ".roo/mcp.json (project) or global MCP settings",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Create .roo/mcp.json in your project root, or click \"Edit Global MCP\" in Roo Code",
+      "Click the MCP icon in Roo Code to check server status",
+      "Confirm \"agentsafe\" shows as connected with available tools",
+    ],
+    examplePrompt:
+      "Use agentsafe to analyze this email for social engineering:",
   },
   {
     id: "amazon-q",
     name: "Amazon Q",
-    icon: <LetterIcon letter="Q" />,
+    icon: <SiAmazonwebservices className="h-4 w-4" />,
     configPath: "~/.aws/amazonq/mcp.json",
     config: `{
   "mcpServers": {
@@ -302,9 +438,24 @@ account at console.x.ai to set up MCP connections.`,
       "Use Agent Safe to analyze this suspicious message:",
   },
   {
+    id: "amazon-bedrock",
+    name: "Amazon Bedrock",
+    icon: <SiAmazonwebservices className="h-4 w-4" />,
+    configPath: "Add to your Bedrock MCP client config",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Add the config to your Bedrock-compatible MCP client settings",
+      "Restart the client or reload MCP servers",
+      "Confirm \"agentsafe\" appears in available tools",
+    ],
+    examplePrompt:
+      "Use Agent Safe to check this email for phishing attempts:",
+  },
+  {
     id: "augment",
     name: "Augment",
-    icon: <LetterIcon letter="Au" />,
+    icon: <AugmentIcon className="h-4 w-4" />,
     configPath: "Augment Settings Panel > Import JSON",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
@@ -319,7 +470,7 @@ account at console.x.ai to set up MCP connections.`,
   {
     id: "boltai",
     name: "BoltAI",
-    icon: <LetterIcon letter="Bo" />,
+    icon: <BoltAIIcon className="h-4 w-4" />,
     configPath: "Settings > Plugins > MCP Servers",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
@@ -332,42 +483,9 @@ account at console.x.ai to set up MCP connections.`,
       "Run Agent Safe on this suspicious message I received:",
   },
   {
-    id: "cline",
-    name: "Cline",
-    icon: <LetterIcon letter="Cl" />,
-    configPath: "~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
-    configPathWin: "%APPDATA%\\Code\\User\\globalStorage\\saoudrizwan.claude-dev\\settings\\cline_mcp_settings.json",
-    config: STANDARD_CONFIG,
-    configRaw: STANDARD_CONFIG_RAW,
-    verifySteps: [
-      "Click the MCP Servers icon in Cline's top navigation bar",
-      "Check for a green indicator next to \"agentsafe\"",
-      "Restart VS Code if the server doesn't appear",
-    ],
-    examplePrompt:
-      "Use agentsafe to check this email for threats:",
-  },
-  {
-    id: "codex-cli",
-    name: "Codex CLI",
-    icon: <SiOpenai className="h-5 w-5" />,
-    configPath: "Run in your terminal:",
-    config: `codex mcp add agentsafe -- npx -y mcp-remote \\
-  https://agentsafe.locationledger.com/mcp \\
-  --header "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"`,
-    configRaw: `codex mcp add agentsafe -- npx -y mcp-remote https://agentsafe.locationledger.com/mcp --header "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"`,
-    verifySteps: [
-      "Run codex mcp list in your terminal",
-      "Confirm \"agentsafe\" appears in the server list",
-      "Start a Codex session and ask it to list available tools",
-    ],
-    examplePrompt:
-      "Check this message for scams using Agent Safe:",
-  },
-  {
     id: "deepgram",
     name: "Deepgram",
-    icon: <LetterIcon letter="Dg" />,
+    icon: <SiDeepgram className="h-4 w-4" />,
     configPath: "MCP settings in your Deepgram client",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
@@ -382,7 +500,7 @@ account at console.x.ai to set up MCP connections.`,
   {
     id: "enconvo",
     name: "Enconvo",
-    icon: <LetterIcon letter="En" />,
+    icon: <EnconvoIcon className="h-4 w-4" />,
     configPath: "Settings > MCP Servers",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
@@ -397,7 +515,7 @@ account at console.x.ai to set up MCP connections.`,
   {
     id: "goose",
     name: "Goose",
-    icon: <LetterIcon letter="Go" />,
+    icon: <GooseIcon className="h-4 w-4" />,
     configPath: "~/.config/goose/config.yaml",
     config: `extensions:
   agentsafe:
@@ -423,7 +541,7 @@ account at console.x.ai to set up MCP connections.`,
   {
     id: "highlight",
     name: "Highlight",
-    icon: <LetterIcon letter="Hi" />,
+    icon: <HighlightIcon className="h-4 w-4" />,
     configPath: "MCP settings in Highlight",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
@@ -438,7 +556,7 @@ account at console.x.ai to set up MCP connections.`,
   {
     id: "librechat",
     name: "LibreChat",
-    icon: <LetterIcon letter="LC" />,
+    icon: <LibreChatIcon className="h-4 w-4" />,
     configPath: "librechat.yaml",
     config: `mcpServers:
   agentsafe:
@@ -462,7 +580,7 @@ account at console.x.ai to set up MCP connections.`,
   {
     id: "poke",
     name: "Poke",
-    icon: <LetterIcon letter="Pk" />,
+    icon: <PokeIcon className="h-4 w-4" />,
     configPath: "MCP settings in Poke",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
@@ -477,7 +595,7 @@ account at console.x.ai to set up MCP connections.`,
   {
     id: "qordinate",
     name: "Qordinate",
-    icon: <LetterIcon letter="Qo" />,
+    icon: <QordinateIcon className="h-4 w-4" />,
     configPath: "MCP settings in Qordinate",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
@@ -492,7 +610,7 @@ account at console.x.ai to set up MCP connections.`,
   {
     id: "raycast",
     name: "Raycast",
-    icon: <LetterIcon letter="Ra" />,
+    icon: <SiRaycast className="h-4 w-4" />,
     configPath: "Raycast Settings > Extensions > MCP",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
@@ -505,24 +623,9 @@ account at console.x.ai to set up MCP connections.`,
       "Use Agent Safe to check this message for scams:",
   },
   {
-    id: "roo-code",
-    name: "Roo Code",
-    icon: <LetterIcon letter="Ro" />,
-    configPath: ".roo/mcp.json (project) or global MCP settings",
-    config: STANDARD_CONFIG,
-    configRaw: STANDARD_CONFIG_RAW,
-    verifySteps: [
-      "Create .roo/mcp.json in your project root, or click \"Edit Global MCP\" in Roo Code",
-      "Click the MCP icon in Roo Code to check server status",
-      "Confirm \"agentsafe\" shows as connected with available tools",
-    ],
-    examplePrompt:
-      "Use agentsafe to analyze this email for social engineering:",
-  },
-  {
     id: "tome",
     name: "Tome",
-    icon: <LetterIcon letter="To" />,
+    icon: <TomeIcon className="h-4 w-4" />,
     configPath: "MCP settings in Tome",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
@@ -537,7 +640,7 @@ account at console.x.ai to set up MCP connections.`,
   {
     id: "vscode-insiders",
     name: "VS Code Insiders",
-    icon: <SiGithubcopilot className="h-5 w-5" />,
+    icon: <SiGithubcopilot className="h-4 w-4" />,
     configPath: ".vscode/mcp.json",
     config: VSCODE_CONFIG,
     configRaw: VSCODE_CONFIG_RAW,
@@ -552,7 +655,7 @@ account at console.x.ai to set up MCP connections.`,
   {
     id: "witsy",
     name: "Witsy",
-    icon: <LetterIcon letter="Wi" />,
+    icon: <WitsyIcon className="h-4 w-4" />,
     configPath: "Settings > MCP Servers",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
@@ -568,9 +671,15 @@ account at console.x.ai to set up MCP connections.`,
 
 const UNIVERSAL_CONFIG = STANDARD_CONFIG;
 
+const majorAgents = AGENTS.filter((a) => MAJOR_AGENT_IDS.includes(a.id));
+const otherAgents = AGENTS.filter((a) => !MAJOR_AGENT_IDS.includes(a.id));
+
 export function AgentQuickStart() {
   const [selectedAgent, setSelectedAgent] = useState<AgentId>("chatgpt");
+  const [otherOpen, setOtherOpen] = useState(false);
   const agent = AGENTS.find((a) => a.id === selectedAgent)!;
+  const isOtherSelected = !MAJOR_AGENT_IDS.includes(selectedAgent);
+  const selectedOtherAgent = isOtherSelected ? AGENTS.find((a) => a.id === selectedAgent) : null;
 
   return (
     <section id="use-in-your-agent" className="py-20 px-4">
@@ -590,8 +699,8 @@ export function AgentQuickStart() {
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {AGENTS.map((a) => (
+        <div className="flex flex-wrap justify-center items-center gap-2 mb-8">
+          {majorAgents.map((a) => (
             <Button
               key={a.id}
               variant={selectedAgent === a.id ? "outline" : "ghost"}
@@ -608,6 +717,58 @@ export function AgentQuickStart() {
               <span className="font-medium">{a.name}</span>
             </Button>
           ))}
+
+          <Popover open={otherOpen} onOpenChange={setOtherOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant={isOtherSelected ? "outline" : "ghost"}
+                size="sm"
+                className={`toggle-elevate ${
+                  isOtherSelected
+                    ? "toggle-elevated border-primary bg-primary/10"
+                    : "text-muted-foreground"
+                }`}
+                data-testid="button-other-agents"
+              >
+                {isOtherSelected && selectedOtherAgent ? (
+                  <>
+                    {selectedOtherAgent.icon}
+                    <span className="font-medium">{selectedOtherAgent.name}</span>
+                  </>
+                ) : (
+                  <span className="font-medium">Other Agents</span>
+                )}
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-3" align="center">
+              <p className="text-xs text-muted-foreground font-medium mb-2 px-1">
+                {otherAgents.length} more agents supported
+              </p>
+              <div className="grid grid-cols-2 gap-1">
+                {otherAgents.map((a) => (
+                  <Button
+                    key={a.id}
+                    variant={selectedAgent === a.id ? "outline" : "ghost"}
+                    size="sm"
+                    onClick={() => {
+                      setSelectedAgent(a.id);
+                      setOtherOpen(false);
+                    }}
+                    className={`justify-start toggle-elevate ${
+                      selectedAgent === a.id
+                        ? "toggle-elevated border-primary bg-primary/10"
+                        : "text-muted-foreground"
+                    }`}
+                    data-testid={`button-agent-${a.id}`}
+                  >
+                    {a.icon}
+                    <span className="font-medium text-xs">{a.name}</span>
+                  </Button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <Card data-testid={`card-agent-instructions-${selectedAgent}`}>
