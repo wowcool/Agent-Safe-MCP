@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useSEO } from "@/lib/seo";
 import { GlobalFooter } from "@/components/global-footer";
 import { SiteHeader } from "@/components/site-header";
+import { AgentQuickStart } from "@/components/agent-quick-start";
 import toolEmailImg from "@/assets/images/tool-email-safety.png";
 import toolUrlImg from "@/assets/images/tool-url-safety.png";
 import toolResponseImg from "@/assets/images/tool-response-safety.png";
@@ -92,7 +93,7 @@ export default function Landing() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap mb-16">
-            <a href="#connect">
+            <a href="#use-in-your-agent">
               <Button size="lg" className="text-lg px-8" data-testid="button-connect">
                 <Terminal className="h-5 w-5 mr-2" />
                 Connect Your Agent
@@ -131,6 +132,8 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      <AgentQuickStart />
 
       <section className="py-20 px-4 bg-card/50">
         <div className="container mx-auto max-w-4xl">

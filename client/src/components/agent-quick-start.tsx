@@ -206,7 +206,7 @@ export function AgentQuickStart() {
   const agent = AGENTS.find((a) => a.id === selectedAgent)!;
 
   return (
-    <section id="use-in-your-agent" className="py-20 px-4 bg-card/50">
+    <section id="use-in-your-agent" className="py-20 px-4">
       <div className="container mx-auto max-w-4xl">
         <div className="text-center mb-10">
           <Badge variant="secondary" className="mb-4" data-testid="badge-quick-start">
@@ -218,26 +218,27 @@ export function AgentQuickStart() {
           >
             Use In Your Agent
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto" data-testid="text-quick-start-intro">
             Select your agent below, paste the config, and start securing messages in under a minute
           </p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-3 mb-8">
           {AGENTS.map((a) => (
-            <button
+            <Button
               key={a.id}
+              variant={selectedAgent === a.id ? "outline" : "ghost"}
               onClick={() => setSelectedAgent(a.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-md border transition-colors cursor-pointer ${
+              className={`toggle-elevate ${
                 selectedAgent === a.id
-                  ? "border-primary bg-primary/10 text-foreground"
-                  : "border-border bg-background text-muted-foreground hover-elevate"
+                  ? "toggle-elevated border-primary bg-primary/10"
+                  : "text-muted-foreground"
               }`}
               data-testid={`button-agent-${a.id}`}
             >
               {a.icon}
-              <span className="text-sm font-medium">{a.name}</span>
-            </button>
+              <span className="font-medium">{a.name}</span>
+            </Button>
           ))}
         </div>
 
@@ -256,7 +257,7 @@ export function AgentQuickStart() {
               <TabsContent value="install">
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-sm font-semibold mb-2 text-muted-foreground">
+                    <h3 className="text-sm font-semibold mb-2 text-muted-foreground" data-testid="text-install-step-1">
                       Step 1 — Open your config file
                     </h3>
                     <div className="bg-muted/50 rounded-md p-3">
@@ -266,7 +267,7 @@ export function AgentQuickStart() {
                       {agent.configPathWin && (
                         <div className="mt-1">
                           <span className="text-xs text-muted-foreground">Windows: </span>
-                          <code className="text-xs break-all">{agent.configPathWin}</code>
+                          <code className="text-xs break-all" data-testid="text-config-path-win">{agent.configPathWin}</code>
                         </div>
                       )}
                     </div>
@@ -274,7 +275,7 @@ export function AgentQuickStart() {
 
                   <div>
                     <div className="flex items-center justify-between gap-4 mb-2">
-                      <h3 className="text-sm font-semibold text-muted-foreground">
+                      <h3 className="text-sm font-semibold text-muted-foreground" data-testid="text-install-step-2">
                         Step 2 — {agent.id === "claude-code" ? "Run this command" : "Paste this config"}
                       </h3>
                       <CopyBtn text={agent.config} />
@@ -285,13 +286,14 @@ export function AgentQuickStart() {
                     >
                       <code>{agent.config}</code>
                     </pre>
-                    <p className="text-xs text-muted-foreground mt-2">
+                    <p className="text-xs text-muted-foreground mt-2" data-testid="text-api-key-note">
                       Replace <code className="text-foreground">&lt;YOUR_SKYFIRE_BUYER_API_KEY&gt;</code> with your key from{" "}
                       <a
                         href="https://skyfire.xyz"
                         target="_blank"
                         rel="noopener"
                         className="text-primary underline"
+                        data-testid="link-skyfire-install"
                       >
                         skyfire.xyz
                       </a>
@@ -299,7 +301,7 @@ export function AgentQuickStart() {
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-semibold mb-3 text-muted-foreground">
+                    <h3 className="text-sm font-semibold mb-3 text-muted-foreground" data-testid="text-install-step-3">
                       Step 3 — Verify the connection
                     </h3>
                     <div className="space-y-2">
@@ -308,7 +310,7 @@ export function AgentQuickStart() {
                           <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                             <span className="text-primary font-bold text-[10px]">{i + 1}</span>
                           </div>
-                          <p className="text-sm text-muted-foreground">{step}</p>
+                          <p className="text-sm text-muted-foreground" data-testid={`text-verify-step-${i}`}>{step}</p>
                         </div>
                       ))}
                     </div>
@@ -337,7 +339,7 @@ export function AgentQuickStart() {
                     >
                       3-Step Workflow
                     </h3>
-                    <p className="text-sm text-muted-foreground mb-6">
+                    <p className="text-sm text-muted-foreground mb-6" data-testid="text-usage-intro">
                       Once Agent Safe is connected, every agent uses the same 3-step pattern: triage, analyze, and improve.
                     </p>
                   </div>
@@ -349,7 +351,7 @@ export function AgentQuickStart() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <span className="font-semibold">Triage</span>
+                          <span className="font-semibold" data-testid="text-step-triage">Triage</span>
                           <Badge className="text-xs bg-chart-4 text-white no-default-hover-elevate">FREE</Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mb-3">
@@ -370,7 +372,7 @@ export function AgentQuickStart() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <span className="font-semibold">Run Recommended Checks</span>
+                          <span className="font-semibold" data-testid="text-step-checks">Run Recommended Checks</span>
                           <Badge variant="secondary" className="text-xs">$0.02 each</Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mb-3">
@@ -391,7 +393,7 @@ export function AgentQuickStart() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <span className="font-semibold">Submit Feedback</span>
+                          <span className="font-semibold" data-testid="text-step-feedback">Submit Feedback</span>
                           <Badge className="text-xs bg-chart-4 text-white no-default-hover-elevate">FREE</Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mb-3">
@@ -417,14 +419,15 @@ export function AgentQuickStart() {
                   </div>
 
                   <div className="border-t pt-6">
-                    <p className="text-xs text-muted-foreground mb-1 font-medium">Prerequisite</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground mb-1 font-medium" data-testid="text-prerequisite-label">Prerequisite</p>
+                    <p className="text-sm text-muted-foreground" data-testid="text-prerequisite-detail">
                       You need a Skyfire Buyer API Key to use the 7 paid tools ($0.02 each). The 2 free tools (assess_message + submit_feedback) work without payment.{" "}
                       <a
                         href="https://skyfire.xyz"
                         target="_blank"
                         rel="noopener"
                         className="text-primary underline inline-flex items-center gap-1"
+                        data-testid="link-skyfire-usage"
                       >
                         Get your key at skyfire.xyz <ExternalLink className="h-3 w-3" />
                       </a>
