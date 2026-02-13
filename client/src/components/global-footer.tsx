@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import logoImg from "@assets/mcp-logo-v4.png";
+import logoImg from "@assets/agent-safe-radar-mark.svg";
 
 export function GlobalFooter() {
   return (
