@@ -26,7 +26,13 @@ function CopyBtn({ text }: { text: string }) {
   );
 }
 
-type AgentId = "chatgpt" | "claude-desktop" | "claude-code" | "cursor" | "windsurf" | "vscode" | "grok" | "gemini-cli";
+type AgentId =
+  | "chatgpt" | "claude-desktop" | "claude-code" | "cursor" | "windsurf"
+  | "vscode" | "grok" | "gemini-cli"
+  | "amazon-bedrock" | "amazon-q" | "augment" | "boltai" | "cline"
+  | "codex-cli" | "deepgram" | "enconvo" | "goose" | "highlight"
+  | "librechat" | "poke" | "qordinate" | "raycast" | "roo-code"
+  | "tome" | "vscode-insiders" | "witsy";
 
 function CursorIcon({ className }: { className?: string }) {
   return (
@@ -44,6 +50,14 @@ function GrokIcon({ className }: { className?: string }) {
   );
 }
 
+function LetterIcon({ letter, className }: { letter: string; className?: string }) {
+  return (
+    <div className={`flex items-center justify-center font-bold text-[10px] leading-none w-5 h-5 rounded bg-muted text-muted-foreground ${className || ""}`}>
+      {letter}
+    </div>
+  );
+}
+
 interface AgentInfo {
   id: AgentId;
   name: string;
@@ -55,6 +69,39 @@ interface AgentInfo {
   verifySteps: string[];
   examplePrompt: string;
 }
+
+const STANDARD_CONFIG = `{
+  "mcpServers": {
+    "agentsafe": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://agentsafe.locationledger.com/mcp",
+        "--header",
+        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
+      ]
+    }
+  }
+}`;
+
+const STANDARD_CONFIG_RAW = `{"mcpServers":{"agentsafe":{"command":"npx","args":["-y","mcp-remote","https://agentsafe.locationledger.com/mcp","--header","skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]}}}`;
+
+const VSCODE_CONFIG = `{
+  "servers": {
+    "agentsafe": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://agentsafe.locationledger.com/mcp",
+        "--header",
+        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
+      ]
+    }
+  }
+}`;
+
+const VSCODE_CONFIG_RAW = `{"servers":{"agentsafe":{"type":"stdio","command":"npx","args":["-y","mcp-remote","https://agentsafe.locationledger.com/mcp","--header","skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]}}}`;
 
 const AGENTS: AgentInfo[] = [
   {
@@ -84,20 +131,8 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
     icon: <SiClaude className="h-5 w-5" />,
     configPath: "~/Library/Application Support/Claude/claude_desktop_config.json",
     configPathWin: "%APPDATA%\\Claude\\claude_desktop_config.json",
-    config: `{
-  "mcpServers": {
-    "agentsafe": {
-      "command": "npx",
-      "args": [
-        "-y", "mcp-remote",
-        "https://agentsafe.locationledger.com/mcp",
-        "--header",
-        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
-      ]
-    }
-  }
-}`,
-    configRaw: `{"mcpServers":{"agentsafe":{"command":"npx","args":["-y","mcp-remote","https://agentsafe.locationledger.com/mcp","--header","skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]}}}`,
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
     verifySteps: [
       "Quit Claude Desktop completely and reopen it",
       "Look for the MCP indicator (hammer icon) at the bottom-right of the chat input",
@@ -134,20 +169,8 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
     name: "Cursor",
     icon: <CursorIcon className="h-5 w-5" />,
     configPath: "~/.cursor/mcp.json",
-    config: `{
-  "mcpServers": {
-    "agentsafe": {
-      "command": "npx",
-      "args": [
-        "-y", "mcp-remote",
-        "https://agentsafe.locationledger.com/mcp",
-        "--header",
-        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
-      ]
-    }
-  }
-}`,
-    configRaw: `{"mcpServers":{"agentsafe":{"command":"npx","args":["-y","mcp-remote","https://agentsafe.locationledger.com/mcp","--header","skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]}}}`,
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
     verifySteps: [
       "Restart Cursor completely",
       "Go to Settings > Tools & Integrations > MCP Tools",
@@ -161,20 +184,8 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
     name: "Windsurf",
     icon: <SiCodeium className="h-5 w-5" />,
     configPath: "~/.codeium/windsurf/mcp_config.json",
-    config: `{
-  "mcpServers": {
-    "agentsafe": {
-      "command": "npx",
-      "args": [
-        "-y", "mcp-remote",
-        "https://agentsafe.locationledger.com/mcp",
-        "--header",
-        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
-      ]
-    }
-  }
-}`,
-    configRaw: `{"mcpServers":{"agentsafe":{"command":"npx","args":["-y","mcp-remote","https://agentsafe.locationledger.com/mcp","--header","skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]}}}`,
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
     verifySteps: [
       "Click the MCPs icon (hammer) in the top-right of the Cascade panel",
       "Confirm \"agentsafe\" appears and shows as connected",
@@ -188,21 +199,8 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
     name: "VS Code Copilot",
     icon: <SiGithubcopilot className="h-5 w-5" />,
     configPath: ".vscode/mcp.json",
-    config: `{
-  "servers": {
-    "agentsafe": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y", "mcp-remote",
-        "https://agentsafe.locationledger.com/mcp",
-        "--header",
-        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
-      ]
-    }
-  }
-}`,
-    configRaw: `{"servers":{"agentsafe":{"type":"stdio","command":"npx","args":["-y","mcp-remote","https://agentsafe.locationledger.com/mcp","--header","skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]}}}`,
+    config: VSCODE_CONFIG,
+    configRaw: VSCODE_CONFIG_RAW,
     verifySteps: [
       "Open the .vscode/mcp.json file and click the \"Start\" button above the server entry",
       "Open GitHub Copilot Chat and switch to Agent mode",
@@ -263,21 +261,312 @@ account at console.x.ai to set up MCP connections.`,
     examplePrompt:
       "Check this Discord message for social engineering using Agent Safe:",
   },
-];
-
-const UNIVERSAL_CONFIG = `{
+  {
+    id: "amazon-bedrock",
+    name: "Amazon Bedrock",
+    icon: <LetterIcon letter="AB" />,
+    configPath: "Add to your Bedrock MCP client config",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Add the config to your Bedrock-compatible MCP client settings",
+      "Restart the client or reload MCP servers",
+      "Confirm \"agentsafe\" appears in available tools",
+    ],
+    examplePrompt:
+      "Use Agent Safe to check this email for phishing attempts:",
+  },
+  {
+    id: "amazon-q",
+    name: "Amazon Q",
+    icon: <LetterIcon letter="Q" />,
+    configPath: "~/.aws/amazonq/mcp.json",
+    config: `{
   "mcpServers": {
     "agentsafe": {
-      "command": "npx",
-      "args": [
-        "-y", "mcp-remote",
-        "https://agentsafe.locationledger.com/mcp",
-        "--header",
-        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
-      ]
+      "type": "http",
+      "url": "https://agentsafe.locationledger.com/mcp",
+      "headers": {
+        "skyfire-api-key": "<YOUR_SKYFIRE_BUYER_API_KEY>"
+      }
     }
   }
-}`;
+}`,
+    configRaw: `{"mcpServers":{"agentsafe":{"type":"http","url":"https://agentsafe.locationledger.com/mcp","headers":{"skyfire-api-key":"<YOUR_SKYFIRE_BUYER_API_KEY>"}}}}`,
+    verifySteps: [
+      "Open Amazon Q Developer in your IDE or CLI",
+      "Click the Tools icon or run /tools to see available MCP servers",
+      "Confirm \"agentsafe\" appears and shows as connected",
+    ],
+    examplePrompt:
+      "Use Agent Safe to analyze this suspicious message:",
+  },
+  {
+    id: "augment",
+    name: "Augment",
+    icon: <LetterIcon letter="Au" />,
+    configPath: "Augment Settings Panel > Import JSON",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Open the Augment options menu and click Settings",
+      "Import the JSON config or add the MCP server manually",
+      "Test the connection and confirm agentsafe tools are available",
+    ],
+    examplePrompt:
+      "Check this email for social engineering using Agent Safe:",
+  },
+  {
+    id: "boltai",
+    name: "BoltAI",
+    icon: <LetterIcon letter="Bo" />,
+    configPath: "Settings > Plugins > MCP Servers",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Go to BoltAI Settings > Plugins",
+      "Add the JSON config in the MCP servers editor",
+      "Confirm \"agentsafe\" appears in the plugins list",
+    ],
+    examplePrompt:
+      "Run Agent Safe on this suspicious message I received:",
+  },
+  {
+    id: "cline",
+    name: "Cline",
+    icon: <LetterIcon letter="Cl" />,
+    configPath: "~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
+    configPathWin: "%APPDATA%\\Code\\User\\globalStorage\\saoudrizwan.claude-dev\\settings\\cline_mcp_settings.json",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Click the MCP Servers icon in Cline's top navigation bar",
+      "Check for a green indicator next to \"agentsafe\"",
+      "Restart VS Code if the server doesn't appear",
+    ],
+    examplePrompt:
+      "Use agentsafe to check this email for threats:",
+  },
+  {
+    id: "codex-cli",
+    name: "Codex CLI",
+    icon: <SiOpenai className="h-5 w-5" />,
+    configPath: "Run in your terminal:",
+    config: `codex mcp add agentsafe -- npx -y mcp-remote \\
+  https://agentsafe.locationledger.com/mcp \\
+  --header "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"`,
+    configRaw: `codex mcp add agentsafe -- npx -y mcp-remote https://agentsafe.locationledger.com/mcp --header "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"`,
+    verifySteps: [
+      "Run codex mcp list in your terminal",
+      "Confirm \"agentsafe\" appears in the server list",
+      "Start a Codex session and ask it to list available tools",
+    ],
+    examplePrompt:
+      "Check this message for scams using Agent Safe:",
+  },
+  {
+    id: "deepgram",
+    name: "Deepgram",
+    icon: <LetterIcon letter="Dg" />,
+    configPath: "MCP settings in your Deepgram client",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Add the config to your Deepgram MCP settings",
+      "Restart the client or reload servers",
+      "Confirm \"agentsafe\" appears in available tools",
+    ],
+    examplePrompt:
+      "Analyze this message for security threats with Agent Safe:",
+  },
+  {
+    id: "enconvo",
+    name: "Enconvo",
+    icon: <LetterIcon letter="En" />,
+    configPath: "Settings > MCP Servers",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Open Enconvo Settings and find the MCP servers section",
+      "Add the JSON config or enter the server details manually",
+      "Confirm \"agentsafe\" appears and is connected",
+    ],
+    examplePrompt:
+      "Use Agent Safe to scan this message for threats:",
+  },
+  {
+    id: "goose",
+    name: "Goose",
+    icon: <LetterIcon letter="Go" />,
+    configPath: "~/.config/goose/config.yaml",
+    config: `extensions:
+  agentsafe:
+    name: agentsafe
+    cmd: npx
+    args:
+      - '-y'
+      - 'mcp-remote'
+      - 'https://agentsafe.locationledger.com/mcp'
+      - '--header'
+      - 'skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>'
+    enabled: true
+    type: stdio`,
+    configRaw: `extensions:\n  agentsafe:\n    name: agentsafe\n    cmd: npx\n    args: ['-y', 'mcp-remote', 'https://agentsafe.locationledger.com/mcp', '--header', 'skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>']\n    enabled: true\n    type: stdio`,
+    verifySteps: [
+      "Run goose configure or edit ~/.config/goose/config.yaml directly",
+      "Start a Goose session with goose session",
+      "Ask Goose to list available tools — agentsafe should appear",
+    ],
+    examplePrompt:
+      "Use Agent Safe to check this suspicious email:",
+  },
+  {
+    id: "highlight",
+    name: "Highlight",
+    icon: <LetterIcon letter="Hi" />,
+    configPath: "MCP settings in Highlight",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Open Highlight's MCP configuration settings",
+      "Add the JSON config for agentsafe",
+      "Confirm the server connects and tools are available",
+    ],
+    examplePrompt:
+      "Check this message for phishing with Agent Safe:",
+  },
+  {
+    id: "librechat",
+    name: "LibreChat",
+    icon: <LetterIcon letter="LC" />,
+    configPath: "librechat.yaml",
+    config: `mcpServers:
+  agentsafe:
+    type: stdio
+    command: npx
+    args:
+      - -y
+      - mcp-remote
+      - https://agentsafe.locationledger.com/mcp
+      - --header
+      - "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"`,
+    configRaw: `mcpServers:\n  agentsafe:\n    type: stdio\n    command: npx\n    args: [-y, mcp-remote, https://agentsafe.locationledger.com/mcp, --header, "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]`,
+    verifySteps: [
+      "Add the config to your librechat.yaml file",
+      "Restart LibreChat for the MCP server to initialize",
+      "Select a tool-compatible model and check the tools dropdown below the chat input",
+    ],
+    examplePrompt:
+      "Use Agent Safe to analyze this email for threats:",
+  },
+  {
+    id: "poke",
+    name: "Poke",
+    icon: <LetterIcon letter="Pk" />,
+    configPath: "MCP settings in Poke",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Open Poke's MCP server configuration",
+      "Add the JSON config for agentsafe",
+      "Confirm the server connects and tools are available",
+    ],
+    examplePrompt:
+      "Run Agent Safe on this suspicious message:",
+  },
+  {
+    id: "qordinate",
+    name: "Qordinate",
+    icon: <LetterIcon letter="Qo" />,
+    configPath: "MCP settings in Qordinate",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Open Qordinate's MCP server configuration",
+      "Add the JSON config for agentsafe",
+      "Confirm the server connects and tools are available",
+    ],
+    examplePrompt:
+      "Check this message with Agent Safe:",
+  },
+  {
+    id: "raycast",
+    name: "Raycast",
+    icon: <LetterIcon letter="Ra" />,
+    configPath: "Raycast Settings > Extensions > MCP",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Open Raycast Settings and navigate to Extensions",
+      "Add Agent Safe as an MCP server",
+      "Confirm agentsafe tools are available in Raycast AI",
+    ],
+    examplePrompt:
+      "Use Agent Safe to check this message for scams:",
+  },
+  {
+    id: "roo-code",
+    name: "Roo Code",
+    icon: <LetterIcon letter="Ro" />,
+    configPath: ".roo/mcp.json (project) or global MCP settings",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Create .roo/mcp.json in your project root, or click \"Edit Global MCP\" in Roo Code",
+      "Click the MCP icon in Roo Code to check server status",
+      "Confirm \"agentsafe\" shows as connected with available tools",
+    ],
+    examplePrompt:
+      "Use agentsafe to analyze this email for social engineering:",
+  },
+  {
+    id: "tome",
+    name: "Tome",
+    icon: <LetterIcon letter="To" />,
+    configPath: "MCP settings in Tome",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Open Tome's MCP server configuration",
+      "Add the JSON config for agentsafe",
+      "Confirm the server connects and tools are available",
+    ],
+    examplePrompt:
+      "Analyze this message for threats using Agent Safe:",
+  },
+  {
+    id: "vscode-insiders",
+    name: "VS Code Insiders",
+    icon: <SiGithubcopilot className="h-5 w-5" />,
+    configPath: ".vscode/mcp.json",
+    config: VSCODE_CONFIG,
+    configRaw: VSCODE_CONFIG_RAW,
+    verifySteps: [
+      "Open the .vscode/mcp.json file and click the \"Start\" button above the server entry",
+      "Open GitHub Copilot Chat and switch to Agent mode",
+      "Click the Tools icon in the chat panel to see agentsafe tools listed",
+    ],
+    examplePrompt:
+      "Use the agentsafe tool to check this email for threats:",
+  },
+  {
+    id: "witsy",
+    name: "Witsy",
+    icon: <LetterIcon letter="Wi" />,
+    configPath: "Settings > MCP Servers",
+    config: STANDARD_CONFIG,
+    configRaw: STANDARD_CONFIG_RAW,
+    verifySteps: [
+      "Open Witsy Settings and navigate to MCP servers",
+      "Add the JSON config or use Smithery to install Agent Safe",
+      "Confirm \"agentsafe\" appears and tools are available",
+    ],
+    examplePrompt:
+      "Use Agent Safe to check this message for phishing:",
+  },
+];
+
+const UNIVERSAL_CONFIG = STANDARD_CONFIG;
 
 export function AgentQuickStart() {
   const [selectedAgent, setSelectedAgent] = useState<AgentId>("chatgpt");
@@ -301,11 +590,12 @@ export function AgentQuickStart() {
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-3 mb-8">
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
           {AGENTS.map((a) => (
             <Button
               key={a.id}
               variant={selectedAgent === a.id ? "outline" : "ghost"}
+              size="sm"
               onClick={() => setSelectedAgent(a.id)}
               className={`toggle-elevate ${
                 selectedAgent === a.id
@@ -336,7 +626,7 @@ export function AgentQuickStart() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-sm font-semibold mb-2 text-muted-foreground" data-testid="text-install-step-1">
-                      Step 1 — {agent.id === "chatgpt" ? "Enable Developer Mode" : agent.id === "grok" ? "Open the xAI developer panel" : "Open your config file"}
+                      Step 1 — {agent.id === "chatgpt" ? "Enable Developer Mode" : agent.id === "grok" ? "Open the xAI developer panel" : agent.id === "claude-code" || agent.id === "codex-cli" ? "Open your terminal" : "Open your config file"}
                     </h3>
                     <div className="bg-muted/50 rounded-md p-3">
                       <code className="text-sm break-all" data-testid="text-config-path">
@@ -354,7 +644,7 @@ export function AgentQuickStart() {
                   <div>
                     <div className="flex items-center justify-between gap-4 mb-2">
                       <h3 className="text-sm font-semibold text-muted-foreground" data-testid="text-install-step-2">
-                        Step 2 — {agent.id === "claude-code" ? "Run this command" : agent.id === "chatgpt" || agent.id === "grok" ? "Enter these details" : "Paste this config"}
+                        Step 2 — {agent.id === "claude-code" || agent.id === "codex-cli" ? "Run this command" : agent.id === "chatgpt" || agent.id === "grok" ? "Enter these details" : "Paste this config"}
                       </h3>
                       <CopyBtn text={agent.config} />
                     </div>
