@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, ExternalLink, Link as LinkIcon, Reply, MessageSquare, Paperclip, UserCheck, ArrowRight, Compass } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSEO } from "@/lib/seo";
 import { GlobalFooter } from "@/components/global-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -17,6 +17,110 @@ import toolSenderImg from "@/assets/images/tool-sender-reputation.png";
 import toolMessageImg from "@/assets/images/tool-message-safety.png";
 import whatItTestsForImg from "@/assets/images/what-it-tests-for.png";
 
+
+const ROTATING_WORDS = ["Message", "Text", "Photo", "SMS", "Email", "DM", "Image", "Alert", "Link"];
+
+function RotatingWord() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [animState, setAnimState] = useState<"visible" | "exiting" | "entering">("visible");
+
+  useEffect(() => {
+    const holdDuration = 2200;
+    const animDuration = 450;
+
+    const holdTimer = setTimeout(() => {
+      setAnimState("exiting");
+    }, holdDuration);
+
+    return () => clearTimeout(holdTimer);
+  }, [currentIndex]);
+
+  useEffect(() => {
+    if (animState === "exiting") {
+      const timer = setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % ROTATING_WORDS.length);
+        setAnimState("entering");
+      }, 450);
+      return () => clearTimeout(timer);
+    }
+    if (animState === "entering") {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setAnimState("visible");
+        });
+      });
+    }
+  }, [animState]);
+
+  const word = ROTATING_WORDS[currentIndex];
+
+  let transform = "translateY(0%)";
+  let opacity = 1;
+
+  if (animState === "exiting") {
+    transform = "translateY(-100%)";
+    opacity = 0;
+  } else if (animState === "entering") {
+    transform = "translateY(100%)";
+    opacity = 0;
+  }
+
+  return (
+    <span className="inline-block relative overflow-hidden align-bottom">
+      <span className="invisible font-bold" aria-hidden="true">Message</span>
+      <span
+        className="absolute inset-0 flex items-center justify-center text-primary font-bold"
+        style={{
+          transform,
+          opacity,
+          transition: animState === "entering" ? "none" : "transform 450ms cubic-bezier(0.4, 0, 0.2, 1), opacity 450ms cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        {word}
+      </span>
+    </span>
+  );
+}
+
+function AutoScaleHeadline({ children }: { children: React.ReactNode }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const baseFontSize = useRef(72);
+
+  const rescale = useCallback(() => {
+    const container = containerRef.current;
+    const text = textRef.current;
+    if (!container || !text) return;
+
+    const parentWidth = container.parentElement?.clientWidth || container.clientWidth;
+    text.style.fontSize = `${baseFontSize.current}px`;
+    const textWidth = text.scrollWidth;
+
+    if (textWidth > parentWidth) {
+      const scale = parentWidth / textWidth;
+      text.style.fontSize = `${Math.floor(baseFontSize.current * scale * 0.95)}px`;
+    }
+  }, []);
+
+  useEffect(() => {
+    rescale();
+    window.addEventListener("resize", rescale);
+    return () => window.removeEventListener("resize", rescale);
+  }, [rescale]);
+
+  return (
+    <div ref={containerRef} className="w-full">
+      <h1
+        ref={textRef}
+        className="font-bold tracking-tight mb-8 leading-[1.1] whitespace-nowrap"
+        style={{ fontSize: "72px" }}
+        data-testid="text-hero-headline"
+      >
+        {children}
+      </h1>
+    </div>
+  );
+}
 
 export default function Landing() {
   useSEO({
@@ -36,9 +140,9 @@ export default function Landing() {
           <Badge variant="secondary" className="mb-8" data-testid="badge-mcp">
             Remote MCP Server
           </Badge>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1]" data-testid="text-hero-headline">
-            Secure Every Message and Image<br />Your Agent Touches
-          </h1>
+          <AutoScaleHeadline>
+            Secure Every <RotatingWord /> Your Agent Touches
+          </AutoScaleHeadline>
           <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
             Email. SMS. WhatsApp. Slack. Discord. DMs.<br />Any platform, any message, any image.
           </p>
