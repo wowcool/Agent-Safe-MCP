@@ -37,10 +37,10 @@ export default function Landing() {
             Remote MCP Server
           </Badge>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1]" data-testid="text-hero-headline">
-            Secure Every Message<br />Your Agent Touches
+            Secure Every Message and Image<br />Your Agent Touches
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-2xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-            Email. SMS. WhatsApp. Slack. Discord. DMs. Any platform, any message.
+            Email. SMS. WhatsApp. Slack. Discord. DMs.<br />Any platform, any message, any image.
           </p>
           <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto leading-relaxed">
             Your AI agent processes messages across every platform — but should it trust them? Agent Safe is a <a href="#tools" className="text-primary font-bold hover:underline"><strong>9-tool MCP security suite</strong></a> that protects against phishing, BEC, malware, and manipulation on <strong>any messaging platform</strong> your agent operates on. Start with the <strong>free triage tool</strong> to instantly know which checks to run, and use the <strong>free feedback tool</strong> to help improve detection.
