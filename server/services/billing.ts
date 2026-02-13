@@ -1,5 +1,28 @@
 export const MAX_TOKENS_PER_UNIT = 4000;
-export const PRICE_PER_UNIT = 0.02;
+export const PRICE_PER_UNIT = 0.01;
+
+export const TOOL_PRICING: Record<string, { units: number; externalCost: number }> = {
+  check_email_safety: { units: 1, externalCost: 0 },
+  check_url_safety: { units: 1, externalCost: 0 },
+  check_response_safety: { units: 1, externalCost: 0 },
+  analyze_email_thread: { units: 1, externalCost: 0 },
+  check_attachment_safety: { units: 1, externalCost: 0 },
+  check_sender_reputation: { units: 1, externalCost: 0 },
+  check_message_safety: { units: 1, externalCost: 0 },
+  check_media_authenticity_image: { units: 4, externalCost: 0.03 },
+  check_media_authenticity_video: { units: 10, externalCost: 0.15 },
+};
+
+export function getToolUnits(toolName: string): number {
+  return TOOL_PRICING[toolName]?.units ?? 1;
+}
+
+export function validateCostCoverage(toolName: string): boolean {
+  const pricing = TOOL_PRICING[toolName];
+  if (!pricing) return true;
+  const revenue = pricing.units * PRICE_PER_UNIT;
+  return revenue >= pricing.externalCost;
+}
 export const AUTO_CHARGE_MAX_UNITS = 5;
 
 export function countTokens(text: string): number {

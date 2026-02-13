@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 
-const PRICE_PER_CHECK_CENTS = 2; // $0.02
+const PRICE_PER_CHECK_CENTS = 1; // $0.01
 
 function getStripe(): Stripe {
   const apiKey = process.env.STRIPE_SECRET;

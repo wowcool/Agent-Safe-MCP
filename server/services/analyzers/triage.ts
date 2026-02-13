@@ -18,6 +18,9 @@ interface TriageInput {
   contactKnown?: boolean;
   knownSender?: boolean;
   previousCorrespondence?: boolean;
+  imageUrl?: string;
+  imageUrls?: string[];
+  videoUrl?: string;
 }
 
 interface ToolRecommendation {
@@ -59,21 +62,21 @@ export function triageMessage(input: TriageInput): TriageResult {
       tool: "check_email_safety",
       reason: "Email detected (from, subject, body provided) — analyze for phishing, social engineering, and threats",
       priority: priority++,
-      estimatedCost: "$0.02",
+      estimatedCost: "$0.01",
     });
   } else if (isNonEmailMessage) {
     recommended.push({
       tool: "check_message_safety",
       reason: `${input.platform} message detected — analyze for platform-specific threats (smishing, scams, impersonation)`,
       priority: priority++,
-      estimatedCost: "$0.02",
+      estimatedCost: "$0.01",
     });
   } else if (input.body && !hasDraft) {
     recommended.push({
       tool: "check_email_safety",
       reason: "Message body provided — analyze for threats. If this is from a non-email platform, re-submit with the 'platform' field for better results.",
       priority: priority++,
-      estimatedCost: "$0.02",
+      estimatedCost: "$0.01",
     });
   }
 
@@ -84,7 +87,7 @@ export function triageMessage(input: TriageInput): TriageResult {
       tool: "check_sender_reputation",
       reason: `Sender identified (${senderEmail}) — verify identity with live DNS DMARC and RDAP domain age checks`,
       priority: priority++,
-      estimatedCost: "$0.02",
+      estimatedCost: "$0.01",
     });
   } else {
     skipped.push({ tool: "check_sender_reputation", reason: "No sender email/address provided" });
@@ -96,7 +99,7 @@ export function triageMessage(input: TriageInput): TriageResult {
       tool: "check_url_safety",
       reason: `${urlCount} URL(s) found — check for phishing, malware, and spoofing`,
       priority: priority++,
-      estimatedCost: "$0.02",
+      estimatedCost: "$0.01",
     });
   } else {
     skipped.push({ tool: "check_url_safety", reason: "No URLs or links provided" });
@@ -107,7 +110,7 @@ export function triageMessage(input: TriageInput): TriageResult {
       tool: "check_attachment_safety",
       reason: `${input.attachments!.length} attachment(s) found — assess for malware risk before opening`,
       priority: priority++,
-      estimatedCost: "$0.02",
+      estimatedCost: "$0.01",
     });
   } else {
     skipped.push({ tool: "check_attachment_safety", reason: "No attachments provided" });
@@ -118,7 +121,7 @@ export function triageMessage(input: TriageInput): TriageResult {
       tool: "analyze_email_thread",
       reason: `Thread with ${input.messages!.length} messages detected — analyze for escalating manipulation and scope creep`,
       priority: priority++,
-      estimatedCost: "$0.02",
+      estimatedCost: "$0.01",
     });
   } else {
     skipped.push({ tool: "analyze_email_thread", reason: input.messages && input.messages.length === 1 ? "Only 1 message provided — thread analysis requires at least 2" : "No message thread provided" });
@@ -129,10 +132,38 @@ export function triageMessage(input: TriageInput): TriageResult {
       tool: "check_response_safety",
       reason: "Draft reply detected — check for data leakage and unauthorized disclosure before sending",
       priority: priority++,
-      estimatedCost: "$0.02",
+      estimatedCost: "$0.01",
     });
   } else {
     skipped.push({ tool: "check_response_safety", reason: "No draft reply provided (draftTo, draftBody)" });
+  }
+
+  const hasImageUrl = !!input.imageUrl;
+  const hasImageUrls = !!(input.imageUrls && input.imageUrls.length > 0);
+  const hasVideoUrl = !!input.videoUrl;
+  const hasMediaImages = input.media?.some(m => m.type === "image" && m.url);
+  const hasMediaVideos = input.media?.some(m => m.type === "video" && m.url);
+
+  if (hasImageUrl || hasImageUrls || hasMediaImages) {
+    recommended.push({
+      tool: "check_media_authenticity",
+      reason: "Image URL(s) detected — analyze for AI generation, deepfakes, and manipulation",
+      priority: priority++,
+      estimatedCost: "$0.04",
+    });
+  }
+
+  if (hasVideoUrl || hasMediaVideos) {
+    recommended.push({
+      tool: "check_media_authenticity",
+      reason: "Video URL detected — analyze for AI-generated video content",
+      priority: priority++,
+      estimatedCost: "$0.10",
+    });
+  }
+
+  if (!hasImageUrl && !hasImageUrls && !hasVideoUrl && !hasMediaImages && !hasMediaVideos) {
+    skipped.push({ tool: "check_media_authenticity", reason: "No image or video URLs provided" });
   }
 
   if (!isEmail && !isNonEmailMessage && !input.body && !hasDraft) {
@@ -157,7 +188,7 @@ export function triageMessage(input: TriageInput): TriageResult {
     }
   }
 
-  const totalCost = recommended.length * 0.02;
+  const totalCost = recommended.reduce((sum, r) => sum + parseFloat(r.estimatedCost.replace("$", "")), 0);
   const toolNames = recommended.map(r => r.tool).join(", ");
 
   let summary: string;

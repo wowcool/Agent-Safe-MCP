@@ -2,7 +2,7 @@ import * as jose from "jose";
 
 const SKYFIRE_API_URL = "https://api.skyfire.xyz";
 const SKYFIRE_JWKS_URL = "https://app.skyfire.xyz/.well-known/jwks.json";
-const PRICE_PER_CHECK = 0.02;
+const PRICE_PER_CHECK = 0.01;
 
 let jwksCache: jose.JSONWebKeySet | null = null;
 let jwksCacheTime = 0;
@@ -169,7 +169,7 @@ export async function introspectSkyfireToken(token: string): Promise<{
   }
 }
 
-export async function generatePayTokenFromBuyerKey(buyerApiKey: string, sellerServiceId: string): Promise<{
+export async function generatePayTokenFromBuyerKey(buyerApiKey: string, sellerServiceId: string, amount: number = PRICE_PER_CHECK): Promise<{
   success: boolean;
   token?: string;
   error?: string;
@@ -183,7 +183,7 @@ export async function generatePayTokenFromBuyerKey(buyerApiKey: string, sellerSe
       },
       body: JSON.stringify({
         type: "pay",
-        tokenAmount: String(PRICE_PER_CHECK),
+        tokenAmount: String(amount),
         sellerServiceId,
       }),
     });

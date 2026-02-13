@@ -60,8 +60,8 @@ export async function registerRoutes(
   app.get("/.well-known/mcp.json", (_req: Request, res: Response) => {
     res.json({
       name: "Agent Safe",
-      description: "9-tool message security suite for AI agents (7 paid + 2 free). Protects against phishing, BEC, malware, social engineering, and manipulation across any message (emails, chats, DMs, SMS), URLs, replies, threads, attachments, and sender identities. Start with the free assess_message tool to get personalized recommendations, and use submit_feedback to report results.",
-      version: "2.2.0",
+      description: "10-tool message security suite for AI agents (8 paid + 2 free). Protects against phishing, BEC, malware, social engineering, manipulation, AI-generated images, and deepfakes across any message (emails, chats, DMs, SMS), URLs, replies, threads, attachments, sender identities, and media. Start with the free assess_message tool to get personalized recommendations, and use submit_feedback to report results.",
+      version: "2.3.0",
       protocol: "mcp",
       transport: {
         type: "streamable-http",
@@ -70,7 +70,7 @@ export async function registerRoutes(
       authentication: {
         type: "header",
         header_name: "skyfire-api-key",
-        description: "Skyfire Buyer API Key for payment. Get one at skyfire.xyz. $0.02 per tool call. Alternatively, send a PAY token via skyfire-pay-id header.",
+        description: "Skyfire Buyer API Key for payment. Get one at skyfire.xyz. $0.01 per unit. Alternatively, send a PAY token via skyfire-pay-id header.",
       },
       tools: [
         { name: "check_email_safety", description: "Analyze an email for phishing, social engineering, prompt injection, CEO fraud, and data exfiltration. Returns verdict, risk score, threats, and actions." },
@@ -80,12 +80,15 @@ export async function registerRoutes(
         { name: "check_attachment_safety", description: "Assess attachments for malware risk based on filename, MIME type, and size BEFORE opening." },
         { name: "check_sender_reputation", description: "Verify sender identity with live DNS DMARC and RDAP domain age checks. Detects BEC and impersonation." },
         { name: "check_message_safety", description: "Analyze non-email messages (SMS, WhatsApp, Instagram DMs, Discord, Slack, etc.) for platform-specific threats like smishing, wrong-number scams, and OTP interception." },
+        { name: "check_media_authenticity", description: "Analyze images and short videos to assess whether they are AI-generated, deepfaked, or authentic. Uses multi-layer forensic analysis. $0.04/image, $0.10/video." },
         { name: "assess_message", description: "FREE triage tool — send whatever context you have and get a prioritized list of which security tools to run. No charge, instant response. Call this first." },
+        { name: "submit_feedback", description: "FREE — Submit feedback about any Agent Safe tool you used. No charge, no auth required." },
       ],
       pricing: {
-        model: "per_request",
-        amount: "0.02",
+        model: "per_unit",
+        unit_amount: "0.01",
         currency: "USD",
+        note: "Most tools: 1 unit ($0.01). Image analysis: 4 units ($0.04). Video analysis: 10 units ($0.10).",
         payment_network: "Skyfire",
       },
       contact: "support@locationledger.com",
@@ -100,8 +103,8 @@ export async function registerRoutes(
       schema_version: "v1",
       name_for_human: "Agent Safe",
       name_for_model: "agent_safe_message_security",
-      description_for_human: "9-tool message security suite for AI agents (7 paid + 2 free). Protects against phishing, BEC, malware, social engineering, and manipulation across any message format.",
-      description_for_model: "Agent Safe is a Remote MCP Server with 9 message security tools for AI agents (7 paid + 2 free). ALWAYS START with assess_message (FREE, no charge) to get personalized tool recommendations. Then call the recommended paid tools ($0.02 each): check_email_safety (analyze emails), check_url_safety (analyze URLs), check_response_safety (check draft replies), analyze_email_thread (detect thread manipulation), check_attachment_safety (assess attachment risk), check_sender_reputation (verify sender with DNS/RDAP), check_message_safety (analyze SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal messages for platform-specific threats). After analysis, use submit_feedback (FREE) to report whether results were helpful. Auth: include skyfire-api-key header with your Skyfire Buyer API Key (recommended), or skyfire-pay-id header with a PAY token. MCP endpoint: https://agentsafe.locationledger.com/mcp",
+      description_for_human: "10-tool message security suite for AI agents (8 paid + 2 free). Protects against phishing, BEC, malware, social engineering, manipulation, AI-generated images, and deepfakes across any message format.",
+      description_for_model: "Agent Safe is a Remote MCP Server with 10 message security tools for AI agents (8 paid + 2 free). ALWAYS START with assess_message (FREE, no charge) to get personalized tool recommendations. Then call the recommended paid tools ($0.01/unit): check_email_safety (analyze emails, $0.01), check_url_safety (analyze URLs, $0.01), check_response_safety (check draft replies, $0.01), analyze_email_thread (detect thread manipulation, $0.01), check_attachment_safety (assess attachment risk, $0.01), check_sender_reputation (verify sender with DNS/RDAP, $0.01), check_message_safety (analyze SMS, WhatsApp, etc., $0.01), check_media_authenticity (detect AI-generated images/deepfakes, $0.04/image or $0.10/video). After analysis, use submit_feedback (FREE) to report whether results were helpful. Auth: include skyfire-api-key header with your Skyfire Buyer API Key (recommended), or skyfire-pay-id header with a PAY token. MCP endpoint: https://agentsafe.locationledger.com/mcp",
       auth: { type: "none" },
       api: { type: "mcp", url: "https://agentsafe.locationledger.com/mcp", transport: "streamable-http" },
       logo_url: "https://agentsafe.locationledger.com/favicon.png",
@@ -113,10 +116,10 @@ export async function registerRoutes(
   // ===== AUTH ROUTES =====
   
   app.get("/llms.txt", (_req: Request, res: Response) => {
-    res.type("text/plain").send(`# Agent Safe - Message Security Suite for AI Agents (7 Paid Tools + 2 Free)
+    res.type("text/plain").send(`# Agent Safe - Message Security Suite for AI Agents (8 Paid Tools + 2 Free)
 > MCP Server: https://agentsafe.locationledger.com/mcp
 > Protocol: Streamable HTTP (MCP)
-> Payment: $0.02/tool call via skyfire-api-key header (Skyfire Buyer API Key) or skyfire-pay-id header (PAY token)
+> Payment: $0.01/unit via skyfire-api-key header (Skyfire Buyer API Key) or skyfire-pay-id header (PAY token)
 > No signup required — just a Skyfire Buyer API Key
 
 ## Recommended Workflow
@@ -128,43 +131,48 @@ export async function registerRoutes(
 
 ### assess_message (FREE)
 Triage tool — send whatever context you have and get a prioritized list of which security tools to run. No AI call, no charge, instant response.
-Input: All fields optional — from, subject, body, links/urls, attachments, sender, senderDisplayName, platform, messages, draftTo, draftSubject, draftBody, media, etc.
+Input: All fields optional — from, subject, body, links/urls, attachments, sender, senderDisplayName, platform, messages, draftTo, draftSubject, draftBody, media, imageUrl, imageUrls, videoUrl, etc.
 Returns: recommendedTools[] with tool name, reason, priority, estimatedCost; skippedTools[] with reason; totalEstimatedCost; summary
 
-### check_email_safety ($0.02)
+### check_email_safety ($0.01)
 Analyze an email for phishing, social engineering, prompt injection, CEO fraud, and data exfiltration.
 Input: from (string, required), subject (string, required), body (string, required), links (string[]), attachments (object[]), knownSender (boolean), previousCorrespondence (boolean)
 Returns: verdict, riskScore, confidence, threats[], recommendation, explanation, safeActions[], unsafeActions[]
 
-### check_url_safety ($0.02)
+### check_url_safety ($0.01)
 Analyze URLs for phishing, malware, redirects, spoofing, and tracking.
 Input: urls (string[], required, max 20)
 Returns: overallVerdict, overallRiskScore, urlResults[]
 
-### check_response_safety ($0.02)
+### check_response_safety ($0.01)
 Check a draft reply BEFORE sending for data leakage, social engineering compliance, and unauthorized disclosure.
 Input: draftTo (string, required), draftSubject (string, required), draftBody (string, required), originalFrom (string), originalSubject (string), originalBody (string)
 Returns: verdict, riskScore, confidence, threats[], recommendation
 
-### analyze_email_thread ($0.02)
+### analyze_email_thread ($0.01)
 Analyze a full conversation thread for escalating social engineering, scope creep, and manipulation patterns.
 Input: messages (object[], required, min 2, max 50) - each with from, subject, body, date?
 Returns: verdict, riskScore, confidence, manipulationPatterns[], threadProgression
 
-### check_attachment_safety ($0.02)
+### check_attachment_safety ($0.01)
 Assess attachments for malware risk based on filename, MIME type, and size BEFORE opening/downloading.
 Input: attachments (object[], required, max 20) - each with name, size, mimeType, from?
 Returns: overallVerdict, overallRiskScore, attachmentResults[]
 
-### check_sender_reputation ($0.02)
+### check_sender_reputation ($0.01)
 Verify sender identity and detect BEC, spoofing, and impersonation. Includes live DNS DMARC and RDAP domain age checks.
 Input: email (string, required), displayName (string, required), replyTo (string), emailSubject (string), emailSnippet (string)
 Returns: senderVerdict, trustScore, confidence, identityIssues[], domainIntel
 
-### check_message_safety ($0.02)
+### check_message_safety ($0.01)
 Analyze non-email messages (SMS, WhatsApp, Instagram DMs, Discord, Slack, Telegram, LinkedIn, Facebook Messenger, iMessage, Signal) for platform-specific threats.
 Input: platform (string, required), sender (string, required), messages (object[], required, min 1, max 50) - each with body, direction (inbound/outbound), timestamp?; media (object[]), senderVerified (boolean), contactKnown (boolean)
 Returns: verdict, riskScore, confidence, platform, threats[] with messageIndices, recommendation, explanation, safeActions[], unsafeActions[], platformTips
+
+### check_media_authenticity ($0.04/image, $0.10/video)
+Analyze an image or short video to assess whether it is AI-generated, deepfaked, or authentic. Uses multi-layer analysis: metadata forensics, error level analysis, ML-based AI detection, and noise pattern analysis.
+Input: mediaUrl (string, required), mediaType (enum: image/video, auto-detected if omitted)
+Returns: verdict, confidence, mediaType, disclaimer, analysis (metadata, errorLevelAnalysis, aiDetectionModel, noiseAnalysis layers with scores), recommendation
 
 ## Quick Start
 1. Get a Skyfire Buyer API Key at https://skyfire.xyz

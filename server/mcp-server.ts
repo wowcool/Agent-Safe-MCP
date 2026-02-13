@@ -9,7 +9,9 @@ import { analyzeThread } from "./services/analyzers/thread-analysis";
 import { analyzeAttachments } from "./services/analyzers/attachment-safety";
 import { analyzeSender } from "./services/analyzers/sender-reputation";
 import { analyzeMessage } from "./services/analyzers/message-safety";
+import { analyzeMediaAuthenticity } from "./services/analyzers/media-authenticity";
 import { triageMessage } from "./services/analyzers/triage";
+import { TOOL_PRICING } from "./services/billing";
 import {
   validateSkyfireToken,
   chargeSkyfireToken,
@@ -22,7 +24,7 @@ import type { CheckEmailRequest, ToolName } from "@shared/schema";
 
 const TERMS = "https://agentsafe.locationledger.com/terms";
 const TERMS_NOTICE = "By using this service you accept the Terms of Service. Advisory service only.";
-const PRICE = 0.02;
+const PRICE = 0.01;
 
 function mcpError(message: string, details?: string) {
   return {
@@ -99,7 +101,9 @@ async function recordToolCheck(
   confidence: number, threats: any[], durationMs: number,
   paymentType: string, paymentReference: string | null,
   senderDomain?: string | null, hasLinks?: boolean, hasAttachments?: boolean,
+  chargedAmount?: number,
 ): Promise<string> {
+  const amount = chargedAmount ?? PRICE;
   const emailCheck = await storage.createEmailCheck({
     tokenId,
     toolName,
@@ -110,21 +114,22 @@ async function recordToolCheck(
     riskScore: String(riskScore),
     confidence: String(confidence),
     threatsDetected: threats,
-    chargedAmount: String(PRICE),
+    chargedAmount: String(amount),
     paymentType,
     paymentReference,
     analysisDurationMs: durationMs,
   });
   await storage.updateAgentTokenUsage(tokenId);
-  await storage.createUsageLog({ tokenId, action: toolName, amount: String(PRICE), paymentStatus: "success" });
+  await storage.createUsageLog({ tokenId, action: toolName, amount: String(amount), paymentStatus: "success" });
   return emailCheck.id;
 }
 
 const SELLER_SERVICE_ID = "5958164f-62ea-4058-9a8c-50222482dbd2";
 
-async function validateAndCharge(skyfireToken: string | undefined, buyerApiKey?: string | undefined): Promise<{ error?: any; transactionId?: string; buyerId?: string }> {
+async function validateAndCharge(skyfireToken: string | undefined, buyerApiKey?: string | undefined, units: number = 1): Promise<{ error?: any; transactionId?: string; buyerId?: string; totalCharged?: number }> {
+  const totalAmount = Math.round(units * PRICE * 100) / 100;
   if (!skyfireToken && buyerApiKey) {
-    const tokenResult = await generatePayTokenFromBuyerKey(buyerApiKey, SELLER_SERVICE_ID);
+    const tokenResult = await generatePayTokenFromBuyerKey(buyerApiKey, SELLER_SERVICE_ID, totalAmount);
     if (!tokenResult.success || !tokenResult.token) {
       const hint = tokenResult.error?.includes("API Key Not Found")
         ? "Your Skyfire Buyer API Key was not recognized. Verify it is correct and active at skyfire.xyz. Make sure you are using the skyfire-api-key header (not skyfire-pay-id)."
@@ -145,9 +150,9 @@ async function validateAndCharge(skyfireToken: string | undefined, buyerApiKey?:
     }
     return { error: mcpError("Invalid Skyfire token", hint) };
   }
-  const chargeResult = await chargeSkyfireToken(skyfireToken, PRICE);
+  const chargeResult = await chargeSkyfireToken(skyfireToken, totalAmount);
   if (!chargeResult.success) return { error: mcpError("Skyfire payment failed", chargeResult.error) };
-  return { transactionId: chargeResult.transactionId || undefined, buyerId: validation.claims?.sub || "unknown" };
+  return { transactionId: chargeResult.transactionId || undefined, buyerId: validation.claims?.sub || "unknown", totalCharged: totalAmount };
 }
 
 const TOOL_DEFS = {
@@ -232,8 +237,15 @@ const TOOL_DEFS = {
       contactKnown: z.boolean().optional().describe("Whether the sender is in the agent's/user's contacts"),
     },
   },
+  check_media_authenticity: {
+    description: `Analyze an image or short video to assess whether it is AI-generated, deepfaked, or authentic. Uses multi-layer analysis including metadata forensics, error level analysis, ML-based AI detection, and noise pattern analysis. Returns a confidence-scored verdict with per-layer breakdown. $0.04/image (4 units x $0.01), $0.10/video (10 units x $0.01) via skyfire-api-key header. Results are best-guess estimates, not definitive. ${TERMS_NOTICE}`,
+    schema: {
+      mediaUrl: z.string().describe("URL of the image or video to analyze"),
+      mediaType: z.enum(["image", "video"]).optional().describe("Type of media (auto-detected if omitted)"),
+    },
+  },
   assess_message: {
-    description: "FREE triage tool — send whatever context you have (message content, sender info, URLs, attachments, draft replies, thread messages) and get back a prioritized list of which security tools to run. No AI call, no charge, instant response. Always call this first to get the best security coverage.",
+    description: "FREE triage tool — send whatever context you have (message content, sender info, URLs, attachments, draft replies, thread messages, image/video URLs) and get back a prioritized list of which security tools to run. No AI call, no charge, instant response. Always call this first to get the best security coverage.",
     schema: {
       from: z.string().optional().describe("Sender email address or identifier"),
       subject: z.string().optional().describe("Message subject line"),
@@ -266,6 +278,9 @@ const TOOL_DEFS = {
       contactKnown: z.boolean().optional().describe("Whether sender is a known contact"),
       knownSender: z.boolean().optional().describe("Whether the email sender is known/trusted"),
       previousCorrespondence: z.boolean().optional().describe("Whether there has been prior correspondence"),
+      imageUrl: z.string().optional().describe("Direct image URL to check for AI generation"),
+      imageUrls: z.array(z.string()).optional().describe("Multiple image URLs to check"),
+      videoUrl: z.string().optional().describe("Direct video URL to check for AI generation"),
     },
   },
 };
@@ -282,7 +297,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
   server.resource(
     "tool-catalog",
     "agentsafe://catalog",
-    { description: "Agent Safe tool catalog with descriptions, parameters, and pricing for all 7 security tools", mimeType: "application/json" },
+    { description: "Agent Safe tool catalog with descriptions, parameters, and pricing for all 8 security tools + 2 free tools", mimeType: "application/json" },
     async () => ({
       contents: [{
         uri: "agentsafe://catalog",
@@ -290,7 +305,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
         text: JSON.stringify({
           service: "Agent Safe",
           version: "2.0.0",
-          pricing: { perCall: "$0.02 USD", paymentMethod: "Skyfire Buyer API Key via skyfire-api-key header" },
+          pricing: { perUnit: "$0.01 USD", note: "Most tools: 1 unit ($0.01). Image analysis: 4 units ($0.04). Video analysis: 10 units ($0.10).", paymentMethod: "Skyfire Buyer API Key via skyfire-api-key header" },
           tools: Object.entries(TOOL_DEFS).map(([name, def]) => ({ name, description: def.description, parameters: Object.keys(def.schema) })),
           endpoint: "https://agentsafe.locationledger.com/mcp",
           documentation: "https://agentsafe.locationledger.com/docs",
@@ -318,7 +333,7 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
       return {
         messages: [{
           role: "assistant",
-          content: { type: "text", text: `For "${messageType}", use the **${guide.tool}** tool.\n\n${guide.description}.\n\nExample parameters:\n\`\`\`json\n${guide.example}\n\`\`\`\n\nCost: $0.02 per call. Include your Skyfire Buyer API Key via the skyfire-api-key header.` },
+          content: { type: "text", text: `For "${messageType}", use the **${guide.tool}** tool.\n\n${guide.description}.\n\nExample parameters:\n\`\`\`json\n${guide.example}\n\`\`\`\n\nCost: $0.01 per unit. Include your Skyfire Buyer API Key via the skyfire-api-key header.` },
         }],
       };
     },
@@ -447,6 +462,32 @@ function createPerRequestMcpServer(skyfireToken: string | undefined, buyerApiKey
     return mcpSuccess({ ...result, checkId, charged: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE, ...(authWarning ? { authWarning } : {}) });
   });
 
+  server.tool("check_media_authenticity", TOOL_DEFS.check_media_authenticity.description, TOOL_DEFS.check_media_authenticity.schema, ANNOTATIONS.readOnly, async (args) => {
+    const resolvedType = args.mediaType || (args.mediaUrl.split("?")[0].toLowerCase().match(/\.(mp4|mov|avi|webm|mkv)$/) ? "video" : "image");
+    const pricingKey = resolvedType === "video" ? "check_media_authenticity_video" : "check_media_authenticity_image";
+    const units = TOOL_PRICING[pricingKey]?.units ?? 4;
+    const totalCharge = Math.round(units * PRICE * 100) / 100;
+
+    const payment = await validateAndCharge(skyfireToken, buyerApiKey, units);
+    if (payment.error) { logToolCall("check_media_authenticity", "payment_failed"); return payment.error; }
+
+    try {
+      const { result, durationMs } = await analyzeMediaAuthenticity(args.mediaUrl, args.mediaType as any);
+
+      let checkId = "mcp-" + Date.now().toString(36);
+      try {
+        const systemTokenId = await getOrCreateSkyfireSystemToken();
+        checkId = await recordToolCheck(systemTokenId, "check_media_authenticity", result.verdict, result.confidence, result.confidence, [], durationMs, "skyfire", payment.transactionId || null, null, false, false, totalCharge);
+      } catch (e) { console.error("MCP: Failed to record check:", e); }
+
+      logToolCall("check_media_authenticity", "success", durationMs, { verdict: result.verdict, mediaType: result.mediaType, confidence: result.confidence, buyer: payment.buyerId });
+      return mcpSuccess({ ...result, checkId, charged: totalCharge, units, unitPrice: PRICE, termsOfService: TERMS, termsAccepted: TERMS_NOTICE, ...(authWarning ? { authWarning } : {}) });
+    } catch (error: any) {
+      logToolCall("check_media_authenticity", "error", 0, { error: error.message });
+      return mcpError("Media analysis failed", error.message);
+    }
+  });
+
   server.tool("assess_message", TOOL_DEFS.assess_message.description, TOOL_DEFS.assess_message.schema, ANNOTATIONS.readOnly, async (args) => {
     const result = triageMessage(args);
     logToolCall("assess_message", "success", 0, { recommendedTools: result.recommendedTools?.length || 0 });
@@ -545,7 +586,7 @@ export function mountMcpServer(app: Express): void {
     res.status(405).json({ jsonrpc: "2.0", error: { code: -32000, message: "Stateless server - session termination not supported" }, id: null });
   });
 
-  console.log("MCP Remote Server mounted at /mcp (Streamable HTTP) - 9 tools registered (7 paid + 2 free)");
+  console.log("MCP Remote Server mounted at /mcp (Streamable HTTP) - 10 tools registered (8 paid + 2 free)");
 }
 
 export { TOOL_DEFS };
