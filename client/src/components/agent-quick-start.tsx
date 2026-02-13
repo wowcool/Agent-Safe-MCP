@@ -4,15 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Copy, CheckCircle2, Terminal, ArrowRight, ExternalLink, Settings } from "lucide-react";
-import chatgptIcon from "@/assets/icons/chatgpt.png";
-import claudeDesktopIcon from "@/assets/icons/claude-desktop.png";
-import claudeCodeIcon from "@/assets/icons/claude-code.png";
-import cursorIcon from "@/assets/icons/cursor.png";
-import windsurfIcon from "@/assets/icons/windsurf.png";
-import vscodeIcon from "@/assets/icons/vscode.png";
-import grokIcon from "@/assets/icons/grok.png";
-import geminiCliIcon from "@/assets/icons/gemini-cli.png";
+import { Copy, CheckCircle2, ArrowRight, ExternalLink, Settings } from "lucide-react";
+import { SiOpenai, SiClaude, SiCodeium, SiGithubcopilot, SiGooglegemini } from "react-icons/si";
 
 function CopyBtn({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -35,10 +28,26 @@ function CopyBtn({ text }: { text: string }) {
 
 type AgentId = "chatgpt" | "claude-desktop" | "claude-code" | "cursor" | "windsurf" | "vscode" | "grok" | "gemini-cli";
 
+function CursorIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 512 512" className={className} xmlns="http://www.w3.org/2000/svg">
+      <path d="m415.035 156.35-151.503-87.4695c-4.865-2.8094-10.868-2.8094-15.733 0l-151.4969 87.4695c-4.0897 2.362-6.6146 6.729-6.6146 11.459v176.383c0 4.73 2.5249 9.097 6.6146 11.458l151.5039 87.47c4.865 2.809 10.868 2.809 15.733 0l151.504-87.47c4.089-2.361 6.614-6.728 6.614-11.458v-176.383c0-4.73-2.525-9.097-6.614-11.459zm-9.516 18.528-146.255 253.32c-.988 1.707-3.599 1.01-3.599-.967v-165.872c0-3.314-1.771-6.379-4.644-8.044l-143.645-82.932c-1.707-.988-1.01-3.599.968-3.599h292.509c4.154 0 6.75 4.503 4.673 8.101h-.007z" fill="currentColor"/>
+    </svg>
+  );
+}
+
+function GrokIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z"/>
+    </svg>
+  );
+}
+
 interface AgentInfo {
   id: AgentId;
   name: string;
-  icon: string;
+  icon: React.ReactNode;
   configPath: string;
   configPathWin?: string;
   config: string;
@@ -51,7 +60,7 @@ const AGENTS: AgentInfo[] = [
   {
     id: "chatgpt",
     name: "ChatGPT",
-    icon: chatgptIcon,
+    icon: <SiOpenai className="h-5 w-5" />,
     configPath: "Settings > Connectors > Create",
     config: `MCP Server URL:
 https://agentsafe.locationledger.com/mcp
@@ -72,7 +81,7 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
   {
     id: "claude-desktop",
     name: "Claude Desktop",
-    icon: claudeDesktopIcon,
+    icon: <SiClaude className="h-5 w-5" />,
     configPath: "~/Library/Application Support/Claude/claude_desktop_config.json",
     configPathWin: "%APPDATA%\\Claude\\claude_desktop_config.json",
     config: `{
@@ -100,7 +109,7 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
   {
     id: "claude-code",
     name: "Claude Code",
-    icon: claudeCodeIcon,
+    icon: <SiClaude className="h-5 w-5" />,
     configPath: "Run in your terminal:",
     config: `claude mcp add-json agentsafe '{
   "command": "npx",
@@ -123,7 +132,7 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
   {
     id: "cursor",
     name: "Cursor",
-    icon: cursorIcon,
+    icon: <CursorIcon className="h-5 w-5" />,
     configPath: "~/.cursor/mcp.json",
     config: `{
   "mcpServers": {
@@ -150,7 +159,7 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
   {
     id: "windsurf",
     name: "Windsurf",
-    icon: windsurfIcon,
+    icon: <SiCodeium className="h-5 w-5" />,
     configPath: "~/.codeium/windsurf/mcp_config.json",
     config: `{
   "mcpServers": {
@@ -177,7 +186,7 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
   {
     id: "vscode",
     name: "VS Code Copilot",
-    icon: vscodeIcon,
+    icon: <SiGithubcopilot className="h-5 w-5" />,
     configPath: ".vscode/mcp.json",
     config: `{
   "servers": {
@@ -205,7 +214,7 @@ Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
   {
     id: "grok",
     name: "Grok (xAI)",
-    icon: grokIcon,
+    icon: <GrokIcon className="h-5 w-5" />,
     configPath: "console.x.ai → API Keys → MCP Connections",
     config: `MCP Server URL:
 https://agentsafe.locationledger.com/mcp
@@ -229,7 +238,7 @@ account at console.x.ai to set up MCP connections.`,
   {
     id: "gemini-cli",
     name: "Gemini CLI",
-    icon: geminiCliIcon,
+    icon: <SiGooglegemini className="h-5 w-5" />,
     configPath: "~/.gemini/settings.json",
     config: `{
   "mcpServers": {
@@ -305,7 +314,7 @@ export function AgentQuickStart() {
               }`}
               data-testid={`button-agent-${a.id}`}
             >
-              <img src={a.icon} alt={a.name} className="h-5 w-5 dark:invert" data-testid={`img-agent-icon-${a.id}`} />
+              {a.icon}
               <span className="font-medium">{a.name}</span>
             </Button>
           ))}
