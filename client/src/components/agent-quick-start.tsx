@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Copy, CheckCircle2, ArrowRight, ExternalLink, Settings, ChevronDown } from "lucide-react";
-import { SiClaude, SiCodeium, SiGithubcopilot, SiGooglegemini, SiAmazonwebservices, SiRaycast, SiOpenai } from "react-icons/si";
+import { Copy, CheckCircle2, ArrowRight, ExternalLink, Settings, ChevronDown, AlertTriangle } from "lucide-react";
+import { SiClaude, SiCodeium, SiGithubcopilot, SiGooglegemini, SiAmazonwebservices, SiRaycast, SiOpenai, SiX } from "react-icons/si";
 
 function CopyBtn({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -30,7 +30,7 @@ type AgentId =
   | "claude-desktop" | "claude-code" | "cursor" | "windsurf"
   | "vscode" | "gemini-cli"
   | "amazon-q" | "augment" | "boltai" | "cline"
-  | "codex-cli" | "enconvo" | "goose" | "highlight"
+  | "codex-cli" | "enconvo" | "goose" | "grok" | "highlight"
   | "librechat" | "raycast" | "roo-code" | "witsy";
 
 function CursorIcon({ className }: { className?: string }) {
@@ -126,6 +126,7 @@ interface AgentInfo {
   verifySteps: string[];
   examplePrompt: string;
   docsUrl: string;
+  limitation?: string;
 }
 
 const STANDARD_CONFIG = `{
@@ -441,6 +442,46 @@ const AGENTS: AgentInfo[] = [
     docsUrl: "https://block.github.io/goose/docs/quickstart/",
   },
   {
+    id: "grok",
+    name: "Grok",
+    icon: <SiX className="h-4 w-4" />,
+    configPath: "Use the xAI API with remote MCP tools:",
+    config: `from xai_sdk import Client
+from xai_sdk.tools import mcp
+import os
+
+client = Client(api_key=os.getenv("XAI_API_KEY"))
+
+# Only free tools work until xAI adds custom header support
+response = client.chat.create(
+  model="grok-3",
+  messages=[{
+    "role": "user",
+    "content": "Triage this email for threats"
+  }],
+  tools=[
+    mcp(
+      server_url="https://agentsafe.locationledger.com/mcp",
+      server_label="agentsafe",
+      allowed_tool_names=[
+        "assess_message",
+        "submit_feedback"
+      ]
+    )
+  ]
+)`,
+    configRaw: `from xai_sdk import Client\nfrom xai_sdk.tools import mcp\nimport os\n\nclient = Client(api_key=os.getenv("XAI_API_KEY"))\n\n# Only free tools work until xAI adds custom header support\nresponse = client.chat.create(model="grok-3", messages=[{"role": "user", "content": "Triage this email for threats"}], tools=[mcp(server_url="https://agentsafe.locationledger.com/mcp", server_label="agentsafe", allowed_tool_names=["assess_message", "submit_feedback"])])`,
+    verifySteps: [
+      "Install the xAI SDK: pip install xai-sdk",
+      "Set your XAI_API_KEY environment variable",
+      "Run the script — Grok will discover and call Agent Safe's tools automatically",
+    ],
+    examplePrompt:
+      "Check this email for phishing threats using the agentsafe tools:",
+    docsUrl: "https://docs.x.ai/docs/guides/tools/remote-mcp-tools",
+    limitation: "Grok's remote MCP tools don't currently support custom headers. The free assess_message and submit_feedback tools work, but paid tools ($0.02 each) require a skyfire-api-key header that Grok can't pass yet. xAI may add header support in a future update.",
+  },
+  {
     id: "highlight",
     name: "Highlight",
     icon: <HighlightIcon className="h-4 w-4" />,
@@ -621,9 +662,18 @@ export function AgentQuickStart() {
 
               <TabsContent value="install">
                 <div className="space-y-6">
+                  {agent.limitation && (
+                    <div className="rounded-md border bg-muted/50 p-3 flex items-start gap-2.5" data-testid="banner-agent-limitation">
+                      <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-semibold text-foreground">Limitation:</span>{" "}
+                        {agent.limitation}
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <h3 className="text-sm font-semibold mb-2 text-muted-foreground" data-testid="text-install-step-1">
-                      Step 1 — {agent.id === "claude-code" || agent.id === "codex-cli" ? "Open your terminal" : agent.id === "highlight" ? "Open the Plugins page" : "Open your config file"}
+                      Step 1 — {agent.id === "claude-code" || agent.id === "codex-cli" ? "Open your terminal" : agent.id === "grok" ? "Set up the xAI SDK" : agent.id === "highlight" ? "Open the Plugins page" : "Open your config file"}
                     </h3>
                     <div className="bg-muted/50 rounded-md p-3">
                       <code className="text-sm break-all" data-testid="text-config-path">
@@ -641,7 +691,7 @@ export function AgentQuickStart() {
                   <div>
                     <div className="flex items-center justify-between gap-4 mb-2">
                       <h3 className="text-sm font-semibold text-muted-foreground" data-testid="text-install-step-2">
-                        Step 2 — {agent.id === "claude-code" || agent.id === "codex-cli" ? "Run this command" : agent.id === "highlight" ? "Enter these details" : "Paste this config"}
+                        Step 2 — {agent.id === "claude-code" || agent.id === "codex-cli" ? "Run this command" : agent.id === "grok" ? "Use this code" : agent.id === "highlight" ? "Enter these details" : "Paste this config"}
                       </h3>
                       <CopyBtn text={agent.config} />
                     </div>
