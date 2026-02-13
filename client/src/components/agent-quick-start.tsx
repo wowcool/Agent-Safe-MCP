@@ -210,7 +210,7 @@ const AGENTS: AgentInfo[] = [
     id: "chatgpt",
     name: "ChatGPT",
     icon: <SiOpenai className="h-4 w-4" />,
-    configPath: "Settings > Connectors > Create",
+    configPath: "Apps > Create",
     config: `MCP Server URL:
 https://agentsafe.locationledger.com/mcp
 
@@ -219,10 +219,10 @@ Header Name: skyfire-api-key
 Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
     configRaw: `https://agentsafe.locationledger.com/mcp`,
     verifySteps: [
-      "Go to chatgpt.com > Settings > Connectors > Advanced > enable Developer Mode",
-      "Click \"Create\" next to Browser connectors and enter the MCP Server URL above",
-      "Set authentication to API Key, add the skyfire-api-key header with your key",
-      "Start a new chat — your connected tools will appear in the conversation",
+      "Go to chatgpt.com > Settings > Developer Mode and turn it on",
+      "Go to Apps > Create to create a new app",
+      "Enter the MCP Server URL above and set authentication to API Key",
+      "Add the skyfire-api-key header with your key, then start a new chat to use the tools",
     ],
     examplePrompt:
       "I got this suspicious email. Can you use Agent Safe to check if it's a phishing attempt? Here's the email:",
