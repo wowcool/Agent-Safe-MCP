@@ -69,16 +69,6 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-3" data-testid="nav-desktop">
-          <Link href="/">
-            <Button variant="ghost" className={location === "/" ? "text-foreground" : "text-muted-foreground"} data-testid="link-home-header">Home</Button>
-          </Link>
-          <Link href="/how-it-works">
-            <Button variant="ghost" className={location === "/how-it-works" ? "text-foreground" : "text-muted-foreground"} data-testid="link-how-header">How It Works</Button>
-          </Link>
-          <Link href="/docs">
-            <Button variant="ghost" className={location === "/docs" ? "text-foreground" : "text-muted-foreground"} data-testid="link-docs-header">Docs</Button>
-          </Link>
-
           <div
             className="relative"
             onMouseEnter={handleSuiteEnter}
@@ -94,6 +84,16 @@ export function SiteHeader() {
               <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${suiteOpen ? "rotate-180" : ""}`} />
             </Button>
           </div>
+
+          <Link href="/">
+            <Button variant="ghost" className={location === "/" ? "text-foreground" : "text-muted-foreground"} data-testid="link-home-header">Home</Button>
+          </Link>
+          <Link href="/how-it-works">
+            <Button variant="ghost" className={location === "/how-it-works" ? "text-foreground" : "text-muted-foreground"} data-testid="link-how-header">How It Works</Button>
+          </Link>
+          <Link href="/docs">
+            <Button variant="ghost" className={location === "/docs" ? "text-foreground" : "text-muted-foreground"} data-testid="link-docs-header">Docs</Button>
+          </Link>
 
           <Button
             size="icon"
@@ -172,16 +172,6 @@ export function SiteHeader() {
       {menuOpen && (
         <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-sm" data-testid="nav-mobile">
           <div className="container mx-auto px-6 py-4 flex flex-col gap-2">
-            <Link href="/">
-              <Button variant="ghost" className={`w-full justify-start ${location === "/" ? "text-foreground" : "text-muted-foreground"}`} data-testid="link-home-mobile">Home</Button>
-            </Link>
-            <Link href="/how-it-works">
-              <Button variant="ghost" className={`w-full justify-start ${location === "/how-it-works" ? "text-foreground" : "text-muted-foreground"}`} data-testid="link-how-mobile">How It Works</Button>
-            </Link>
-            <Link href="/docs">
-              <Button variant="ghost" className={`w-full justify-start ${location === "/docs" ? "text-foreground" : "text-muted-foreground"}`} data-testid="link-docs-mobile">Docs</Button>
-            </Link>
-
             <Button
               variant="ghost"
               onClick={() => setMobileSuiteOpen(!mobileSuiteOpen)}
@@ -215,6 +205,15 @@ export function SiteHeader() {
               </div>
             )}
 
+            <Link href="/">
+              <Button variant="ghost" className={`w-full justify-start ${location === "/" ? "text-foreground" : "text-muted-foreground"}`} data-testid="link-home-mobile">Home</Button>
+            </Link>
+            <Link href="/how-it-works">
+              <Button variant="ghost" className={`w-full justify-start ${location === "/how-it-works" ? "text-foreground" : "text-muted-foreground"}`} data-testid="link-how-mobile">How It Works</Button>
+            </Link>
+            <Link href="/docs">
+              <Button variant="ghost" className={`w-full justify-start ${location === "/docs" ? "text-foreground" : "text-muted-foreground"}`} data-testid="link-docs-mobile">Docs</Button>
+            </Link>
             <a href="https://skyfire.xyz" target="_blank" rel="noopener">
               <Button variant="ghost" className="w-full justify-start text-muted-foreground" data-testid="link-skyfire-mobile">
                 <ExternalLink className="h-4 w-4 mr-1.5" />
