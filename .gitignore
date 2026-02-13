@@ -23,6 +23,7 @@ Dockerfile
 # Internal documentation, research, and proposals
 attached_assets/
 /*.md
+!README.md
 
 # Test scripts (contain API key references and internal testing logic)
 test-*.ts
