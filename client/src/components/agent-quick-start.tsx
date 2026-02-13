@@ -25,7 +25,7 @@ function CopyBtn({ text }: { text: string }) {
   );
 }
 
-type AgentId = "claude-desktop" | "claude-code" | "cursor" | "windsurf" | "vscode";
+type AgentId = "chatgpt" | "claude-desktop" | "claude-code" | "cursor" | "windsurf" | "vscode" | "gemini-cli";
 
 interface AgentInfo {
   id: AgentId;
@@ -40,6 +40,31 @@ interface AgentInfo {
 }
 
 const AGENTS: AgentInfo[] = [
+  {
+    id: "chatgpt",
+    name: "ChatGPT",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+        <path d="M22.282 9.821a5.985 5.985 0 00-.516-4.91 6.046 6.046 0 00-6.51-2.9A6.065 6.065 0 0011.61.4a6.044 6.044 0 00-5.79 4.214 5.985 5.985 0 00-3.995 2.896 6.046 6.046 0 00.749 7.112 5.985 5.985 0 00.516 4.911 6.046 6.046 0 006.51 2.9 6.065 6.065 0 003.645 1.567 6.044 6.044 0 005.79-4.214 5.985 5.985 0 003.995-2.896 6.046 6.046 0 00-.749-7.112zM12.39 21.784a4.526 4.526 0 01-2.907-1.055l.144-.083 4.83-2.789a.784.784 0 00.396-.68v-6.806l2.042 1.179a.072.072 0 01.04.056v5.637a4.544 4.544 0 01-4.545 4.541zM3.865 17.817a4.52 4.52 0 01-.541-3.044l.144.084 4.83 2.788a.784.784 0 00.787 0l5.897-3.405v2.359a.073.073 0 01-.029.062l-4.883 2.82a4.544 4.544 0 01-6.205-1.664zM2.632 7.755a4.525 4.525 0 012.366-1.99V11.5a.784.784 0 00.392.68l5.896 3.405-2.042 1.18a.073.073 0 01-.068.005l-4.883-2.82A4.544 4.544 0 012.632 7.755zm16.245 3.783l-5.897-3.405 2.043-1.18a.073.073 0 01.067-.005l4.884 2.82a4.544 4.544 0 01-1.642 8.216V12.22a.784.784 0 00-.392-.682zm2.032-3.074l-.145-.084-4.83-2.788a.784.784 0 00-.786 0L9.25 9.996V7.637a.073.073 0 01.028-.062l4.883-2.82a4.544 4.544 0 016.748 4.709zM8.166 12.61l-2.043-1.18a.072.072 0 01-.039-.056V5.737a4.544 4.544 0 017.452-3.486l-.144.083-4.83 2.789a.784.784 0 00-.396.68zm1.109-2.39l2.627-1.517 2.627 1.517v3.035l-2.627 1.517-2.627-1.517z" />
+      </svg>
+    ),
+    configPath: "Settings > Connectors > Create",
+    config: `MCP Server URL:
+https://agentsafe.locationledger.com/mcp
+
+Authentication: API Key
+Header Name: skyfire-api-key
+Header Value: <YOUR_SKYFIRE_BUYER_API_KEY>`,
+    configRaw: `https://agentsafe.locationledger.com/mcp`,
+    verifySteps: [
+      "Go to chatgpt.com > Settings > Connectors > Advanced > enable Developer Mode",
+      "Click \"Create\" next to Browser connectors and enter the MCP Server URL above",
+      "Set authentication to API Key, add the skyfire-api-key header with your key",
+      "Start a new chat — your connected tools will appear in the conversation",
+    ],
+    examplePrompt:
+      "I got this suspicious email. Can you use Agent Safe to check if it's a phishing attempt? Here's the email:",
+  },
   {
     id: "claude-desktop",
     name: "Claude Desktop",
@@ -191,6 +216,38 @@ const AGENTS: AgentInfo[] = [
     examplePrompt:
       "Use the agentsafe tool to check this email thread for manipulation:",
   },
+  {
+    id: "gemini-cli",
+    name: "Gemini CLI",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 3.6l3.6 8.4-3.6 8.4-3.6-8.4L12 3.6z" />
+      </svg>
+    ),
+    configPath: "~/.gemini/settings.json",
+    config: `{
+  "mcpServers": {
+    "agentsafe": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://agentsafe.locationledger.com/mcp",
+        "--header",
+        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
+      ]
+    }
+  }
+}`,
+    configRaw: `{"mcpServers":{"agentsafe":{"type":"stdio","command":"npx","args":["-y","mcp-remote","https://agentsafe.locationledger.com/mcp","--header","skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]}}}`,
+    verifySteps: [
+      "Start a Gemini CLI session",
+      "Type /mcp to see available MCP servers and their tools",
+      "Confirm \"agentsafe\" appears and shows 9 tools connected",
+    ],
+    examplePrompt:
+      "Check this Discord message for social engineering using Agent Safe:",
+  },
 ];
 
 const UNIVERSAL_CONFIG = `{
@@ -208,7 +265,7 @@ const UNIVERSAL_CONFIG = `{
 }`;
 
 export function AgentQuickStart() {
-  const [selectedAgent, setSelectedAgent] = useState<AgentId>("claude-desktop");
+  const [selectedAgent, setSelectedAgent] = useState<AgentId>("chatgpt");
   const agent = AGENTS.find((a) => a.id === selectedAgent)!;
 
   return (
@@ -264,7 +321,7 @@ export function AgentQuickStart() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-sm font-semibold mb-2 text-muted-foreground" data-testid="text-install-step-1">
-                      Step 1 — Open your config file
+                      Step 1 — {agent.id === "chatgpt" ? "Enable Developer Mode" : "Open your config file"}
                     </h3>
                     <div className="bg-muted/50 rounded-md p-3">
                       <code className="text-sm break-all" data-testid="text-config-path">
@@ -282,7 +339,7 @@ export function AgentQuickStart() {
                   <div>
                     <div className="flex items-center justify-between gap-4 mb-2">
                       <h3 className="text-sm font-semibold text-muted-foreground" data-testid="text-install-step-2">
-                        Step 2 — {agent.id === "claude-code" ? "Run this command" : "Paste this config"}
+                        Step 2 — {agent.id === "claude-code" ? "Run this command" : agent.id === "chatgpt" ? "Enter these details" : "Paste this config"}
                       </h3>
                       <CopyBtn text={agent.config} />
                     </div>
