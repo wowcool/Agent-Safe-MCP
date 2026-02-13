@@ -89,48 +89,74 @@ API credentials confirmed present in secrets: `SIGHT_API_USER` and `SIGHT_API_SE
 
 ---
 
-## 3. Pricing Strategy — How to Charge More via Skyfire
+## 3. Pricing Strategy — Skyfire $0.01 Min/Max Unit Pricing
 
-### 3.1 Current Billing Architecture (Audited)
+### 3.1 Skyfire Configuration Update
 
-The current flow for a $0.02 tool call:
+**Skyfire is now configured with a $0.01 min/max per transaction.** This means:
+- The minimum chargeable amount per Skyfire transaction is **$0.01**
+- The maximum chargeable amount per Skyfire transaction is **$0.01**
+- To charge more than $0.01 for a single tool call, we must issue **multiple $0.01 charges** (multi-unit billing)
+
+This replaces the previous $0.02 flat rate. All pricing throughout the system must be updated to use $0.01 as the base unit.
+
+### 3.2 Current Billing Architecture (Updated)
+
+The updated flow for a tool call:
 
 1. Agent sends `skyfire-api-key` header (Buyer API Key)
-2. Server calls `generatePayTokenFromBuyerKey(buyerApiKey, sellerServiceId)` — this generates a PAY token with `tokenAmount: "0.02"` hardcoded in `server/services/skyfire.ts` line 186
-3. Server calls `chargeSkyfireToken(token, 0.02)` — charges the token
-4. Done — $0.02 collected
+2. Server calls `generatePayTokenFromBuyerKey(buyerApiKey, sellerServiceId)` — generates a PAY token with `tokenAmount: "0.01"` (updated from "0.02")
+3. Server calls `chargeSkyfireToken(token, 0.01)` — charges $0.01 per unit
+4. For multi-unit tools, steps 2-3 repeat for each unit required
+5. Done — total collected = $0.01 × number of units
 
-**Key finding:** The `tokenAmount` in `generatePayTokenFromBuyerKey()` is currently hardcoded to `PRICE_PER_CHECK` ($0.02). To charge more, we simply need to pass a higher amount when generating the token AND when charging it.
+**Key update:** `PRICE_PER_CHECK` in `server/services/skyfire.ts` (line 5) must change from `0.02` to `0.01`. Similarly, `PRICE_PER_UNIT` in `server/services/billing.ts` (line 2) must change from `0.02` to `0.01`.
 
-The `chargeSkyfireToken()` function already accepts a custom `amount` parameter (line 101 of `skyfire.ts`). We just need `generatePayTokenFromBuyerKey()` to also accept a custom amount.
+### 3.3 Cost Coverage Rule (CRITICAL)
 
-### 3.2 Recommended Approach: Variable Pricing per Tool
+**The agent must ALWAYS charge enough to cover our external API costs.** This is a hard requirement — no tool call should ever result in a net loss.
 
-**Modify `generatePayTokenFromBuyerKey()` to accept an optional `amount` parameter** instead of hardcoding `PRICE_PER_CHECK`. Then create a new `validateAndChargeAmount()` function (or modify the existing `validateAndCharge()`) that accepts a custom price.
+| External Service | Our Cost Per Call | Minimum Units to Charge | Minimum Revenue |
+|-----------------|-------------------|------------------------|-----------------|
+| SightEngine (2 ops, image) | ~$0.02-0.03 | 4 units | $0.04 |
+| SightEngine (video, ~15 ops) | ~$0.10-0.25 | 10 units | $0.10 |
+| Text-based tools (no ext. API) | ~$0.00 | 1 unit | $0.01 |
 
-This is the cleanest approach and follows the existing pattern used by `analyze_email_thread` (which already describes multi-unit billing in its tool description, even though the code currently charges a flat $0.02).
+**Enforcement:** Before executing any tool that calls a paid external API, the billing logic must verify that the number of units being charged is sufficient to cover the estimated external cost. If the charge would not cover costs, the tool must refuse to execute and return an error.
 
-### 3.3 Final Pricing
+### 3.4 Recommended Approach: Multi-Unit Billing at $0.01/unit
 
-| Media Type | Price Charged | Our Cost (est.) | Margin |
-|------------|--------------|-----------------|--------|
-| **Image analysis** | **$0.04** (2 units) | ~$0.02-0.03 | $0.01-0.02 |
-| **Video analysis (< 60s)** | **$0.08** (4 units) | ~$0.05-0.15 | Variable |
+**Modify `generatePayTokenFromBuyerKey()` to accept an optional `amount` parameter** defaulting to $0.01. For tools that require multiple units, call the charge flow multiple times or pass a total amount that is a multiple of $0.01.
 
-**Justification for $0.04/image:** The image tool runs 4 analysis layers (2 local + 2 SightEngine models), requires image processing compute, and calls a paid external API. This is 2x the complexity of text-based tools. Charging 2 units ($0.02 each) is consistent with the existing multi-unit pattern described for `analyze_email_thread`.
+Modify `validateAndCharge()` to accept a `units` parameter. The total charge = `units × $0.01`. This keeps the Skyfire $0.01 min/max constraint satisfied while allowing variable pricing per tool.
 
-**Justification for $0.08/video:** Video analysis processes multiple frames, uses more SightEngine operations, and takes longer. 4 units is fair given the per-frame API costs.
+### 3.5 Final Pricing (Updated for $0.01 Units)
 
-### 3.4 Implementation in Skyfire Code
+| Tool / Media Type | Units | Price Charged | Our Cost (est.) | Margin | Covers Cost? |
+|-------------------|-------|--------------|-----------------|--------|-------------|
+| **Text-based tools** (existing) | 1 | **$0.01** | ~$0.00 | $0.01 | YES |
+| **Image analysis** | 4 | **$0.04** | ~$0.02-0.03 | $0.01-0.02 | YES |
+| **Video analysis (< 60s)** | 10 | **$0.10** | ~$0.05-0.15 | Variable | YES |
+
+**Justification for $0.04/image (4 units × $0.01):** The image tool runs 4 analysis layers (2 local + 2 SightEngine models), requires image processing compute, and calls a paid external API costing ~$0.02-0.03. At 4 units ($0.04), we maintain a positive margin even at the high end of SightEngine costs.
+
+**Justification for $0.10/video (10 units × $0.01):** Video analysis processes multiple frames, uses significantly more SightEngine operations (~15 ops for a 30s video), and our cost can reach $0.15-0.25 for longer videos. At 10 units ($0.10), we cover costs for typical short videos. For videos approaching the 60-second limit, margins may be thin — this is acceptable given the $0.01 unit constraint, and we can increase units later if costs prove higher than expected.
+
+**Impact on existing text-based tools:** All existing paid tools (currently charging $0.02) will now charge $0.01. Since these tools have zero external API costs, $0.01 still provides 100% margin. This is a price reduction for users on existing tools.
+
+### 3.6 Implementation in Skyfire Code
 
 ```typescript
-// server/services/skyfire.ts — modify generatePayTokenFromBuyerKey
+// server/services/skyfire.ts — update PRICE_PER_CHECK
+const PRICE_PER_CHECK = 0.01;  // was: 0.02 — now matches Skyfire $0.01 min/max
+
+// modify generatePayTokenFromBuyerKey to accept optional amount
 export async function generatePayTokenFromBuyerKey(
   buyerApiKey: string, 
   sellerServiceId: string,
-  amount: number = PRICE_PER_CHECK  // NEW: optional amount parameter
+  amount: number = PRICE_PER_CHECK  // defaults to $0.01
 ): Promise<...> {
-  // ... existing code, but use `amount` instead of PRICE_PER_CHECK
+  // ... existing code, but use `amount` instead of hardcoded PRICE_PER_CHECK
   body: JSON.stringify({
     type: "pay",
     tokenAmount: String(amount),  // was: String(PRICE_PER_CHECK)
@@ -140,13 +166,46 @@ export async function generatePayTokenFromBuyerKey(
 ```
 
 ```typescript
-// server/mcp-server.ts — new validateAndCharge variant
+// server/services/billing.ts — update PRICE_PER_UNIT
+export const PRICE_PER_UNIT = 0.01;  // was: 0.02 — matches Skyfire $0.01 setting
+```
+
+```typescript
+// server/mcp-server.ts — update validateAndCharge to support multi-unit billing
 async function validateAndCharge(
   skyfireToken: string | undefined, 
   buyerApiKey?: string | undefined,
-  amount: number = PRICE  // NEW: default $0.02, pass $0.04 for images
+  units: number = 1  // NEW: number of $0.01 units to charge
 ): Promise<...> {
-  // Same logic, but pass `amount` to generatePayTokenFromBuyerKey and chargeSkyfireToken
+  const totalAmount = units * 0.01;
+  // Pass totalAmount to generatePayTokenFromBuyerKey and chargeSkyfireToken
+}
+```
+
+### 3.7 Cost Coverage Validation (New)
+
+```typescript
+// server/services/billing.ts — add cost coverage constants
+export const TOOL_PRICING = {
+  // Text-based tools (no external API cost)
+  check_email_address: { units: 1, externalCost: 0 },
+  check_phone_number: { units: 1, externalCost: 0 },
+  check_url_safety: { units: 1, externalCost: 0 },
+  check_message_safety: { units: 1, externalCost: 0 },
+  check_social_media: { units: 1, externalCost: 0 },
+  check_business: { units: 1, externalCost: 0 },
+  analyze_email_thread: { units: 1, externalCost: 0 },
+  
+  // Media tools (external SightEngine API cost)
+  check_media_authenticity_image: { units: 4, externalCost: 0.03 },  // $0.04 charge > $0.03 max cost
+  check_media_authenticity_video: { units: 10, externalCost: 0.15 }, // $0.10 charge — tight margin on long videos
+} as const;
+
+// Validation: ensure revenue >= external cost for every tool
+function validateCostCoverage(toolName: string): boolean {
+  const pricing = TOOL_PRICING[toolName];
+  const revenue = pricing.units * PRICE_PER_UNIT;
+  return revenue >= pricing.externalCost;
 }
 ```
 
@@ -242,7 +301,7 @@ For video, we use SightEngine's synchronous video API (videos under 60 seconds o
 **Differences from image analysis:**
 - Only SightEngine's `genai` model is used (no local layers — too expensive for video frames)
 - The API returns per-frame scores; we aggregate them into an overall score
-- Higher price ($0.08) due to higher API costs
+- Higher price ($0.10 = 10 units × $0.01) due to higher API costs
 - Max video size: 25 MB, max duration: 60 seconds
 - Supported formats: MP4, MOV, AVI, WebM
 
@@ -256,7 +315,7 @@ For video, we use SightEngine's synchronous video API (videos under 60 seconds o
 
 ```typescript
 check_media_authenticity: {
-  description: `Analyze an image or short video to assess whether it is AI-generated, deepfaked, or authentic. Uses multi-layer analysis including metadata forensics, error level analysis, ML-based AI detection, and noise pattern analysis. Returns a confidence-scored verdict with per-layer breakdown. $0.04/image, $0.08/video via skyfire-api-key header. Results are best-guess estimates, not definitive. ${TERMS_NOTICE}`,
+  description: `Analyze an image or short video to assess whether it is AI-generated, deepfaked, or authentic. Uses multi-layer analysis including metadata forensics, error level analysis, ML-based AI detection, and noise pattern analysis. Returns a confidence-scored verdict with per-layer breakdown. $0.04/image (4 units × $0.01), $0.10/video (10 units × $0.01) via skyfire-api-key header. Results are best-guess estimates, not definitive. ${TERMS_NOTICE}`,
   schema: {
     mediaUrl: z.string().describe("URL of the image or video to analyze"),
     mediaType: z.enum(["image", "video"]).optional().describe("Type of media (auto-detected if omitted)"),
@@ -308,6 +367,8 @@ check_media_authenticity: {
   "recommendation": "This image is likely AI-generated. Exercise caution if authenticity matters.",
   "checkId": "chk_...",
   "charged": 0.04,
+  "units": 4,
+  "unitPrice": 0.01,
   "termsOfService": "https://agentsafe.locationledger.com/terms"
 }
 ```
@@ -328,10 +389,10 @@ check_media_authenticity: {
 
 | File | Changes |
 |------|---------|
-| `server/services/skyfire.ts` | Add `amount` parameter to `generatePayTokenFromBuyerKey()` |
-| `server/mcp-server.ts` | Add `check_media_authenticity` tool definition + handler; update `validateAndCharge()` to accept custom amount; update tool count from "9 tools" to "11 tools (8 paid + 2 free + 1 premium)" or "11 tools" |
+| `server/services/skyfire.ts` | Update `PRICE_PER_CHECK` from $0.02 to $0.01; add `amount` parameter to `generatePayTokenFromBuyerKey()` |
+| `server/mcp-server.ts` | Add `check_media_authenticity` tool definition + handler; update `validateAndCharge()` to accept `units` parameter for multi-unit billing at $0.01/unit; update tool count from "9 tools" to "11 tools (8 paid + 2 free + 1 premium)" or "11 tools" |
 | `server/services/analyzers/triage.ts` | Add media/image recommendation to triage logic; update `TriageInput` interface |
-| `server/services/billing.ts` | Add image/video pricing constants |
+| `server/services/billing.ts` | Update `PRICE_PER_UNIT` from $0.02 to $0.01; add image/video pricing constants; add `TOOL_PRICING` map with unit counts and external cost estimates; add cost coverage validation |
 | `shared/schema.ts` | Add `check_media_authenticity` to `ToolName` type; potentially add `check_video_authenticity` |
 | `server/storage.ts` | No changes needed — existing `emailChecks` table already supports all tool types via `toolName` column |
 | `client/src/pages/landing.tsx` | Add media authenticity tool card; update tool counts from 9 to 10+ |
@@ -386,8 +447,8 @@ The free `assess_message` triage tool needs to recommend the new media tool when
    - `videoUrl?: string` — direct video URL
 
 2. Add recommendation logic:
-   - If `imageUrl` or `imageUrls` present → recommend `check_media_authenticity` with `$0.04` cost
-   - If `videoUrl` present → recommend `check_media_authenticity` with `$0.08` cost
+   - If `imageUrl` or `imageUrls` present → recommend `check_media_authenticity` with `$0.04` cost (4 units × $0.01)
+   - If `videoUrl` present → recommend `check_media_authenticity` with `$0.10` cost (10 units × $0.01)
    - If `media` array contains items with `type: "image"` and `url` → recommend `check_media_authenticity`
 
 3. Update the `assess_message` MCP tool schema to include the new optional fields.
@@ -411,7 +472,7 @@ The free `assess_message` triage tool needs to recommend the new media tool when
 - Add `check_media_authenticity` to `toolDefinitions` array with full parameter docs
 - Add to `restEndpoints` array
 - Update Quick Start step 3 to mention the new tool
-- Add pricing note: "$0.04/image, $0.08/video"
+- Add pricing note: "$0.04/image (4 units), $0.10/video (10 units) at $0.01/unit"
 - Add code examples for image and video analysis
 
 ### 10.3 How It Works Page (`client/src/pages/how-it-works.tsx`)
@@ -426,9 +487,11 @@ Updates needed:
 
 1. **Section 1 (Service Description):** Add `check_media_authenticity` (image and video AI-generation detection, deepfake detection) to the tool list. Mention it uses "multi-layer analysis including metadata forensics, statistical analysis, and machine learning models."
 
-2. **Section 3 (Payment and Pricing):** Add variable pricing:
-   - "Image authenticity analysis: $0.04 per scan (2 units)"
-   - "Video authenticity analysis: $0.08 per scan (4 units)"
+2. **Section 3 (Payment and Pricing):** Update base unit price and add variable pricing:
+   - "Base unit price: $0.01 per unit (updated from $0.02)"
+   - "Image authenticity analysis: $0.04 per scan (4 units × $0.01)"
+   - "Video authenticity analysis: $0.10 per scan (10 units × $0.01)"
+   - "All other paid tools: $0.01 per scan (1 unit × $0.01)"
 
 3. **Section 5 (Service Limitations):** Add:
    - "The media authenticity tool provides best-guess estimates of whether media is AI-generated. No detection method is 100% accurate. AI generation technology evolves rapidly, and some AI-generated media may be indistinguishable from authentic content."
@@ -469,7 +532,7 @@ verdict with per-layer breakdown.
 | `mediaUrl` | string | Yes | URL of the image or video to analyze |
 | `mediaType` | enum | No | `image` or `video` (auto-detected if omitted) |
 
-**Pricing:** $0.04 per image scan, $0.08 per video scan (short videos up to 60 seconds).
+**Pricing:** $0.04 per image scan (4 units × $0.01), $0.10 per video scan (10 units × $0.01). Short videos up to 60 seconds only.
 
 **Supported formats:** JPEG, PNG, WebP, GIF (images); MP4, MOV, WebM (videos up to 60s, 25MB max).
 ```
@@ -495,23 +558,25 @@ Update counts throughout README:
 
 | Step | Task | Depends On |
 |------|------|------------|
-| 1 | Install NPM packages (`sharp`, `exif-reader`) | — |
-| 2 | Create `server/services/sightengine.ts` — SightEngine API client | Step 1 |
-| 3 | Create `server/services/image-forensics.ts` — local analysis layers (EXIF, ELA, noise) | Step 1 |
-| 4 | Create `server/services/analyzers/media-authenticity.ts` — orchestrator + aggregation | Steps 2, 3 |
-| 5 | Modify `server/services/skyfire.ts` — add `amount` parameter to `generatePayTokenFromBuyerKey` | — |
-| 6 | Modify `server/mcp-server.ts` — add tool definition, handler, variable pricing | Steps 4, 5 |
-| 7 | Update `shared/schema.ts` — add to ToolName type | — |
-| 8 | Update `server/services/analyzers/triage.ts` — recommend media tool | Step 6 |
-| 9 | Update `server/services/billing.ts` — add media pricing constants | — |
-| 10 | Generate tool image asset | — |
-| 11 | Update `client/src/pages/landing.tsx` — add tool card, update counts | Step 10 |
-| 12 | Update `client/src/pages/docs.tsx` — full documentation | Step 6 |
-| 13 | Update `client/src/pages/how-it-works.tsx` — add tool section | Step 10 |
-| 14 | Update `client/src/pages/terms.tsx` — add media disclaimers | — |
-| 15 | Update `README.md` — add tool, update counts, no API exposure | Step 6 |
-| 16 | Update `replit.md` — architecture docs | Step 6 |
-| 17 | Test end-to-end with SightEngine API | All |
+| 1 | **Update Skyfire/billing to $0.01 base unit** — change `PRICE_PER_CHECK` in `skyfire.ts` from $0.02→$0.01, change `PRICE_PER_UNIT` in `billing.ts` from $0.02→$0.01, add `TOOL_PRICING` map with per-tool unit counts and external cost estimates, add cost coverage validation function | — |
+| 2 | Install NPM packages (`sharp`, `exif-reader`) | — |
+| 3 | Create `server/services/sightengine.ts` — SightEngine API client | Step 2 |
+| 4 | Create `server/services/image-forensics.ts` — local analysis layers (EXIF, ELA, noise) | Step 2 |
+| 5 | Create `server/services/analyzers/media-authenticity.ts` — orchestrator + aggregation | Steps 3, 4 |
+| 6 | Modify `server/services/skyfire.ts` — add `amount` parameter to `generatePayTokenFromBuyerKey` | Step 1 |
+| 7 | Modify `server/mcp-server.ts` — add tool definition, handler, multi-unit billing (`units` param) | Steps 5, 6 |
+| 8 | Update `shared/schema.ts` — add to ToolName type | — |
+| 9 | Update `server/services/analyzers/triage.ts` — recommend media tool | Step 7 |
+| 10 | Update `server/services/billing.ts` — add media pricing constants (if not done in Step 1) | Step 1 |
+| 11 | Generate tool image asset | — |
+| 12 | Update `client/src/pages/landing.tsx` — add tool card, update counts, update pricing to $0.01/unit | Step 11 |
+| 13 | Update `client/src/pages/docs.tsx` — full documentation with $0.01 unit pricing | Step 7 |
+| 14 | Update `client/src/pages/how-it-works.tsx` — add tool section | Step 11 |
+| 15 | Update `client/src/pages/terms.tsx` — add media disclaimers, update base pricing to $0.01/unit | — |
+| 16 | Update `README.md` — add tool, update counts and pricing, no API exposure | Step 7 |
+| 17 | Update `replit.md` — architecture docs | Step 7 |
+| 18 | Verify all existing tools charge $0.01 correctly (regression test) | Step 1 |
+| 19 | Test end-to-end with SightEngine API — confirm cost coverage for images ($0.04) and videos ($0.10) | All |
 
 ---
 
@@ -523,7 +588,7 @@ Update counts throughout README:
 | Large images causing memory issues | Enforce 10MB / 4000x4000 limits, limit concurrency to 3 |
 | SightEngine downtime | Return partial results from local layers only, with reduced confidence and a note that the ML layer was unavailable |
 | New AI models not detected by SightEngine | SightEngine regularly updates their models. Our local layers provide additional signals. Disclaimer covers this |
-| Video analysis costs exceeding revenue | $0.08 per video scan with careful size limits should maintain margins |
+| Video analysis costs exceeding revenue | $0.10 per video scan (10 units × $0.01) with careful size limits should maintain margins. Cost coverage validation ensures we never charge less than our external API costs. For very long videos near the 60s limit, margins may be thin — monitor and adjust unit count if needed |
 
 ---
 
@@ -537,7 +602,10 @@ Before considering this feature complete:
 - [ ] Local ELA analysis produces meaningful uniformity scores
 - [ ] Local noise analysis produces meaningful noise scores
 - [ ] Aggregation logic produces reasonable overall verdicts
-- [ ] Skyfire charges $0.04 for images and $0.08 for videos
+- [ ] Skyfire base unit updated from $0.02 to $0.01 across `skyfire.ts` and `billing.ts`
+- [ ] Skyfire charges $0.04 (4 units × $0.01) for images and $0.10 (10 units × $0.01) for videos
+- [ ] Cost coverage validation confirms every tool charges enough to cover external API costs
+- [ ] Existing text-based tools correctly charge $0.01 (reduced from $0.02)
 - [ ] Triage tool recommends media analysis when images/video present
 - [ ] Landing page displays new tool correctly
 - [ ] Documentation page shows complete tool reference
