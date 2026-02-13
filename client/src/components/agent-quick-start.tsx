@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Copy, CheckCircle2, ArrowRight, ExternalLink, Settings, ChevronDown } from "lucide-react";
 import { SiOpenai, SiClaude, SiCodeium, SiGithubcopilot, SiGooglegemini, SiAmazonwebservices, SiRaycast, SiDeepgram } from "react-icons/si";
 
@@ -201,7 +200,7 @@ const VSCODE_CONFIG = `{
 
 const VSCODE_CONFIG_RAW = `{"servers":{"agentsafe":{"type":"stdio","command":"npx","args":["-y","mcp-remote","https://agentsafe.locationledger.com/mcp","--header","skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]}}}`;
 
-const MAJOR_AGENT_IDS: AgentId[] = [
+const POPULAR_AGENT_IDS: AgentId[] = [
   "chatgpt", "claude-desktop", "claude-code", "cursor",
   "windsurf", "vscode", "grok", "gemini-cli",
 ];
@@ -671,15 +670,26 @@ account at console.x.ai to set up MCP connections.`,
 
 const UNIVERSAL_CONFIG = STANDARD_CONFIG;
 
-const majorAgents = AGENTS.filter((a) => MAJOR_AGENT_IDS.includes(a.id));
-const otherAgents = AGENTS.filter((a) => !MAJOR_AGENT_IDS.includes(a.id));
+const popularAgents = AGENTS.filter((a) => POPULAR_AGENT_IDS.includes(a.id));
+const moreAgents = AGENTS.filter((a) => !POPULAR_AGENT_IDS.includes(a.id));
 
 export function AgentQuickStart() {
   const [selectedAgent, setSelectedAgent] = useState<AgentId>("chatgpt");
-  const [otherOpen, setOtherOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const agent = AGENTS.find((a) => a.id === selectedAgent)!;
-  const isOtherSelected = !MAJOR_AGENT_IDS.includes(selectedAgent);
-  const selectedOtherAgent = isOtherSelected ? AGENTS.find((a) => a.id === selectedAgent) : null;
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [dropdownOpen]);
 
   return (
     <section id="use-in-your-agent" className="py-20 px-4">
@@ -699,76 +709,55 @@ export function AgentQuickStart() {
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center items-center gap-2 mb-8">
-          {majorAgents.map((a) => (
-            <Button
-              key={a.id}
-              variant={selectedAgent === a.id ? "outline" : "ghost"}
-              size="sm"
-              onClick={() => setSelectedAgent(a.id)}
-              className={`toggle-elevate ${
-                selectedAgent === a.id
-                  ? "toggle-elevated border-primary bg-primary/10"
-                  : "text-muted-foreground"
-              }`}
-              data-testid={`button-agent-${a.id}`}
-            >
-              {a.icon}
-              <span className="font-medium">{a.name}</span>
-            </Button>
-          ))}
+        <div className="relative max-w-sm mx-auto mb-8" ref={dropdownRef}>
+          <Button
+            variant="outline"
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="w-full justify-between gap-3"
+            data-testid="button-agent-selector"
+          >
+            <span className="flex items-center gap-2">
+              {agent.icon}
+              <span className="font-medium">{agent.name}</span>
+            </span>
+            <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+          </Button>
 
-          <Popover open={otherOpen} onOpenChange={setOtherOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant={isOtherSelected ? "outline" : "ghost"}
-                size="sm"
-                className={`toggle-elevate ${
-                  isOtherSelected
-                    ? "toggle-elevated border-primary bg-primary/10"
-                    : "text-muted-foreground"
-                }`}
-                data-testid="button-other-agents"
-              >
-                {isOtherSelected && selectedOtherAgent ? (
-                  <>
-                    {selectedOtherAgent.icon}
-                    <span className="font-medium">{selectedOtherAgent.name}</span>
-                  </>
-                ) : (
-                  <span className="font-medium">Other Agents</span>
-                )}
-                <ChevronDown className="h-3 w-3" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 p-3" align="center">
-              <p className="text-xs text-muted-foreground font-medium mb-2 px-1">
-                {otherAgents.length} more agents supported
-              </p>
-              <div className="grid grid-cols-2 gap-1">
-                {otherAgents.map((a) => (
-                  <Button
+          {dropdownOpen && (
+            <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-lg overflow-hidden">
+              <div className="max-h-80 overflow-y-auto py-1">
+                <p className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Popular</p>
+                {popularAgents.map((a) => (
+                  <button
                     key={a.id}
-                    variant={selectedAgent === a.id ? "outline" : "ghost"}
-                    size="sm"
-                    onClick={() => {
-                      setSelectedAgent(a.id);
-                      setOtherOpen(false);
-                    }}
-                    className={`justify-start toggle-elevate ${
-                      selectedAgent === a.id
-                        ? "toggle-elevated border-primary bg-primary/10"
-                        : "text-muted-foreground"
+                    onClick={() => { setSelectedAgent(a.id); setDropdownOpen(false); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm hover-elevate cursor-pointer ${
+                      selectedAgent === a.id ? "bg-primary/10 text-foreground font-medium" : "text-muted-foreground"
                     }`}
                     data-testid={`button-agent-${a.id}`}
                   >
                     {a.icon}
-                    <span className="font-medium text-xs">{a.name}</span>
-                  </Button>
+                    <span>{a.name}</span>
+                  </button>
+                ))}
+                <div className="mx-3 my-1 border-t" />
+                <p className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">More Agents</p>
+                {moreAgents.map((a) => (
+                  <button
+                    key={a.id}
+                    onClick={() => { setSelectedAgent(a.id); setDropdownOpen(false); }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm hover-elevate cursor-pointer ${
+                      selectedAgent === a.id ? "bg-primary/10 text-foreground font-medium" : "text-muted-foreground"
+                    }`}
+                    data-testid={`button-agent-${a.id}`}
+                  >
+                    {a.icon}
+                    <span>{a.name}</span>
+                  </button>
                 ))}
               </div>
-            </PopoverContent>
-          </Popover>
+            </div>
+          )}
         </div>
 
         <Card data-testid={`card-agent-instructions-${selectedAgent}`}>
