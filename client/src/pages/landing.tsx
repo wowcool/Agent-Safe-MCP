@@ -45,18 +45,6 @@ export default function Landing() {
           <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto leading-relaxed">
             Your AI agent processes messages across every platform — but should it trust them? Agent Safe is a <a href="#tools" className="text-primary font-bold hover:underline"><strong>9-tool MCP security suite</strong></a> that protects against phishing, BEC, malware, and manipulation on <strong>any messaging platform</strong> your agent operates on. Start with the <strong>free triage tool</strong> to instantly know which checks to run, and use the <strong>free feedback tool</strong> to help improve detection.
           </p>
-          <div className="flex flex-wrap justify-center gap-2 mb-10">
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-email">Email</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-sms">SMS</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-whatsapp">WhatsApp</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-slack">Slack</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-discord">Discord</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-telegram">Telegram</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-instagram">Instagram</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-imessage">iMessage</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-more">+ More</Badge>
-          </div>
-
           <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap mb-16">
             <a href="#use-in-your-agent">
               <Button size="lg" className="text-lg px-8" data-testid="button-connect">
