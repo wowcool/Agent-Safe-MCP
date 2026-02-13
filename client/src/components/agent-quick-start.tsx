@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Copy, CheckCircle2, ArrowRight, ExternalLink, Settings, ChevronDown } from "lucide-react";
-import { SiOpenai, SiClaude, SiCodeium, SiGithubcopilot, SiGooglegemini, SiAmazonwebservices, SiRaycast, SiDeepgram } from "react-icons/si";
+import { SiClaude, SiCodeium, SiGithubcopilot, SiGooglegemini, SiAmazonwebservices, SiRaycast, SiOpenai } from "react-icons/si";
 
 function CopyBtn({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -27,25 +27,16 @@ function CopyBtn({ text }: { text: string }) {
 }
 
 type AgentId =
-  | "chatgpt" | "claude-desktop" | "claude-code" | "cursor" | "windsurf"
-  | "vscode" | "grok" | "gemini-cli"
-  | "amazon-bedrock" | "amazon-q" | "augment" | "boltai" | "cline"
-  | "codex-cli" | "deepgram" | "enconvo" | "goose" | "highlight"
-  | "librechat" | "poke" | "qordinate" | "raycast" | "roo-code"
-  | "tome" | "vscode-insiders" | "witsy";
+  | "claude-desktop" | "claude-code" | "cursor" | "windsurf"
+  | "vscode" | "gemini-cli"
+  | "amazon-q" | "augment" | "boltai" | "cline"
+  | "codex-cli" | "enconvo" | "goose" | "highlight"
+  | "librechat" | "raycast" | "roo-code" | "witsy";
 
 function CursorIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 512 512" className={className} xmlns="http://www.w3.org/2000/svg">
       <path d="m415.035 156.35-151.503-87.4695c-4.865-2.8094-10.868-2.8094-15.733 0l-151.4969 87.4695c-4.0897 2.362-6.6146 6.729-6.6146 11.459v176.383c0 4.73 2.5249 9.097 6.6146 11.458l151.5039 87.47c4.865 2.809 10.868 2.809 15.733 0l151.504-87.47c4.089-2.361 6.614-6.728 6.614-11.458v-176.383c0-4.73-2.525-9.097-6.614-11.459zm-9.516 18.528-146.255 253.32c-.988 1.707-3.599 1.01-3.599-.967v-165.872c0-3.314-1.771-6.379-4.644-8.044l-143.645-82.932c-1.707-.988-1.01-3.599.968-3.599h292.509c4.154 0 6.75 4.503 4.673 8.101h-.007z" fill="currentColor"/>
-    </svg>
-  );
-}
-
-function GrokIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z"/>
     </svg>
   );
 }
@@ -124,37 +115,6 @@ function WitsyIcon({ className }: { className?: string }) {
   );
 }
 
-function QordinateIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="6" cy="6" r="2" fill="currentColor" />
-      <circle cx="18" cy="6" r="2" fill="currentColor" />
-      <circle cx="6" cy="18" r="2" fill="currentColor" />
-      <circle cx="18" cy="18" r="2" fill="currentColor" />
-      <line x1="6" y1="8" x2="6" y2="16" />
-      <line x1="18" y1="8" x2="18" y2="16" />
-      <line x1="8" y1="6" x2="16" y2="6" />
-      <line x1="8" y1="18" x2="16" y2="18" />
-    </svg>
-  );
-}
-
-function PokeIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-    </svg>
-  );
-}
-
-function TomeIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <path d="M21 4H3a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zM4 6h7v12H4V6zm9 12V6h7v12h-7zM6 9h3v1.5H6V9zm0 3h3v1.5H6V12zm9-3h3v1.5h-3V9zm0 3h3v1.5h-3V12z"/>
-    </svg>
-  );
-}
-
 interface AgentInfo {
   id: AgentId;
   name: string;
@@ -201,32 +161,11 @@ const VSCODE_CONFIG = `{
 const VSCODE_CONFIG_RAW = `{"servers":{"agentsafe":{"type":"stdio","command":"npx","args":["-y","mcp-remote","https://agentsafe.locationledger.com/mcp","--header","skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]}}}`;
 
 const POPULAR_AGENT_IDS: AgentId[] = [
-  "chatgpt", "claude-desktop", "claude-code", "cursor",
-  "windsurf", "vscode", "grok", "gemini-cli",
+  "claude-desktop", "claude-code", "cursor",
+  "windsurf", "vscode", "gemini-cli", "cline", "codex-cli",
 ];
 
 const AGENTS: AgentInfo[] = [
-  {
-    id: "chatgpt",
-    name: "ChatGPT",
-    icon: <SiOpenai className="h-4 w-4" />,
-    configPath: "Apps > Create",
-    config: `Name: Agent Safe
-Description: Message security suite for AI agents
-MCP Server URL: https://agentsafe.locationledger.com/mcp
-Authentication: None`,
-    configRaw: `https://agentsafe.locationledger.com/mcp`,
-    verifySteps: [
-      "Go to chatgpt.com > Settings and enable Developer Mode",
-      "Go to Apps > Create to open the New App form",
-      "Enter \"Agent Safe\" as the name and paste the MCP Server URL above",
-      "Set Authentication to \"None\", check the risk acknowledgment box, and click Create",
-      "Start a new chat — the free tools (assess_message, submit_feedback) will be available",
-      "Note: ChatGPT does not support custom headers, so paid tools requiring a Skyfire key are not available through ChatGPT's native MCP. Use the free triage tool here, or use Claude Desktop / Cursor for full access.",
-    ],
-    examplePrompt:
-      "I got this suspicious email. Can you use Agent Safe to check if it's a phishing attempt? Here's the email:",
-  },
   {
     id: "claude-desktop",
     name: "Claude Desktop",
@@ -312,30 +251,6 @@ Authentication: None`,
       "Use the agentsafe tool to check this email thread for manipulation:",
   },
   {
-    id: "grok",
-    name: "Grok (xAI)",
-    icon: <GrokIcon className="h-4 w-4" />,
-    configPath: "console.x.ai → API Keys → MCP Connections",
-    config: `MCP Server URL:
-https://agentsafe.locationledger.com/mcp
-
-Header: skyfire-api-key
-Value: <YOUR_SKYFIRE_BUYER_API_KEY>
-
-Note: Grok MCP is configured via the xAI developer
-panel, not a local config file. You need an xAI API
-account at console.x.ai to set up MCP connections.`,
-    configRaw: `https://agentsafe.locationledger.com/mcp`,
-    verifySteps: [
-      "Go to console.x.ai and sign in to your xAI developer account",
-      "Navigate to API Keys or MCP Connections in the developer panel",
-      "Add Agent Safe's MCP server URL and your Skyfire API key header",
-      "Open Grok and confirm Agent Safe tools are available in the conversation",
-    ],
-    examplePrompt:
-      "Use Agent Safe to check if this message is a scam:",
-  },
-  {
     id: "gemini-cli",
     name: "Gemini CLI",
     icon: <SiGooglegemini className="h-4 w-4" />,
@@ -400,36 +315,38 @@ account at console.x.ai to set up MCP connections.`,
     id: "roo-code",
     name: "Roo Code",
     icon: <RooCodeIcon className="h-4 w-4" />,
-    configPath: ".roo/mcp.json (project) or global MCP settings",
+    configPath: ".roo/mcp.json (project) or Edit Global MCP in Roo Code panel",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
     verifySteps: [
-      "Create .roo/mcp.json in your project root, or click \"Edit Global MCP\" in Roo Code",
-      "Click the MCP icon in Roo Code to check server status",
-      "Confirm \"agentsafe\" shows as connected with available tools",
+      "Create .roo/mcp.json in your project root, or click the MCP icon in Roo Code and select \"Edit Global MCP\"",
+      "Save the file — Roo Code auto-detects and loads MCP servers",
+      "Click the MCP icon to confirm \"agentsafe\" shows as connected with available tools",
     ],
     examplePrompt:
       "Use agentsafe to analyze this email for social engineering:",
   },
   {
     id: "amazon-q",
-    name: "Amazon Q",
+    name: "Amazon Q Developer",
     icon: <SiAmazonwebservices className="h-4 w-4" />,
-    configPath: "~/.aws/amazonq/mcp.json",
+    configPath: "~/.aws/amazonq/mcp.json (CLI) or .amazonq/mcp.json (workspace)",
     config: `{
   "mcpServers": {
     "agentsafe": {
-      "type": "http",
-      "url": "https://agentsafe.locationledger.com/mcp",
-      "headers": {
-        "skyfire-api-key": "<YOUR_SKYFIRE_BUYER_API_KEY>"
-      }
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://agentsafe.locationledger.com/mcp",
+        "--header",
+        "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
+      ]
     }
   }
 }`,
-    configRaw: `{"mcpServers":{"agentsafe":{"type":"http","url":"https://agentsafe.locationledger.com/mcp","headers":{"skyfire-api-key":"<YOUR_SKYFIRE_BUYER_API_KEY>"}}}}`,
+    configRaw: `{"mcpServers":{"agentsafe":{"command":"npx","args":["-y","mcp-remote","https://agentsafe.locationledger.com/mcp","--header","skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]}}}`,
     verifySteps: [
-      "Open Amazon Q Developer in your IDE or CLI",
+      "Open Amazon Q Developer in your IDE or start a CLI session with q chat",
       "Click the Tools icon or run /tools to see available MCP servers",
       "Confirm \"agentsafe\" appears and shows as connected",
     ],
@@ -437,31 +354,16 @@ account at console.x.ai to set up MCP connections.`,
       "Use Agent Safe to analyze this suspicious message:",
   },
   {
-    id: "amazon-bedrock",
-    name: "Amazon Bedrock",
-    icon: <SiAmazonwebservices className="h-4 w-4" />,
-    configPath: "Add to your Bedrock MCP client config",
-    config: STANDARD_CONFIG,
-    configRaw: STANDARD_CONFIG_RAW,
-    verifySteps: [
-      "Add the config to your Bedrock-compatible MCP client settings",
-      "Restart the client or reload MCP servers",
-      "Confirm \"agentsafe\" appears in available tools",
-    ],
-    examplePrompt:
-      "Use Agent Safe to check this email for phishing attempts:",
-  },
-  {
     id: "augment",
-    name: "Augment",
+    name: "Augment Code",
     icon: <AugmentIcon className="h-4 w-4" />,
-    configPath: "Augment Settings Panel > Import JSON",
+    configPath: "Augment Panel > Settings > Tools > Import from JSON",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
     verifySteps: [
-      "Open the Augment options menu and click Settings",
-      "Import the JSON config or add the MCP server manually",
-      "Test the connection and confirm agentsafe tools are available",
+      "Open the Augment panel, click the menu icon, then Settings > Tools",
+      "Click \"Import from JSON\" and paste the config above",
+      "Click Confirm — agentsafe should appear in the MCP list. Toggle it on.",
     ],
     examplePrompt:
       "Check this email for social engineering using Agent Safe:",
@@ -470,42 +372,27 @@ account at console.x.ai to set up MCP connections.`,
     id: "boltai",
     name: "BoltAI",
     icon: <BoltAIIcon className="h-4 w-4" />,
-    configPath: "Settings > Plugins > MCP Servers",
+    configPath: "~/.boltai/mcp.json",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
     verifySteps: [
-      "Go to BoltAI Settings > Plugins",
-      "Add the JSON config in the MCP servers editor",
-      "Confirm \"agentsafe\" appears in the plugins list",
+      "Edit ~/.boltai/mcp.json or go to Settings > Plugins > MCP Servers and paste the config",
+      "You can also import from Cursor or Claude Desktop via Settings > Plugins > Import",
+      "Restart BoltAI and confirm \"agentsafe\" appears in the plugins list",
     ],
     examplePrompt:
       "Run Agent Safe on this suspicious message I received:",
   },
   {
-    id: "deepgram",
-    name: "Deepgram",
-    icon: <SiDeepgram className="h-4 w-4" />,
-    configPath: "MCP settings in your Deepgram client",
-    config: STANDARD_CONFIG,
-    configRaw: STANDARD_CONFIG_RAW,
-    verifySteps: [
-      "Add the config to your Deepgram MCP settings",
-      "Restart the client or reload servers",
-      "Confirm \"agentsafe\" appears in available tools",
-    ],
-    examplePrompt:
-      "Analyze this message for security threats with Agent Safe:",
-  },
-  {
     id: "enconvo",
     name: "Enconvo",
     icon: <EnconvoIcon className="h-4 w-4" />,
-    configPath: "Settings > MCP Servers",
+    configPath: "Settings > MCP Servers or MCP Store",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
     verifySteps: [
-      "Open Enconvo Settings and find the MCP servers section",
-      "Add the JSON config or enter the server details manually",
+      "Open Enconvo Settings and navigate to MCP Servers",
+      "Add the JSON config or paste the command and args manually",
       "Confirm \"agentsafe\" appears and is connected",
     ],
     examplePrompt:
@@ -519,6 +406,7 @@ account at console.x.ai to set up MCP connections.`,
     config: `extensions:
   agentsafe:
     name: agentsafe
+    type: stdio
     cmd: npx
     args:
       - '-y'
@@ -527,8 +415,8 @@ account at console.x.ai to set up MCP connections.`,
       - '--header'
       - 'skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>'
     enabled: true
-    type: stdio`,
-    configRaw: `extensions:\n  agentsafe:\n    name: agentsafe\n    cmd: npx\n    args: ['-y', 'mcp-remote', 'https://agentsafe.locationledger.com/mcp', '--header', 'skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>']\n    enabled: true\n    type: stdio`,
+    timeout: 300`,
+    configRaw: `extensions:\n  agentsafe:\n    name: agentsafe\n    type: stdio\n    cmd: npx\n    args: ['-y', 'mcp-remote', 'https://agentsafe.locationledger.com/mcp', '--header', 'skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>']\n    enabled: true\n    timeout: 300`,
     verifySteps: [
       "Run goose configure or edit ~/.config/goose/config.yaml directly",
       "Start a Goose session with goose session",
@@ -541,13 +429,16 @@ account at console.x.ai to set up MCP connections.`,
     id: "highlight",
     name: "Highlight",
     icon: <HighlightIcon className="h-4 w-4" />,
-    configPath: "MCP settings in Highlight",
-    config: STANDARD_CONFIG,
-    configRaw: STANDARD_CONFIG_RAW,
+    configPath: "Settings > Plugins > Custom Plugin (stdio type)",
+    config: `Command: npx
+Args: -y mcp-remote https://agentsafe.locationledger.com/mcp --header "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"
+Plugin Name: agentsafe`,
+    configRaw: `npx -y mcp-remote https://agentsafe.locationledger.com/mcp --header "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"`,
     verifySteps: [
-      "Open Highlight's MCP configuration settings",
-      "Add the JSON config for agentsafe",
-      "Confirm the server connects and tools are available",
+      "Go to Plugins page in Highlight and click \"Custom Plugin\"",
+      "Select \"stdio\" as the plugin type",
+      "Enter the command (npx) and args above, set Plugin Name to \"agentsafe\"",
+      "The plugin should appear in your installed plugins list",
     ],
     examplePrompt:
       "Check this message for phishing with Agent Safe:",
@@ -559,17 +450,14 @@ account at console.x.ai to set up MCP connections.`,
     configPath: "librechat.yaml",
     config: `mcpServers:
   agentsafe:
-    type: stdio
-    command: npx
-    args:
-      - -y
-      - mcp-remote
-      - https://agentsafe.locationledger.com/mcp
-      - --header
-      - "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"`,
-    configRaw: `mcpServers:\n  agentsafe:\n    type: stdio\n    command: npx\n    args: [-y, mcp-remote, https://agentsafe.locationledger.com/mcp, --header, "skyfire-api-key: <YOUR_SKYFIRE_BUYER_API_KEY>"]`,
+    type: streamable-http
+    url: https://agentsafe.locationledger.com/mcp
+    headers:
+      skyfire-api-key: "<YOUR_SKYFIRE_BUYER_API_KEY>"`,
+    configRaw: `mcpServers:\n  agentsafe:\n    type: streamable-http\n    url: https://agentsafe.locationledger.com/mcp\n    headers:\n      skyfire-api-key: "<YOUR_SKYFIRE_BUYER_API_KEY>"`,
     verifySteps: [
       "Add the config to your librechat.yaml file",
+      "Add agentsafe.locationledger.com to your mcpSettings allowedDomains list",
       "Restart LibreChat for the MCP server to initialize",
       "Select a tool-compatible model and check the tools dropdown below the chat input",
     ],
@@ -577,79 +465,19 @@ account at console.x.ai to set up MCP connections.`,
       "Use Agent Safe to analyze this email for threats:",
   },
   {
-    id: "poke",
-    name: "Poke",
-    icon: <PokeIcon className="h-4 w-4" />,
-    configPath: "MCP settings in Poke",
-    config: STANDARD_CONFIG,
-    configRaw: STANDARD_CONFIG_RAW,
-    verifySteps: [
-      "Open Poke's MCP server configuration",
-      "Add the JSON config for agentsafe",
-      "Confirm the server connects and tools are available",
-    ],
-    examplePrompt:
-      "Run Agent Safe on this suspicious message:",
-  },
-  {
-    id: "qordinate",
-    name: "Qordinate",
-    icon: <QordinateIcon className="h-4 w-4" />,
-    configPath: "MCP settings in Qordinate",
-    config: STANDARD_CONFIG,
-    configRaw: STANDARD_CONFIG_RAW,
-    verifySteps: [
-      "Open Qordinate's MCP server configuration",
-      "Add the JSON config for agentsafe",
-      "Confirm the server connects and tools are available",
-    ],
-    examplePrompt:
-      "Check this message with Agent Safe:",
-  },
-  {
     id: "raycast",
     name: "Raycast",
     icon: <SiRaycast className="h-4 w-4" />,
-    configPath: "Raycast Settings > Extensions > MCP",
+    configPath: "Manage MCP Servers > Show Config File in Finder",
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
     verifySteps: [
-      "Open Raycast Settings and navigate to Extensions",
-      "Add Agent Safe as an MCP server",
-      "Confirm agentsafe tools are available in Raycast AI",
+      "Open Raycast and type \"Manage MCP Servers\"",
+      "Select \"Show Config File in Finder\" to open mcp-config.json",
+      "Paste the config and save — agentsafe tools will appear when you @mention MCP in AI Chat",
     ],
     examplePrompt:
       "Use Agent Safe to check this message for scams:",
-  },
-  {
-    id: "tome",
-    name: "Tome",
-    icon: <TomeIcon className="h-4 w-4" />,
-    configPath: "MCP settings in Tome",
-    config: STANDARD_CONFIG,
-    configRaw: STANDARD_CONFIG_RAW,
-    verifySteps: [
-      "Open Tome's MCP server configuration",
-      "Add the JSON config for agentsafe",
-      "Confirm the server connects and tools are available",
-    ],
-    examplePrompt:
-      "Analyze this message for threats using Agent Safe:",
-  },
-  {
-    id: "vscode-insiders",
-    name: "VS Code Insiders",
-    icon: <SiGithubcopilot className="h-4 w-4" />,
-    configPath: ".vscode/mcp.json",
-    config: VSCODE_CONFIG,
-    configRaw: VSCODE_CONFIG_RAW,
-    verifySteps: [
-      "Open the .vscode/mcp.json file and click the \"Start\" button above the server entry",
-      "Open GitHub Copilot Chat and switch to Agent mode",
-      "Click the Tools icon in the chat panel to see agentsafe tools listed",
-    ],
-    examplePrompt:
-      "Use the agentsafe tool to check this email for threats:",
   },
   {
     id: "witsy",
@@ -659,9 +487,9 @@ account at console.x.ai to set up MCP connections.`,
     config: STANDARD_CONFIG,
     configRaw: STANDARD_CONFIG_RAW,
     verifySteps: [
-      "Open Witsy Settings and navigate to MCP servers",
-      "Add the JSON config or use Smithery to install Agent Safe",
-      "Confirm \"agentsafe\" appears and tools are available",
+      "Click the fountain pen icon in the menu bar, then Settings > MCP Servers",
+      "Add a new server with the command and args from the config above",
+      "Confirm \"agentsafe\" appears and tools are available in your chat",
     ],
     examplePrompt:
       "Use Agent Safe to check this message for phishing:",
@@ -674,7 +502,7 @@ const popularAgents = AGENTS.filter((a) => POPULAR_AGENT_IDS.includes(a.id));
 const moreAgents = AGENTS.filter((a) => !POPULAR_AGENT_IDS.includes(a.id));
 
 export function AgentQuickStart() {
-  const [selectedAgent, setSelectedAgent] = useState<AgentId>("chatgpt");
+  const [selectedAgent, setSelectedAgent] = useState<AgentId>("claude-desktop");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const agent = AGENTS.find((a) => a.id === selectedAgent)!;
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -776,7 +604,7 @@ export function AgentQuickStart() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-sm font-semibold mb-2 text-muted-foreground" data-testid="text-install-step-1">
-                      Step 1 — {agent.id === "chatgpt" ? "Enable Developer Mode" : agent.id === "grok" ? "Open the xAI developer panel" : agent.id === "claude-code" || agent.id === "codex-cli" ? "Open your terminal" : "Open your config file"}
+                      Step 1 — {agent.id === "claude-code" || agent.id === "codex-cli" ? "Open your terminal" : agent.id === "highlight" ? "Open the Plugins page" : "Open your config file"}
                     </h3>
                     <div className="bg-muted/50 rounded-md p-3">
                       <code className="text-sm break-all" data-testid="text-config-path">
@@ -794,7 +622,7 @@ export function AgentQuickStart() {
                   <div>
                     <div className="flex items-center justify-between gap-4 mb-2">
                       <h3 className="text-sm font-semibold text-muted-foreground" data-testid="text-install-step-2">
-                        Step 2 — {agent.id === "claude-code" || agent.id === "codex-cli" ? "Run this command" : agent.id === "chatgpt" || agent.id === "grok" ? "Enter these details" : "Paste this config"}
+                        Step 2 — {agent.id === "claude-code" || agent.id === "codex-cli" ? "Run this command" : agent.id === "highlight" ? "Enter these details" : "Paste this config"}
                       </h3>
                       <CopyBtn text={agent.config} />
                     </div>
