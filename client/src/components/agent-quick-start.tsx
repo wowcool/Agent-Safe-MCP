@@ -125,6 +125,7 @@ interface AgentInfo {
   configRaw: string;
   verifySteps: string[];
   examplePrompt: string;
+  docsUrl: string;
 }
 
 const STANDARD_CONFIG = `{
@@ -181,6 +182,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "I received this suspicious email. Can you use Agent Safe to check if it's safe? Here's the email:",
+    docsUrl: "https://docs.anthropic.com/en/docs/agents-and-tools/claude-desktop/mcp",
   },
   {
     id: "claude-code",
@@ -204,6 +206,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "Check this SMS for scams using Agent Safe's assess_message tool: 'Hi, I think I have the wrong number. Is this Sarah?'",
+    docsUrl: "https://docs.anthropic.com/en/docs/claude-code/mcp",
   },
   {
     id: "cursor",
@@ -219,6 +222,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "Use the agentsafe MCP to analyze this Slack message for social engineering:",
+    docsUrl: "https://docs.cursor.com/context/model-context-protocol",
   },
   {
     id: "windsurf",
@@ -234,6 +238,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "I got this WhatsApp message. Run it through Agent Safe's message safety check:",
+    docsUrl: "https://docs.windsurf.com/windsurf/cascade/mcp",
   },
   {
     id: "vscode",
@@ -249,6 +254,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "Use the agentsafe tool to check this email thread for manipulation:",
+    docsUrl: "https://code.visualstudio.com/docs/copilot/customization/mcp-servers",
   },
   {
     id: "gemini-cli",
@@ -277,6 +283,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "Check this Discord message for social engineering using Agent Safe:",
+    docsUrl: "https://github.com/google-gemini/gemini-cli/blob/main/docs/tools/mcp-server.md",
   },
   {
     id: "cline",
@@ -293,6 +300,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "Use agentsafe to check this email for threats:",
+    docsUrl: "https://docs.cline.bot/mcp/configuring-mcp-servers",
   },
   {
     id: "codex-cli",
@@ -310,6 +318,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "Check this message for scams using Agent Safe:",
+    docsUrl: "https://developers.openai.com/codex/mcp",
   },
   {
     id: "roo-code",
@@ -325,6 +334,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "Use agentsafe to analyze this email for social engineering:",
+    docsUrl: "https://docs.roocode.com/features/mcp/using-mcp-in-roo",
   },
   {
     id: "amazon-q",
@@ -352,6 +362,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "Use Agent Safe to analyze this suspicious message:",
+    docsUrl: "https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/qdev-mcp.html",
   },
   {
     id: "augment",
@@ -367,6 +378,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "Check this email for social engineering using Agent Safe:",
+    docsUrl: "https://docs.augmentcode.com/setup-augment/mcp",
   },
   {
     id: "boltai",
@@ -382,6 +394,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "Run Agent Safe on this suspicious message I received:",
+    docsUrl: "https://docs.boltai.com/docs/plugins/mcp-servers",
   },
   {
     id: "enconvo",
@@ -397,6 +410,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "Use Agent Safe to scan this message for threats:",
+    docsUrl: "https://docs.enconvo.com/docs/features/model-context-protocol",
   },
   {
     id: "goose",
@@ -424,6 +438,7 @@ const AGENTS: AgentInfo[] = [
     ],
     examplePrompt:
       "Use Agent Safe to check this suspicious email:",
+    docsUrl: "https://block.github.io/goose/docs/quickstart/",
   },
   {
     id: "highlight",
@@ -442,6 +457,7 @@ Plugin Name: agentsafe`,
     ],
     examplePrompt:
       "Check this message for phishing with Agent Safe:",
+    docsUrl: "https://docs.highlightai.com/learn/developers/plugins/custom-plugins-setup",
   },
   {
     id: "librechat",
@@ -463,6 +479,7 @@ Plugin Name: agentsafe`,
     ],
     examplePrompt:
       "Use Agent Safe to analyze this email for threats:",
+    docsUrl: "https://docs.librechat.ai/install/configuration/mcp_servers.html",
   },
   {
     id: "raycast",
@@ -478,6 +495,7 @@ Plugin Name: agentsafe`,
     ],
     examplePrompt:
       "Use Agent Safe to check this message for scams:",
+    docsUrl: "https://manual.raycast.com/model-context-protocol",
   },
   {
     id: "witsy",
@@ -493,6 +511,7 @@ Plugin Name: agentsafe`,
     ],
     examplePrompt:
       "Use Agent Safe to check this message for phishing:",
+    docsUrl: "https://github.com/nbonamy/witsy",
   },
 ];
 
@@ -660,6 +679,22 @@ export function AgentQuickStart() {
                         </div>
                       ))}
                     </div>
+                  </div>
+
+                  <div className="bg-muted/50 rounded-md p-3 flex items-start gap-2.5">
+                    <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                    <p className="text-sm text-muted-foreground" data-testid="text-docs-help">
+                      Stuck and need more help? Read the official {agent.name} docs:{" "}
+                      <a
+                        href={agent.docsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary underline inline-flex items-center gap-1"
+                        data-testid="link-agent-docs"
+                      >
+                        {agent.name} MCP Documentation <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </p>
                   </div>
 
                 </div>
