@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, ExternalLink, Mail, Link as LinkIcon, Reply, MessageSquare, Paperclip, UserCheck, ArrowRight, Smartphone, Compass } from "lucide-react";
+import { Bot, Shield, Zap, Lock, Terminal, CheckCircle2, ExternalLink, Link as LinkIcon, Reply, MessageSquare, Paperclip, UserCheck, ArrowRight, Compass } from "lucide-react";
 import { useState } from "react";
 import { useSEO } from "@/lib/seo";
 import { GlobalFooter } from "@/components/global-footer";
@@ -46,14 +46,14 @@ export default function Landing() {
             Your AI agent processes messages across every platform — but should it trust them? Agent Safe is a <a href="#tools" className="text-primary font-bold hover:underline"><strong>9-tool MCP security suite</strong></a> that protects against phishing, BEC, malware, and manipulation on <strong>any messaging platform</strong> your agent operates on. Start with the <strong>free triage tool</strong> to instantly know which checks to run, and use the <strong>free feedback tool</strong> to help improve detection.
           </p>
           <div className="flex flex-wrap justify-center gap-2 mb-10">
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-email"><Mail className="h-3 w-3 mr-1" /> Email</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-sms"><Smartphone className="h-3 w-3 mr-1" /> SMS</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-whatsapp"><MessageSquare className="h-3 w-3 mr-1" /> WhatsApp</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-slack"><MessageSquare className="h-3 w-3 mr-1" /> Slack</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-discord"><MessageSquare className="h-3 w-3 mr-1" /> Discord</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-telegram"><MessageSquare className="h-3 w-3 mr-1" /> Telegram</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-instagram"><MessageSquare className="h-3 w-3 mr-1" /> Instagram</Badge>
-            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-imessage"><Smartphone className="h-3 w-3 mr-1" /> iMessage</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-email">Email</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-sms">SMS</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-whatsapp">WhatsApp</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-slack">Slack</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-discord">Discord</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-telegram">Telegram</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-instagram">Instagram</Badge>
+            <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-imessage">iMessage</Badge>
             <Badge variant="outline" className="text-xs py-1 px-3" data-testid="badge-platform-more">+ More</Badge>
           </div>
 
